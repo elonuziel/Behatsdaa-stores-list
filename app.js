@@ -12,6 +12,7 @@
   let currentCard = 'all';
   let currentCategory = 'all';
   let searchQuery = '';
+  let storesSearchInDesc = false;
   let currentSort = 'discount-desc';
   let currentView = localStorage.getItem('behatsdaa_view') || 'grid';
 
@@ -22,6 +23,7 @@
   let currentDealTag = 'all';
   let currentDealCategory = 'all';
   let dealsSearchQuery = '';
+  let dealsSearchInDesc = false;
   let currentDealSort = 'discount-desc';
   let currentDealMaxPrice = 'all';
 
@@ -33,6 +35,7 @@
   let currentBillingCity = 'all';
   let currentBillingCategory = 'all';
   let billingSearchQuery = '';
+  let billingSearchInDesc = false;
   let currentBillingSort = 'discount-desc';
 
   // Navigation State
@@ -63,6 +66,7 @@
   // DOM Elements - Stores
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search-btn');
+  const storesSearchDescToggle = document.getElementById('stores-search-desc-toggle');
   const cardFilterSelect = document.getElementById('card-filter-select');
   const sortSelect = document.getElementById('sort-select');
   const categoryChipsContainer = document.getElementById('category-chips-container');
@@ -104,6 +108,7 @@
   // DOM Elements - Deals
   const dealsSearchInput = document.getElementById('deals-search-input');
   const clearDealsSearchBtn = document.getElementById('clear-deals-search-btn');
+  const dealsSearchDescToggle = document.getElementById('deals-search-desc-toggle');
   const dealsTagSelect = document.getElementById('deals-tag-select');
   const dealsPriceFilterSelect = document.getElementById('deals-price-filter-select');
   const dealsSortSelect = document.getElementById('deals-sort-select');
@@ -154,6 +159,7 @@
   // DOM Elements - Billing Discounts
   const billingSearchInput = document.getElementById('billing-search-input');
   const clearBillingSearchBtn = document.getElementById('clear-billing-search-btn');
+  const billingSearchDescToggle = document.getElementById('billing-search-desc-toggle');
   const billingCitySelect = document.getElementById('billing-city-select');
   const billingSortSelect = document.getElementById('billing-sort-select');
   const billingCategoryChipsContainer = document.getElementById('billing-category-chips-container');
@@ -405,6 +411,14 @@
     }
 
     allStores = storeData.stores || [];
+    allStores.forEach(s => {
+      s._nameNorm = normalizeHebrew(s.name || '');
+      s._catNorm = normalizeHebrew(s.category || '');
+      s._condNorm = normalizeHebrew(s.conditions || '');
+      s._cardsNorm = (s.cards || []).map(c => `${normalizeHebrew(c.card_name)} ${normalizeHebrew(c.discount)} ${normalizeHebrew(c.notes || '')}`).join(' ');
+      s._searchStr = `${s._nameNorm} ${s._catNorm} ${s._cardsNorm}`.trim();
+      s._searchWithDescStr = `${s._searchStr} ${s._condNorm}`.trim();
+    });
     availableCards = storeData.metadata?.available_cards || [];
     totalCountEl.textContent = allStores.length;
     tabStoresCount.textContent = allStores.length;
@@ -436,6 +450,16 @@
     }
 
     allDeals = dealsData.deals || [];
+    allDeals.forEach(d => {
+      d._titleNorm = normalizeHebrew(d.title || '');
+      d._suppNorm = normalizeHebrew(d.supplier || '');
+      d._catNorm = normalizeHebrew(d.category || '');
+      d._tagsNorm = normalizeHebrew((d.tags || []).join(' '));
+      d._descNorm = normalizeHebrew(d.description || '');
+      d._termsNorm = normalizeHebrew(d.terms_of_use || '');
+      d._searchStr = `${d._titleNorm} ${d._suppNorm} ${d._catNorm} ${d._tagsNorm}`.trim();
+      d._searchWithDescStr = `${d._searchStr} ${d._descNorm} ${d._termsNorm}`.trim();
+    });
     availableTags = dealsData.metadata?.tags || [];
     totalDealsCountEl.textContent = allDeals.length;
     tabDealsCount.textContent = allDeals.length;
@@ -476,8 +500,10 @@
       s._cityNorm = normalizeHebrew(s.city || '');
       s._catNorm = normalizeHebrew(`${s.category || ''} ${s.subcategory || ''}`);
       s._addressNorm = normalizeHebrew(s.address || '');
-      // Exclude s.description so search strictly matches the store itself (name, category, city/address)
+      s._descNorm = normalizeHebrew(s.description || '');
+      // By default, _searchStr matches the store itself (name, category, city/address) without description
       s._searchStr = `${s._nameNorm} ${s._cityNorm} ${s._catNorm} ${s._addressNorm}`.trim();
+      s._searchWithDescStr = `${s._searchStr} ${s._descNorm}`.trim();
     });
 
     if (totalBillingCountEl) totalBillingCountEl.textContent = allBillingStores.length.toLocaleString('he-IL');
@@ -616,17 +642,31 @@
     if (searchQuery) {
       const queryNorm = normalizeHebrew(searchQuery);
       result = result.filter(store => {
-        const nameNorm = normalizeHebrew(store.name);
-        const catNorm = normalizeHebrew(store.category || '');
-        const condNorm = normalizeHebrew(store.conditions || '');
-        const cardsMatch = store.cards && store.cards.some(c => 
-          normalizeHebrew(c.card_name).includes(queryNorm) || 
-          normalizeHebrew(c.discount).includes(queryNorm)
+        const baseMatch = store._searchStr ? store._searchStr.includes(queryNorm) : (
+          normalizeHebrew(store.name).includes(queryNorm) ||
+          normalizeHebrew(store.category || '').includes(queryNorm) ||
+          (store.cards && store.cards.some(c => 
+            normalizeHebrew(c.card_name).includes(queryNorm) || 
+            normalizeHebrew(c.discount).includes(queryNorm)
+          ))
         );
-        return nameNorm.includes(queryNorm) || 
-               catNorm.includes(queryNorm) || 
-               condNorm.includes(queryNorm) || 
-               cardsMatch;
+        if (baseMatch) return true;
+        if (storesSearchInDesc) {
+          if (store._searchWithDescStr && store._searchWithDescStr.includes(queryNorm)) return true;
+          if (store.linkedBillingStore && store.linkedBillingStore._descNorm && store.linkedBillingStore._descNorm.includes(queryNorm)) return true;
+          if (store.linkedDeals && store.linkedDeals.some(d => (d._descNorm && d._descNorm.includes(queryNorm)) || (d._termsNorm && d._termsNorm.includes(queryNorm)))) return true;
+        }
+        return false;
+      });
+
+      // Prioritize store name matches (exact > startsWith > includes)
+      result.sort((a, b) => {
+        const aName = a._nameNorm || normalizeHebrew(a.name);
+        const bName = b._nameNorm || normalizeHebrew(b.name);
+        const aScore = aName === queryNorm ? 3 : (aName.startsWith(queryNorm) ? 2 : (aName.includes(queryNorm) ? 1 : 0));
+        const bScore = bName === queryNorm ? 3 : (bName.startsWith(queryNorm) ? 2 : (bName.includes(queryNorm) ? 1 : 0));
+        if (aScore !== bScore) return bScore - aScore;
+        return 0;
       });
     }
 
@@ -792,12 +832,12 @@
     matchingCountEl.textContent = filtered.length;
 
     // Filter badge state
-    const hasFilter = searchQuery || currentCard !== 'all' || currentCategory !== 'all';
+    const hasFilter = searchQuery || currentCard !== 'all' || currentCategory !== 'all' || (searchQuery && storesSearchInDesc);
     activeFilterBadge.classList.toggle('hidden', !hasFilter);
 
     if (hasFilter) {
       const parts = [];
-      if (searchQuery) parts.push(`"${searchQuery}"`);
+      if (searchQuery) parts.push(`"${searchQuery}"${storesSearchInDesc ? ' (כולל תיאור)' : ''}`);
       if (currentCard !== 'all') parts.push(currentCard);
       if (currentCategory !== 'all') parts.push(currentCategory);
       activeFilterText.textContent = parts.join(' • ');
@@ -1002,16 +1042,33 @@
     if (dealsSearchQuery) {
       const queryNorm = normalizeHebrew(dealsSearchQuery);
       result = result.filter(d => {
-        const titleNorm = normalizeHebrew(d.title);
-        const suppNorm = normalizeHebrew(d.supplier || '');
-        const catNorm = normalizeHebrew(d.category || '');
-        const descNorm = normalizeHebrew(d.description || '');
-        const termsNorm = normalizeHebrew(d.terms_of_use || '');
-        return titleNorm.includes(queryNorm) || 
-               suppNorm.includes(queryNorm) || 
-               catNorm.includes(queryNorm) || 
-               descNorm.includes(queryNorm) || 
-               termsNorm.includes(queryNorm);
+        const titleNorm = d._titleNorm || normalizeHebrew(d.title);
+        const suppNorm = d._suppNorm || normalizeHebrew(d.supplier || '');
+        const catNorm = d._catNorm || normalizeHebrew(d.category || '');
+        const tagsNorm = d._tagsNorm || normalizeHebrew((d.tags || []).join(' '));
+        const baseMatch = titleNorm.includes(queryNorm) || 
+                          suppNorm.includes(queryNorm) || 
+                          catNorm.includes(queryNorm) || 
+                          tagsNorm.includes(queryNorm);
+        if (baseMatch) return true;
+        if (dealsSearchInDesc) {
+          const descNorm = d._descNorm || normalizeHebrew(d.description || '');
+          const termsNorm = d._termsNorm || normalizeHebrew(d.terms_of_use || '');
+          return descNorm.includes(queryNorm) || termsNorm.includes(queryNorm);
+        }
+        return false;
+      });
+
+      // Relevance sort: title / supplier matches come before description-only matches
+      result.sort((a, b) => {
+        const aTitle = a._titleNorm || normalizeHebrew(a.title);
+        const bTitle = b._titleNorm || normalizeHebrew(b.title);
+        const aSupp = a._suppNorm || normalizeHebrew(a.supplier || '');
+        const bSupp = b._suppNorm || normalizeHebrew(b.supplier || '');
+        const aScore = aTitle.includes(queryNorm) ? 2 : (aSupp.includes(queryNorm) ? 1 : 0);
+        const bScore = bTitle.includes(queryNorm) ? 2 : (bSupp.includes(queryNorm) ? 1 : 0);
+        if (aScore !== bScore) return bScore - aScore;
+        return 0;
       });
     }
 
@@ -1148,12 +1205,12 @@
     const filtered = getFilteredDeals();
     matchingDealsCountEl.textContent = filtered.length;
 
-    const hasFilter = dealsSearchQuery || currentDealTag !== 'all' || currentDealCategory !== 'all' || currentDealMaxPrice !== 'all';
+    const hasFilter = dealsSearchQuery || currentDealTag !== 'all' || currentDealCategory !== 'all' || currentDealMaxPrice !== 'all' || (dealsSearchQuery && dealsSearchInDesc);
     activeDealsFilterBadge.classList.toggle('hidden', !hasFilter);
 
     if (hasFilter) {
       const parts = [];
-      if (dealsSearchQuery) parts.push(`"${dealsSearchQuery}"`);
+      if (dealsSearchQuery) parts.push(`"${dealsSearchQuery}"${dealsSearchInDesc ? ' (כולל תיאור)' : ''}`);
       if (currentDealTag !== 'all') parts.push(currentDealTag);
       if (currentDealCategory !== 'all') parts.push(currentDealCategory);
       if (currentDealMaxPrice !== 'all') parts.push(currentDealMaxPrice === 'over-500' ? 'מעל 500 ₪' : `עד ${currentDealMaxPrice} ₪`);
@@ -1389,9 +1446,16 @@
 
     if (billingSearchQuery) {
       const queryNorm = normalizeHebrew(billingSearchQuery);
-      result = result.filter(s => s._searchStr && s._searchStr.includes(queryNorm));
+      result = result.filter(s => {
+        const baseMatch = s._searchStr && s._searchStr.includes(queryNorm);
+        if (baseMatch) return true;
+        if (billingSearchInDesc) {
+          return Boolean(s._descNorm && s._descNorm.includes(queryNorm));
+        }
+        return false;
+      });
 
-      // Prioritize store name matches (exact > startsWith > includes) over category/city/address
+      // Prioritize store name matches (exact > startsWith > includes) over category/city/address/description
       result.sort((a, b) => {
         const aName = a._nameNorm || '';
         const bName = b._nameNorm || '';
@@ -1543,12 +1607,12 @@
     const filtered = getFilteredBillingStores();
     if (matchingBillingCountEl) matchingBillingCountEl.textContent = filtered.length.toLocaleString('he-IL');
 
-    const hasFilter = billingSearchQuery || currentBillingCity !== 'all' || currentBillingCategory !== 'all';
+    const hasFilter = billingSearchQuery || currentBillingCity !== 'all' || currentBillingCategory !== 'all' || (billingSearchQuery && billingSearchInDesc);
     if (activeBillingFilterBadge) activeBillingFilterBadge.classList.toggle('hidden', !hasFilter);
 
     if (hasFilter && activeBillingFilterText) {
       const parts = [];
-      if (billingSearchQuery) parts.push(`"${billingSearchQuery}"`);
+      if (billingSearchQuery) parts.push(`"${billingSearchQuery}"${billingSearchInDesc ? ' (כולל תיאור)' : ''}`);
       if (currentBillingCity !== 'all') parts.push(currentBillingCity === 'online' ? 'Online' : currentBillingCity);
       if (currentBillingCategory !== 'all') parts.push(currentBillingCategory);
       activeBillingFilterText.textContent = parts.join(' • ');
@@ -1684,6 +1748,14 @@
     renderStores();
   });
 
+  if (storesSearchDescToggle) {
+    storesSearchDescToggle.addEventListener('change', (e) => {
+      storesSearchInDesc = e.target.checked;
+      storesVisibleCount = STORES_PAGE_SIZE;
+      renderStores();
+    });
+  }
+
   cardFilterSelect.addEventListener('change', (e) => {
     currentCard = e.target.value;
     storesVisibleCount = STORES_PAGE_SIZE;
@@ -1712,6 +1784,8 @@
     currentCard = 'all';
     cardFilterSelect.value = 'all';
     currentCategory = 'all';
+    if (storesSearchDescToggle) storesSearchDescToggle.checked = false;
+    storesSearchInDesc = false;
     clearSearchBtn.classList.add('hidden');
     storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
@@ -1724,6 +1798,8 @@
     currentCard = 'all';
     cardFilterSelect.value = 'all';
     currentCategory = 'all';
+    if (storesSearchDescToggle) storesSearchDescToggle.checked = false;
+    storesSearchInDesc = false;
     clearSearchBtn.classList.add('hidden');
     storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
@@ -1761,6 +1837,14 @@
     renderDeals();
   });
 
+  if (dealsSearchDescToggle) {
+    dealsSearchDescToggle.addEventListener('change', (e) => {
+      dealsSearchInDesc = e.target.checked;
+      dealsVisibleCount = DEALS_PAGE_SIZE;
+      renderDeals();
+    });
+  }
+
   dealsTagSelect.addEventListener('change', (e) => {
     currentDealTag = e.target.value;
     dealsVisibleCount = DEALS_PAGE_SIZE;
@@ -1796,6 +1880,8 @@
     currentDealCategory = 'all';
     currentDealMaxPrice = 'all';
     dealsPriceFilterSelect.value = 'all';
+    if (dealsSearchDescToggle) dealsSearchDescToggle.checked = false;
+    dealsSearchInDesc = false;
     clearDealsSearchBtn.classList.add('hidden');
     dealsVisibleCount = DEALS_PAGE_SIZE;
     updateDealsCategoryChips();
@@ -1810,6 +1896,8 @@
     currentDealCategory = 'all';
     currentDealMaxPrice = 'all';
     dealsPriceFilterSelect.value = 'all';
+    if (dealsSearchDescToggle) dealsSearchDescToggle.checked = false;
+    dealsSearchInDesc = false;
     clearDealsSearchBtn.classList.add('hidden');
     dealsVisibleCount = DEALS_PAGE_SIZE;
     updateDealsCategoryChips();
@@ -1837,11 +1925,19 @@
     });
   }
 
-  if (clearBillingSearchBtn) {
+    if (clearBillingSearchBtn) {
     clearBillingSearchBtn.addEventListener('click', () => {
       billingSearchInput.value = '';
       billingSearchQuery = '';
       clearBillingSearchBtn.classList.add('hidden');
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      renderBillingStores();
+    });
+  }
+
+  if (billingSearchDescToggle) {
+    billingSearchDescToggle.addEventListener('change', (e) => {
+      billingSearchInDesc = e.target.checked;
       billingVisibleCount = BILLING_PAGE_SIZE;
       renderBillingStores();
     });
@@ -1882,6 +1978,8 @@
       currentBillingCity = 'all';
       if (billingCitySelect) billingCitySelect.value = 'all';
       currentBillingCategory = 'all';
+      if (billingSearchDescToggle) billingSearchDescToggle.checked = false;
+      billingSearchInDesc = false;
       if (clearBillingSearchBtn) clearBillingSearchBtn.classList.add('hidden');
       billingVisibleCount = BILLING_PAGE_SIZE;
       updateBillingCategoryChips();
@@ -1896,6 +1994,8 @@
       currentBillingCity = 'all';
       if (billingCitySelect) billingCitySelect.value = 'all';
       currentBillingCategory = 'all';
+      if (billingSearchDescToggle) billingSearchDescToggle.checked = false;
+      billingSearchInDesc = false;
       if (clearBillingSearchBtn) clearBillingSearchBtn.classList.add('hidden');
       billingVisibleCount = BILLING_PAGE_SIZE;
       updateBillingCategoryChips();

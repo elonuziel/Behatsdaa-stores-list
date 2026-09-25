@@ -444,10 +444,56 @@ async function runTests() {
     assert.strictEqual(falseStoreLink, null, '"זמן לאהבה" must not falsely link to store "אהבה"');
   }
 
+  // Now enable the "Search in Description" toggle in Tab 3
+  const billingSearchDescToggle = document.getElementById('billing-search-desc-toggle');
+  assert.ok(billingSearchDescToggle, 'billingSearchDescToggle should exist');
+  billingSearchDescToggle.checked = true;
+  billingSearchDescToggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 50));
+
+  const countWithDesc = document.getElementById('matching-billing-count').textContent.trim();
+  assert.strictEqual(countWithDesc, '47', `Expected 47 stores matching "אהבה" with description search enabled, got ${countWithDesc}`);
+  assert.ok(document.getElementById('active-billing-filter-text').textContent.includes('כולל תיאור'), 'Filter badge should mention כולל תיאור');
+
+  // Disable toggle again
+  billingSearchDescToggle.checked = false;
+  billingSearchDescToggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 50));
+  assert.strictEqual(document.getElementById('matching-billing-count').textContent.trim(), '14', 'Should return to 14 stores when description toggle is off');
+
   // Clear billing search
   clearBillingSearchBtn.click();
   await new Promise(r => setTimeout(r, 50));
-  console.log('  -> PASS (Tab 3 search strictly matches store name without description false positives, and cross-linking integrity verified)');
+
+  // Test description toggle in Tab 2 (Deals)
+  tabDealsBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  const dealsSearchDescToggle = document.getElementById('deals-search-desc-toggle');
+  assert.ok(dealsSearchDescToggle, 'dealsSearchDescToggle should exist');
+  dealsSearchInput.value = 'אהבה';
+  dealsSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 180));
+
+  const dealsCountWithoutDesc = parseInt(document.getElementById('matching-deals-count').textContent.trim(), 10);
+  assert.strictEqual(dealsCountWithoutDesc, 6, `Expected 6 deals matching "אהבה" without desc, got ${dealsCountWithoutDesc}`);
+
+  dealsSearchDescToggle.checked = true;
+  dealsSearchDescToggle.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 50));
+  const dealsCountWithDesc = parseInt(document.getElementById('matching-deals-count').textContent.trim(), 10);
+  assert.strictEqual(dealsCountWithDesc, 9, `Expected 9 deals matching "אהבה" with desc, got ${dealsCountWithDesc}`);
+
+  // Clear deals search
+  clearDealsSearchBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+
+  // Test description toggle in Tab 1 (Stores)
+  tabStoresBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  const storesSearchDescToggle = document.getElementById('stores-search-desc-toggle');
+  assert.ok(storesSearchDescToggle, 'storesSearchDescToggle should exist');
+
+  console.log('  -> PASS (Special option to search in description validated across all 3 tabs)');
 
   // --- Test 17: Zero Console Errors ---
   console.log('[Test 17] Checking for console errors...');
