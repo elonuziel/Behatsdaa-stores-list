@@ -295,18 +295,35 @@ def parse_deal(raw_deal, stores_catalog=None):
 
     supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
 
-    # Extract supplier from title if missing
-    if not supplier:
-        supplier_match = re.search(r'[-–]\s*([א-תA-Za-z0-9\s]+)$', title)
-        if supplier_match:
-            supplier = supplier_match.group(1).strip()
-        else:
-            supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]+)[\'"]?', title)
-            if supplier_match2:
-                supplier = supplier_match2.group(1).strip()
+    # Generic adjectives/attributes that should NOT be treated as supplier names
+    _GENERIC_TOKENS = {
+        'כשר', 'כשרה', 'חלבי', 'בשרי', 'פרווה', 'אנרגיה', 'אילת', 'אונליין', 'online',
+        'חינם', 'מבצע', 'חדש', 'חדשה', 'ישן', 'מוגבל', 'בלבד', 'כולל', 'ללא',
+        'גדול', 'קטן', 'ממוחזר', 'עץ', 'פלסטיק', 'גב', 'רשת', 'סט', 'ערכת',
+    }
 
-    # Fallback to category if supplier still empty
+    # Extract supplier from title if missing from API fields
     if not supplier:
+        # Try "מבית <Brand>" pattern first (most reliable)
+        supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]{3,}?)[\'"]?(?:\s*[-–]|\s*$)', title)
+        if supplier_match2:
+            supplier = supplier_match2.group(1).strip()
+        else:
+            # Try "Title – Brand" pattern: take the FIRST segment (before dash) which is usually the brand
+            # Only if the first segment is meaningful (≥4 chars, not a generic category word)
+            first_seg_match = re.match(r'^([^\-–]{4,50}?)\s*[-–]', title)
+            if first_seg_match:
+                candidate = first_seg_match.group(1).strip()
+                norm_candidate = re.sub(r'[^א-תa-zA-Z0-9]+', '', candidate).lower()
+                if len(norm_candidate) >= 4 and norm_candidate not in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
+                    supplier = candidate
+
+    # Fallback to category if supplier still empty or too short/generic
+    if not supplier or len(re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()) < 3:
+        supplier = (raw_deal.get("category") or "בהצדעה").strip()
+
+    # Clear out generic tokens that slipped through
+    if re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower() in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
         supplier = (raw_deal.get("category") or "בהצדעה").strip()
 
     # Image extraction (including CDN prefix for Behatsdaa media)
@@ -375,17 +392,22 @@ def parse_deal(raw_deal, stores_catalog=None):
         if not locs and (not isinstance(business, dict) or not business.get("address")):
             loc_str = "כולל משלוח עד הבית"
 
-    # Cross-link with stores in catalog
+    # Cross-link with stores in catalog — require meaningful match length and bidirectional overlap
     matched_store_id = None
     matched_store_name = None
     if stores_catalog and supplier:
         supp_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()
-        for sname, sdata in stores_catalog.items():
-            sname_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', sname).lower()
-            if supp_norm and (supp_norm in sname_norm or sname_norm in supp_norm):
-                matched_store_id = sdata.get("id")
-                matched_store_name = sname
-                break
+        # Require supplier to be at least 4 chars and not a generic token before attempting match
+        if len(supp_norm) >= 4 and supp_norm not in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
+            for sname, sdata in stores_catalog.items():
+                sname_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', sname).lower()
+                # Accept match only if the shorter token covers ≥60% of the longer one
+                min_len = min(len(supp_norm), len(sname_norm))
+                max_len = max(len(supp_norm), len(sname_norm))
+                if min_len >= 4 and (supp_norm in sname_norm or sname_norm in supp_norm) and (min_len / max_len) >= 0.4:
+                    matched_store_id = sdata.get("id")
+                    matched_store_name = sname
+                    break
 
     tags = raw_deal.get("sourceTags") or raw_deal.get("tags") or []
     if isinstance(tags, str):

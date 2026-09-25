@@ -2,7 +2,7 @@
   "metadata": {
     "title": "מבצעים ושוברים ייעודיים - בהצדעה",
     "source": "https://www.behatsdaa.org.il/",
-    "last_updated": "2026-09-25T17:37:19.553193+00:00",
+    "last_updated": "2026-09-25T17:56:07.400554+00:00",
     "total_deals": 1737,
     "tags": [
       "Brennerock ברנרוק",
@@ -644,7 +644,7 @@
       "id": "151499",
       "category_id": "151499",
       "title": "רשת אצה - שובר 150 ₪ - למימוש חד פעמי",
-      "supplier": "למימוש חד פעמי",
+      "supplier": "רשת אצה",
       "category": "רשת אצה - שובר 150 ₪ - למימוש חד פעמי",
       "tags": [
         "החמים של ספטמבר",
@@ -698,7 +698,7 @@
       "id": "143751",
       "category_id": "143751",
       "title": "מקדונלד'ס - שובר 100 ₪ - למימוש חד פעמי",
-      "supplier": "למימוש חד פעמי",
+      "supplier": "מקדונלד'ס",
       "category": "מקדונלד'ס - שובר 100 ₪ - למימוש חד פעמי",
       "tags": [
         "החמים של ספטמבר",
@@ -718,14 +718,14 @@
       "description": "",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מקדונלדס-אונליין",
+      "matched_store_name": "מקדונלדס אונליין"
     },
     {
       "id": "25086",
       "category_id": "25086",
       "title": "סטימצקי - ספר במבצע",
-      "supplier": "ספר במבצע",
+      "supplier": "סטימצקי",
       "category": "סטימצקי - ספר במבצע",
       "tags": [
         "החמים של ספטמבר"
@@ -744,14 +744,14 @@
       "description": "החל מ-39 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "סטימצקי",
+      "matched_store_name": "סטימצקי"
     },
     {
       "id": "157352",
       "category_id": "157352",
       "title": "פיצה האט- 2 משפחתיות",
-      "supplier": "2 משפחתיות",
+      "supplier": "פיצה האט",
       "category": "פיצה האט- 2 משפחתיות",
       "tags": [
         "החמים של ספטמבר",
@@ -778,7 +778,7 @@
       "id": "152436",
       "category_id": "152436",
       "title": "Magic Kass – מג'יק קאס-פארק השעשועים",
-      "supplier": "פארק השעשועים",
+      "supplier": "Magic Kass",
       "category": "אטרקציות",
       "tags": [
         "החמים של ספטמבר",
@@ -890,7 +890,7 @@
       "id": "26633",
       "category_id": "26633",
       "title": "סט מצעים יחיד/זוגי 100% כותנה פרקל - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "סט מצעים יחיד/זוגי 100% כותנה פרקל",
       "category": "סט מצעים יחיד/זוגי 100% כותנה פרקל - ורדינון",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -910,14 +910,14 @@
       "description": "החל מ-187 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "175659",
       "category_id": "175659",
       "title": "שואב שוטף אלחוטי Dreame G10 Pro - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "שואב שוטף אלחוטי Dreame G10 Pro",
       "category": "שואב שוטף אלחוטי Dreame G10 Pro - יבואן רשמי",
       "tags": [
         "מבצעי צרכנות לחג"
@@ -997,7 +997,7 @@
       "id": "140751",
       "category_id": "140751",
       "title": "סט מצעי מיקס ג'רסי - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "סט מצעי מיקס ג'רסי",
       "category": "סט מצעי מיקס ג'רסי - ורדינון",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1017,14 +1017,14 @@
       "description": "החל מ-169 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "179368",
       "category_id": "179368",
       "title": "מארז 3 מגבות רחצה קלאסיקו גדלים לבחירה - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "מארז 3 מגבות רחצה קלאסיקו גדלים לבחירה",
       "category": "מארז 3 מגבות רחצה קלאסיקו גדלים לבחירה - ורדינון",
       "tags": [
         "מבצעי צרכנות לחג"
@@ -1043,8 +1043,8 @@
       "description": "החל מ-113 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "165143",
@@ -1236,7 +1236,7 @@
       "id": "151963",
       "category_id": "151963",
       "title": "מיטת נוער חשמלית מתכווננת CLICK מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "מיטת נוער חשמלית מתכווננת CLICK מבית ד\"ר גב",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1256,14 +1256,14 @@
       "description": "החל מ-2890 ₪ | זוג כריות במתנה",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "179367",
       "category_id": "179367",
       "title": "שואב שוטף אלחוטי DREAME H60 GT - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "שואב שוטף אלחוטי DREAME H60 GT",
       "category": "שואב שוטף אלחוטי DREAME H60 GT - יבואן רשמי",
       "tags": [
         "מבצעי צרכנות לחג"
@@ -1315,7 +1315,7 @@
       "id": "184653",
       "category_id": "184653",
       "title": "חיסול מצעי ילדים 100% כותנה דגמים נבחרים -ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "חיסול מצעי ילדים 100% כותנה דגמים נבחרים",
       "category": "חיסול מצעי ילדים 100% כותנה דגמים נבחרים -ורדינון",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1335,8 +1335,8 @@
       "description": "ב-79 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "182649",
@@ -1395,7 +1395,7 @@
       "id": "181571",
       "category_id": "181571",
       "title": "סאפ מתנפח + משוט דגם Coast PA-25C330 מבית PA",
-      "supplier": "25C330 מבית PA",
+      "supplier": "סאפ מתנפח + משוט דגם Coast PA",
       "category": "סאפ מתנפח + משוט דגם Coast PA-25C330 מבית PA",
       "tags": [
         "מבצעי צרכנות לחג"
@@ -1448,7 +1448,7 @@
       "id": "45171",
       "category_id": "45171",
       "title": "אלבום תמונות כריכה קשה עמודים ללא הגבלה - זומה",
-      "supplier": "זומה",
+      "supplier": "אלבום תמונות כריכה קשה עמודים ללא הגבלה",
       "category": "צרכנות",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1476,7 +1476,7 @@
       "id": "113240",
       "category_id": "113240",
       "title": "שמיכת פוך נוצות/פלומה - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "שמיכת פוך נוצות/פלומה",
       "category": "שמיכת פוך נוצות/פלומה - ורדינון",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1496,8 +1496,8 @@
       "description": "החל מ-266 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "185136",
@@ -1529,7 +1529,7 @@
       "id": "156624",
       "category_id": "156624",
       "title": "פח אשפה 60 ליטר אלקטרוני PE-601 Peerless",
-      "supplier": "601 Peerless",
+      "supplier": "פח אשפה 60 ליטר אלקטרוני PE",
       "category": "פח אשפה 60 ליטר אלקטרוני PE-601 Peerless",
       "tags": [
         "מבצעי צרכנות לחג"
@@ -1635,7 +1635,7 @@
       "id": "184385",
       "category_id": "184385",
       "title": "מארז כלי בישול 7 חלקים מסדרת Ideal - סולתם",
-      "supplier": "סולתם",
+      "supplier": "מארז כלי בישול 7 חלקים מסדרת Ideal",
       "category": "מארז כלי בישול 7 חלקים מסדרת Ideal - סולתם",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -1655,8 +1655,8 @@
       "description": "199 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "סולתם",
-      "matched_store_name": "סולתם"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "185203",
@@ -1901,7 +1901,7 @@
       "id": "149252",
       "category_id": "149252",
       "title": "מכונת קוביות קרח דגם ATL-8040 מבית GOLD LINE",
-      "supplier": "8040 מבית GOLD LINE",
+      "supplier": "GOLD LINE",
       "category": "מכונת קוביות קרח דגם ATL-8040 מבית GOLD LINE",
       "tags": [
         "מבצעי צרכנות לחג",
@@ -2080,8 +2080,8 @@
       "description": "החל מ-359 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "183113",
@@ -2197,7 +2197,7 @@
       "id": "137512",
       "category_id": "137512",
       "title": "ווטרלנד - פארק המים של אילת",
-      "supplier": "פארק המים של אילת",
+      "supplier": "ווטרלנד",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2225,7 +2225,7 @@
       "id": "13583",
       "category_id": "13583",
       "title": "בבילון פארק - כרטיסים נטענים לבחירה",
-      "supplier": "כרטיסים נטענים לבחירה",
+      "supplier": "בבילון פארק",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2254,7 +2254,7 @@
       "id": "8532",
       "category_id": "8532",
       "title": "החלקה על הקרח - היכל הקרח חולון",
-      "supplier": "היכל הקרח חולון",
+      "supplier": "החלקה על הקרח",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2275,8 +2275,8 @@
       "description": "החל מ-50 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "היכל-הקרח-חולון",
-      "matched_store_name": "היכל הקרח חולון"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "24351",
@@ -2311,7 +2311,7 @@
       "id": "28445",
       "category_id": "28445",
       "title": "משחקייה,וידאו,סימולטורים-STREET GAMES סטריט גיימס",
-      "supplier": "STREET GAMES סטריט גיימס",
+      "supplier": "משחקייה,וידאו,סימולטורים",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2339,7 +2339,7 @@
       "id": "230",
       "category_id": "230",
       "title": "באלגן- פארק שעשועים",
-      "supplier": "פארק שעשועים",
+      "supplier": "באלגן",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2367,7 +2367,7 @@
       "id": "63039",
       "category_id": "63039",
       "title": "סיטי באולינג - ראשון לציון",
-      "supplier": "ראשון לציון",
+      "supplier": "סיטי באולינג",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2388,14 +2388,14 @@
       "description": "החל מ-32 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "הולמס-פלייס-ראשון-לציון-זאוס-ספא-לשעבר",
-      "matched_store_name": "הולמס פלייס ראשון לציון זאוס ספא לשעבר"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "179826",
       "category_id": "179826",
       "title": "הטייסת- טייסת הסימולטורים של מטוסי 16-F ו-35-F",
-      "supplier": "F",
+      "supplier": "הטייסת",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2416,8 +2416,8 @@
       "description": "החל מ-285 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "the-north-face-online",
-      "matched_store_name": "The North Face online"
+      "matched_store_id": "הטייסת",
+      "matched_store_name": "הטייסת"
     },
     {
       "id": "263",
@@ -2507,7 +2507,7 @@
       "id": "24313",
       "category_id": "24313",
       "title": "sky jump - סקיי ג'אמפ - פארק טרמפולינות סניף ת\"א",
-      "supplier": "אטרקציות",
+      "supplier": "sky jump",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2562,7 +2562,7 @@
       "id": "185392",
       "category_id": "185392",
       "title": "חוות הר אודם - טיולי סוסים",
-      "supplier": "טיולי סוסים",
+      "supplier": "חוות הר אודם",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2616,7 +2616,7 @@
       "id": "165947",
       "category_id": "165947",
       "title": "רוכבים בגליל- טיולי רייזרים וג'יפים",
-      "supplier": "אטרקציות",
+      "supplier": "רוכבים בגליל",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2636,14 +2636,14 @@
       "description": "החל מ-400 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "רוכבים-בגליל",
+      "matched_store_name": "רוכבים בגליל"
     },
     {
       "id": "170151",
       "category_id": "170151",
       "title": "רוכבים בגליל- טיולי סוסים",
-      "supplier": "טיולי סוסים",
+      "supplier": "רוכבים בגליל",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2663,14 +2663,14 @@
       "description": "החל מ-187 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "רוכבים-בגליל",
+      "matched_store_name": "רוכבים בגליל"
     },
     {
       "id": "1586",
       "category_id": "1586",
       "title": "פארק המצפה התת ימי - אילת",
-      "supplier": "אילת",
+      "supplier": "פארק המצפה התת ימי",
       "category": "אטרקציות",
       "tags": [
         "מבלים בחג",
@@ -2690,8 +2690,8 @@
       "description": "החל מ-93 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "ווטרלנד-פארק-המים-אילת",
-      "matched_store_name": "ווטרלנד פארק המים אילת"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "8659",
@@ -2724,7 +2724,7 @@
       "id": "59336",
       "category_id": "59336",
       "title": "אתר סטימצקי - 150 ₪ לרכישת ספרים ומשחקים",
-      "supplier": "בהצדעה",
+      "supplier": "אתר סטימצקי",
       "category": "אתר סטימצקי - 150 ₪ לרכישת ספרים ומשחקים",
       "tags": [
         "מומלצי החודש"
@@ -2743,8 +2743,8 @@
       "description": "ב-113 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "סטימצקי",
+      "matched_store_name": "סטימצקי"
     },
     {
       "id": "58183",
@@ -2777,7 +2777,7 @@
       "id": "145105",
       "category_id": "145105",
       "title": "מקדונלד'ס - ארוחות",
-      "supplier": "ארוחות",
+      "supplier": "מקדונלד'ס",
       "category": "מקדונלד'ס - ארוחות",
       "tags": [
         "מומלצי החודש"
@@ -2796,14 +2796,14 @@
       "description": "ב-54 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מקדונלדס-אונליין",
+      "matched_store_name": "מקדונלדס אונליין"
     },
     {
       "id": "108995",
       "category_id": "108995",
       "title": "Share Spa - שר ספא מלון דיוויד ים המלח",
-      "supplier": "שר ספא מלון דיוויד ים המלח",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא מלון דיוויד ים המלח",
       "tags": [
         "מומלצי החודש"
@@ -2822,14 +2822,14 @@
       "description": "החל מ-391 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "65806",
       "category_id": "65806",
       "title": "רשת בורגרים - מבצע ארוחות",
-      "supplier": "מבצע ארוחות",
+      "supplier": "רשת בורגרים",
       "category": "רשת בורגרים - מבצע ארוחות",
       "tags": [
         "מומלצי החודש",
@@ -2849,14 +2849,14 @@
       "description": "החל מ-118 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "בורגרים",
+      "matched_store_name": "בורגרים"
     },
     {
       "id": "166046",
       "category_id": "166046",
       "title": "משלוחה- שובר 100 ₪ לניצול באפליקציה",
-      "supplier": "בהצדעה",
+      "supplier": "משלוחה",
       "category": "משלוחה- שובר 100 ₪ לניצול באפליקציה",
       "tags": [
         "מומלצי החודש"
@@ -2875,14 +2875,14 @@
       "description": "ב-76 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "משלוחה",
+      "matched_store_name": "משלוחה"
     },
     {
       "id": "110706",
       "category_id": "110706",
       "title": "בורגר ראנץ' - ארוחת קומבינה",
-      "supplier": "ארוחת קומבינה",
+      "supplier": "בורגר ראנץ'",
       "category": "בורגר ראנץ' - ארוחת קומבינה",
       "tags": [
         "מומלצי החודש",
@@ -2902,14 +2902,14 @@
       "description": "ב-151 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "בורגר-ראנץ",
+      "matched_store_name": "בורגר ראנץ"
     },
     {
       "id": "25556",
       "category_id": "25556",
       "title": "Share Spa - שר ספא  מלון לאונרדו גורדון ביץ",
-      "supplier": "שר ספא  מלון לאונרדו גורדון ביץ",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא  מלון לאונרדו גורדון ביץ",
       "tags": [
         "מומלצי החודש",
@@ -2929,14 +2929,14 @@
       "description": "החל מ-303 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "66326",
       "category_id": "66326",
       "title": "רשת ג'פאן-ג'פאן – ווק אנד סושי - כשר",
-      "supplier": "כשר",
+      "supplier": "רשת ג'פאן",
       "category": "רשת ג'פאן-ג'פאן – ווק אנד סושי - כשר",
       "tags": [
         "מומלצי החודש"
@@ -2955,14 +2955,14 @@
       "description": "החל מ-76 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "אנליזה-המרכז-הישראלי-להכשרות-הייטק",
-      "matched_store_name": "אנליזה - המרכז הישראלי להכשרות הייטק"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "111781",
       "category_id": "111781",
       "title": "רשת מאפה נאמן- שובר קנייה 100 ₪ למימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "רשת מאפה נאמן",
       "category": "רשת מאפה נאמן- שובר קנייה 100 ₪ למימוש חד פעמי",
       "tags": [
         "מומלצי החודש"
@@ -2981,14 +2981,14 @@
       "description": "ב-80 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מאפה-נאמן",
+      "matched_store_name": "מאפה נאמן"
     },
     {
       "id": "178381",
       "category_id": "178381",
       "title": "רשת ספורטיב- GYM",
-      "supplier": "GYM",
+      "supplier": "רשת ספורטיב",
       "category": "כושר וספורט",
       "tags": [
         "מומלצי החודש",
@@ -3150,7 +3150,7 @@
       "id": "19722",
       "category_id": "19722",
       "title": "sky jump - סקיי ג'אמפ - פארק טרמפולינות רעננה",
-      "supplier": "פארק טרמפולינות רעננה",
+      "supplier": "sky jump",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3231,7 +3231,7 @@
       "id": "146214",
       "category_id": "146214",
       "title": "סיטי באולינג – פתח תקווה",
-      "supplier": "פתח תקווה",
+      "supplier": "סיטי באולינג",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3251,14 +3251,14 @@
       "description": "החל מ-32 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "לייזר-סיטי-פתח-תקווה",
-      "matched_store_name": "לייזר סיטי פתח תקווה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "181631",
       "category_id": "181631",
       "title": "סיטי באולינג - נתניה",
-      "supplier": "נתניה",
+      "supplier": "סיטי באולינג",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3278,14 +3278,14 @@
       "description": "החל מ-32 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "vert-לגון-נתניה",
-      "matched_store_name": "VERT לגון נתניה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "95320",
       "category_id": "95320",
       "title": "פאנקי מאנקי - חוויה ואקסטרים לכל המשפחה - כפר סבא",
-      "supplier": "כפר סבא",
+      "supplier": "פאנקי מאנקי",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3312,7 +3312,7 @@
       "id": "112663",
       "category_id": "112663",
       "title": "פאנקי מאנקי - חוויה ואקסטרים לכל המשפחה- כפר יונה",
-      "supplier": "כפר יונה",
+      "supplier": "פאנקי מאנקי",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3332,14 +3332,14 @@
       "description": "החל מ-33 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "פאנקי-מאנקי-כפר-יונה",
-      "matched_store_name": "פאנקי מאנקי כפר יונה"
+      "matched_store_id": "פאנקי-מאנקי-כפר-סבא",
+      "matched_store_name": "פאנקי מאנקי כפר סבא"
     },
     {
       "id": "176474",
       "category_id": "176474",
       "title": "פאנקי וורלד באר טוביה - חוויה לכל המשפחה!",
-      "supplier": "אטרקציות",
+      "supplier": "פאנקי וורלד באר טוביה",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3366,7 +3366,7 @@
       "id": "176501",
       "category_id": "176501",
       "title": "דילנד כפר סבא- מקום פסיכי ביותר לילדים ונוער",
-      "supplier": "מקום פסיכי ביותר לילדים ונוער",
+      "supplier": "דילנד כפר סבא",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3420,7 +3420,7 @@
       "id": "99191",
       "category_id": "99191",
       "title": "סיור איזי ריידר בירושלים - smart tour",
-      "supplier": "smart tour",
+      "supplier": "סיור איזי ריידר בירושלים",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3440,8 +3440,8 @@
       "description": "החל מ-225 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "סגווי-ירושלים-smart-tour",
-      "matched_store_name": "סגווי ירושלים smart tour"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "20231",
@@ -3475,7 +3475,7 @@
       "id": "70247",
       "category_id": "70247",
       "title": "ninjacity - נינג'ה סיטי חיפה",
-      "supplier": "אטרקציות",
+      "supplier": "ninjacity",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3502,7 +3502,7 @@
       "id": "19707",
       "category_id": "19707",
       "title": "חלום עולמי - ספורט ימי",
-      "supplier": "ספורט ימי",
+      "supplier": "חלום עולמי",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3522,8 +3522,8 @@
       "description": "החל מ-43 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "אטלנטיס-ספורט-ימי",
-      "matched_store_name": "אטלנטיס ספורט ימי"
+      "matched_store_id": "חלום-עולמי",
+      "matched_store_name": "חלום עולמי"
     },
     {
       "id": "756",
@@ -3556,7 +3556,7 @@
       "id": "44228",
       "category_id": "44228",
       "title": "מצנחי הים האדום - ספורט ימי",
-      "supplier": "ספורט ימי",
+      "supplier": "מצנחי הים האדום",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3576,14 +3576,14 @@
       "description": "החל מ-45 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "אטלנטיס-ספורט-ימי",
-      "matched_store_name": "אטלנטיס ספורט ימי"
+      "matched_store_id": "מצנחי-הים-האדום",
+      "matched_store_name": "מצנחי הים האדום"
     },
     {
       "id": "71729",
       "category_id": "71729",
       "title": "רוי בוי פארק - ראשל\"צ",
-      "supplier": "אטרקציות",
+      "supplier": "רוי בוי פארק",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3610,7 +3610,7 @@
       "id": "8550",
       "category_id": "8550",
       "title": "גל במדבר - אילת",
-      "supplier": "אילת",
+      "supplier": "גל במדבר",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3631,8 +3631,8 @@
       "description": "החל מ-350 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "ווטרלנד-פארק-המים-אילת",
-      "matched_store_name": "ווטרלנד פארק המים אילת"
+      "matched_store_id": "גל-במדבר",
+      "matched_store_name": "גל במדבר"
     },
     {
       "id": "141181",
@@ -3666,7 +3666,7 @@
       "id": "152566",
       "category_id": "152566",
       "title": "לונה פאן אושילנד - 8 אטרקציות בכרטיס אחד",
-      "supplier": "8 אטרקציות בכרטיס אחד",
+      "supplier": "לונה פאן אושילנד",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3694,7 +3694,7 @@
       "id": "155402",
       "category_id": "155402",
       "title": "פארק תמנע - הרפתקה לתוך הלילה",
-      "supplier": "הרפתקה לתוך הלילה",
+      "supplier": "פארק תמנע",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3714,8 +3714,8 @@
       "description": "ב-52 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "פארק-תמנע",
+      "matched_store_name": "פארק תמנע"
     },
     {
       "id": "158660",
@@ -3775,7 +3775,7 @@
       "id": "171288",
       "category_id": "171288",
       "title": "מבשלת בירבזאר- BEERBAZAAR- סיורי שישי במבשלה",
-      "supplier": "סיורי שישי במבשלה",
+      "supplier": "מבשלת בירבזאר",
       "category": "בילוי ופנאי",
       "tags": [
         "אטרקציות לחול המועד",
@@ -3911,7 +3911,7 @@
       "id": "154418",
       "category_id": "154418",
       "title": "משק משפחת ג'השאן - מארזי שמן זית לראש השנה",
-      "supplier": "מארזי שמן זית לראש השנה",
+      "supplier": "משק משפחת ג'השאן",
       "category": "משק משפחת ג'השאן - מארזי שמן זית לראש השנה",
       "tags": [
         "מארזים לחגים"
@@ -3963,7 +3963,7 @@
       "id": "72521",
       "category_id": "72521",
       "title": "תבליני אביבי - מארזי ראש השנה - כולל משלוח",
-      "supplier": "כולל משלוח",
+      "supplier": "תבליני אביבי",
       "category": "תבליני אביבי - מארזי ראש השנה - כולל משלוח",
       "tags": [
         "מארזים לחגים"
@@ -3989,7 +3989,7 @@
       "id": "184805",
       "category_id": "184805",
       "title": "פרשוק- freshuk - מארז ראש השנה",
-      "supplier": "מארז ראש השנה",
+      "supplier": "פרשוק",
       "category": "פרשוק- freshuk - מארז ראש השנה",
       "tags": [
         "מארזים לחגים"
@@ -4015,7 +4015,7 @@
       "id": "184673",
       "category_id": "184673",
       "title": "ראש השנה באנרג'וסר - משלוח חינם לכל הארץ",
-      "supplier": "משלוח חינם לכל הארץ",
+      "supplier": "ראש השנה באנרג'וסר",
       "category": "ראש השנה באנרג'וסר - משלוח חינם לכל הארץ",
       "tags": [
         "מארזים לחגים"
@@ -4034,14 +4034,14 @@
       "description": "החל מ-219 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "אנרג-וסר",
+      "matched_store_name": "אנרג'וסר"
     },
     {
       "id": "109844",
       "category_id": "109844",
       "title": "מג'הול פלוס- מארזי ראש השנה כולל משלוח",
-      "supplier": "מארזי ראש השנה כולל משלוח",
+      "supplier": "מג'הול פלוס",
       "category": "מג'הול פלוס- מארזי ראש השנה כולל משלוח",
       "tags": [
         "מארזים לחגים"
@@ -4067,7 +4067,7 @@
       "id": "183307",
       "category_id": "183307",
       "title": "נטורפוד - מארז חגים כולל משלוח",
-      "supplier": "מארז חגים כולל משלוח",
+      "supplier": "נטורפוד",
       "category": "נטורפוד - מארז חגים כולל משלוח",
       "tags": [
         "מארזים לחגים"
@@ -4093,7 +4093,7 @@
       "id": "163749",
       "category_id": "163749",
       "title": "נטורפוד - מארז יינות - כולל משלוח",
-      "supplier": "כולל משלוח",
+      "supplier": "נטורפוד",
       "category": "נטורפוד - מארז יינות - כולל משלוח",
       "tags": [
         "מארזים לחגים"
@@ -4119,7 +4119,7 @@
       "id": "142410",
       "category_id": "142410",
       "title": "עץ השדה- שמן זית ישראלי- מארזים לראש השנה",
-      "supplier": "מארזים לראש השנה",
+      "supplier": "עץ השדה",
       "category": "עץ השדה- שמן זית ישראלי- מארזים לראש השנה",
       "tags": [
         "מארזים לחגים"
@@ -4145,7 +4145,7 @@
       "id": "155404",
       "category_id": "155404",
       "title": "יקב תבור- מארזי יין לראש השנה",
-      "supplier": "מארזי יין לראש השנה",
+      "supplier": "יקב תבור",
       "category": "בילוי ופנאי",
       "tags": [
         "מארזים לחגים",
@@ -4172,7 +4172,7 @@
       "id": "108018",
       "category_id": "108018",
       "title": "יקב גוש עציון - מארזי יין כולל משלוח עד הבית",
-      "supplier": "מארזי יין כולל משלוח עד הבית",
+      "supplier": "יקב גוש עציון",
       "category": "יקב גוש עציון - מארזי יין כולל משלוח עד הבית",
       "tags": [
         "מארזים לחגים"
@@ -4191,14 +4191,14 @@
       "description": "החל מ-252 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "יקב-גוש-עציון",
+      "matched_store_name": "יקב גוש עציון"
     },
     {
       "id": "184246",
       "category_id": "184246",
       "title": "בירבזאר- BEERBAZAAR - מארז חגים",
-      "supplier": "מארז חגים",
+      "supplier": "בירבזאר",
       "category": "בירבזאר- BEERBAZAAR - מארז חגים",
       "tags": [
         "מארזים לחגים"
@@ -4224,7 +4224,7 @@
       "id": "184681",
       "category_id": "184681",
       "title": "בירה אלכסנדר מארז ראש השנה - כולל למשלוח",
-      "supplier": "כולל למשלוח",
+      "supplier": "בירה אלכסנדר מארז ראש השנה",
       "category": "בירה אלכסנדר מארז ראש השנה - כולל למשלוח",
       "tags": [
         "מארזים לחגים"
@@ -4243,14 +4243,14 @@
       "description": "ב-272 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "בירה-אלכסנדר",
+      "matched_store_name": "בירה אלכסנדר"
     },
     {
       "id": "60325",
       "category_id": "60325",
       "title": "קפה עלית - שוברי הנחה באתר - למימוש חד פעמי",
-      "supplier": "למימוש חד פעמי",
+      "supplier": "קפה עלית",
       "category": "קפה עלית - שוברי הנחה באתר - למימוש חד פעמי",
       "tags": [
         "מארזים לחגים",
@@ -4277,7 +4277,7 @@
       "id": "137184",
       "category_id": "137184",
       "title": "מלון דיוויד ים המלח - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון דיוויד ים המלח",
       "category": "מלון דיוויד ים המלח - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4303,7 +4303,7 @@
       "id": "6133",
       "category_id": "6133",
       "title": "רויאל ריזורט אילת-2 לילות בסופ\"ש- אדיר מילר",
-      "supplier": "אדיר מילר",
+      "supplier": "רויאל ריזורט אילת",
       "category": "רויאל ריזורט אילת-2 לילות בסופ\"ש- אדיר מילר",
       "tags": [
         "נופש בארץ"
@@ -4329,7 +4329,7 @@
       "id": "102075",
       "category_id": "102075",
       "title": "מלון אסיינדה ביער - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון אסיינדה ביער",
       "category": "מלון אסיינדה ביער - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4355,7 +4355,7 @@
       "id": "179231",
       "category_id": "179231",
       "title": "מלון אריאה אילת - 3 לילות בסוכות",
-      "supplier": "3 לילות בסוכות",
+      "supplier": "מלון אריאה אילת",
       "category": "מלון אריאה אילת - 3 לילות בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4381,7 +4381,7 @@
       "id": "153155",
       "category_id": "153155",
       "title": "מלון גולדן קראון חיפה - 2 לילות בחג שני סוכות",
-      "supplier": "2 לילות בחג שני סוכות",
+      "supplier": "מלון גולדן קראון חיפה",
       "category": "מלון גולדן קראון חיפה - 2 לילות בחג שני סוכות",
       "tags": [
         "נופש בארץ"
@@ -4407,7 +4407,7 @@
       "id": "100153",
       "category_id": "100153",
       "title": "מלון קיסר פרימייר אילת - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון קיסר פרימייר אילת",
       "category": "מלון קיסר פרימייר אילת - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4433,7 +4433,7 @@
       "id": "176933",
       "category_id": "176933",
       "title": "מלון קומפורט אילת - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון קומפורט אילת",
       "category": "מלון קומפורט אילת - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4452,14 +4452,14 @@
       "description": "08-10/10/2026",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מלון-קומפורט-אילת",
+      "matched_store_name": "מלון קומפורט אילת"
     },
     {
       "id": "185275",
       "category_id": "185275",
       "title": "אמארה צוקים - 2 לילות בסופ\"ש גלאמפינג דלקס",
-      "supplier": "בהצדעה",
+      "supplier": "אמארה צוקים",
       "category": "אמארה צוקים - 2 לילות בסופ\"ש גלאמפינג דלקס",
       "tags": [
         "נופש בארץ"
@@ -4485,7 +4485,7 @@
       "id": "109372",
       "category_id": "109372",
       "title": "מלון ג'ייקוב אילת - 2 לילות באמצ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון ג'ייקוב אילת",
       "category": "מלון ג'ייקוב אילת - 2 לילות באמצ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4511,7 +4511,7 @@
       "id": "101703",
       "category_id": "101703",
       "title": "מלון גרנד ביץ' ת\"א - לילה 1 בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון גרנד ביץ' ת\"א",
       "category": "מלון גרנד ביץ' ת\"א - לילה 1 בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4537,7 +4537,7 @@
       "id": "172407",
       "category_id": "172407",
       "title": "מלון נבל דוד נתניה - 2 לילות בסוכות",
-      "supplier": "2 לילות בסוכות",
+      "supplier": "מלון נבל דוד נתניה",
       "category": "מלון נבל דוד נתניה - 2 לילות בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4563,7 +4563,7 @@
       "id": "171776",
       "category_id": "171776",
       "title": "כפר הנופש דריה - 2 לילות בסוכות",
-      "supplier": "2 לילות בסוכות",
+      "supplier": "כפר הנופש דריה",
       "category": "כפר הנופש דריה - 2 לילות בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4589,7 +4589,7 @@
       "id": "149848",
       "category_id": "149848",
       "title": "מלון נבל דוד גליל ריזורט - לילה 1 בחוה\"מ סוכות",
-      "supplier": "בהצדעה",
+      "supplier": "מלון נבל דוד גליל ריזורט",
       "category": "מלון נבל דוד גליל ריזורט - לילה 1 בחוה\"מ סוכות",
       "tags": [
         "נופש בארץ"
@@ -4608,14 +4608,14 @@
       "description": "29-30/09/2026",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "דריה-ספא-מלון-נבל-דוד-גליל-ריזורט",
+      "matched_store_name": "דריה ספא- מלון נבל דוד גליל ריזורט"
     },
     {
       "id": "171464",
       "category_id": "171464",
       "title": "מלון גולדן קראון חיפה - לילה 1 בסוכות",
-      "supplier": "לילה 1 בסוכות",
+      "supplier": "מלון גולדן קראון חיפה",
       "category": "מלון גולדן קראון חיפה - לילה 1 בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4641,7 +4641,7 @@
       "id": "146511",
       "category_id": "146511",
       "title": "מלון עדן אין זכרון יעקב - 2 לילות בסוכות",
-      "supplier": "2 לילות בסוכות",
+      "supplier": "מלון עדן אין זכרון יעקב",
       "category": "מלון עדן אין זכרון יעקב - 2 לילות בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4660,14 +4660,14 @@
       "description": "01-03/10/2026",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מלון-עדן-אין",
+      "matched_store_name": "מלון עדן אין"
     },
     {
       "id": "171415",
       "category_id": "171415",
       "title": "מלון דן כרמל חיפה - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון דן כרמל חיפה",
       "category": "מלון דן כרמל חיפה - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4693,7 +4693,7 @@
       "id": "175026",
       "category_id": "175026",
       "title": "מלון דן פנורמה ת\"א - לילה 1 בסוכות",
-      "supplier": "לילה 1 בסוכות",
+      "supplier": "מלון דן פנורמה ת\"א",
       "category": "מלון דן פנורמה ת\"א - לילה 1 בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4719,7 +4719,7 @@
       "id": "185247",
       "category_id": "185247",
       "title": "מלון ג'ייקוב שנקין ת\"א - לילה 1 בחמישי",
-      "supplier": "לילה 1 בחמישי",
+      "supplier": "מלון ג'ייקוב שנקין ת\"א",
       "category": "מלון ג'ייקוב שנקין ת\"א - לילה 1 בחמישי",
       "tags": [
         "נופש בארץ"
@@ -4745,7 +4745,7 @@
       "id": "103876",
       "category_id": "103876",
       "title": "מלון אדמונד ראש פינה - 2 לילות בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון אדמונד ראש פינה",
       "category": "מלון אדמונד ראש פינה - 2 לילות בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4771,7 +4771,7 @@
       "id": "184993",
       "category_id": "184993",
       "title": "מלון מגדלה מגדל - לילה 1 בסופ\"ש",
-      "supplier": "בהצדעה",
+      "supplier": "מלון מגדלה מגדל",
       "category": "מלון מגדלה מגדל - לילה 1 בסופ\"ש",
       "tags": [
         "נופש בארץ"
@@ -4797,7 +4797,7 @@
       "id": "19816",
       "category_id": "19816",
       "title": "מלון אירוס המדבר ירוחם - 2 לילות בסוכות",
-      "supplier": "2 לילות בסוכות",
+      "supplier": "מלון אירוס המדבר ירוחם",
       "category": "מלון אירוס המדבר ירוחם - 2 לילות בסוכות",
       "tags": [
         "נופש בארץ"
@@ -4816,14 +4816,14 @@
       "description": "01-03/10/2026",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מלון-אירוס-המדבר-ירוחם",
+      "matched_store_name": "מלון אירוס המדבר ירוחם"
     },
     {
       "id": "137398",
       "category_id": "137398",
       "title": "מלון דיוויד ים המלח - 2 לילות בחוה\"מ סוכות",
-      "supplier": "בהצדעה",
+      "supplier": "מלון דיוויד ים המלח",
       "category": "מלון דיוויד ים המלח - 2 לילות בחוה\"מ סוכות",
       "tags": [
         "נופש בארץ"
@@ -4927,7 +4927,7 @@
       "id": "161841",
       "category_id": "161841",
       "title": "שואב-מקרצף DREAME X50 Ultra COMPLETE - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "שואב",
       "category": "שואב-מקרצף DREAME X50 Ultra COMPLETE - יבואן רשמי",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5057,7 +5057,7 @@
       "id": "179873",
       "category_id": "179873",
       "title": "שואב שוטף ECOVACS DEEBOT T80S Omni - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "שואב שוטף ECOVACS DEEBOT T80S Omni",
       "category": "שואב שוטף ECOVACS DEEBOT T80S Omni - יבואן רשמי",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5109,7 +5109,7 @@
       "id": "164798",
       "category_id": "164798",
       "title": "מכשיר הסרת שיער Braun PL5243‏ - ייבוא מקביל",
-      "supplier": "ייבוא מקביל",
+      "supplier": "מכשיר הסרת שיער Braun PL5243‏",
       "category": "מכשיר הסרת שיער Braun PL5243‏ - ייבוא מקביל",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5292,7 +5292,7 @@
       "id": "163487",
       "category_id": "163487",
       "title": "שואב שוטף ECOVACS DEEBOT X8 PRO OMNI - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "שואב שוטף ECOVACS DEEBOT X8 PRO OMNI",
       "category": "שואב שוטף ECOVACS DEEBOT X8 PRO OMNI - יבואן רשמי",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5318,7 +5318,7 @@
       "id": "179836",
       "category_id": "179836",
       "title": "מיקסר מקצועי DAVO PRO DSM5740 - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "מיקסר מקצועי DAVO PRO DSM5740",
       "category": "מיקסר מקצועי DAVO PRO DSM5740 - יבואן רשמי",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5370,7 +5370,7 @@
       "id": "179445",
       "category_id": "179445",
       "title": "מברשת שיניים IOG4K חשמלית Oral-B iO Series 4",
-      "supplier": "B iO Series 4",
+      "supplier": "מברשת שיניים IOG4K חשמלית Oral",
       "category": "מברשת שיניים IOG4K חשמלית Oral-B iO Series 4",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5500,7 +5500,7 @@
       "id": "173405",
       "category_id": "173405",
       "title": "מקפיא 6 מגירות לבן Nakasumi DE-FROST NAK-216 DFW",
-      "supplier": "216 DFW",
+      "supplier": "מקפיא 6 מגירות לבן Nakasumi DE",
       "category": "מקפיא 6 מגירות לבן Nakasumi DE-FROST NAK-216 DFW",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5631,7 +5631,7 @@
       "id": "185390",
       "category_id": "185390",
       "title": "מכונת קפה 3-ב-1 Ninja Luxe Cafe Pro ES701 1650W",
-      "supplier": "1 Ninja Luxe Cafe Pro ES701 1650W",
+      "supplier": "מכונת קפה 3",
       "category": "מכונת קפה 3-ב-1 Ninja Luxe Cafe Pro ES701 1650W",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5657,7 +5657,7 @@
       "id": "184093",
       "category_id": "184093",
       "title": "מזגן נייד TORNADO SAGA-MOVE-14",
-      "supplier": "14",
+      "supplier": "מזגן נייד TORNADO SAGA",
       "category": "מזגן נייד TORNADO SAGA-MOVE-14",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5761,7 +5761,7 @@
       "id": "185579",
       "category_id": "185579",
       "title": "מייבש כביסה 10 ק\"ג FJ-HP1010 FUJICOM - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "מייבש כביסה 10 ק\"ג FJ",
       "category": "מייבש כביסה 10 ק\"ג FJ-HP1010 FUJICOM - יבואן רשמי",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -5866,7 +5866,7 @@
       "id": "168921",
       "category_id": "168921",
       "title": "מכונת כביסה 8 ק\"ג דגם GRAETZ GR-4105-WM",
-      "supplier": "WM",
+      "supplier": "מכונת כביסה 8 ק\"ג דגם GRAETZ GR",
       "category": "מכונת כביסה 8 ק\"ג דגם GRAETZ GR-4105-WM",
       "tags": [
         "חשמל לבית ולמטבח"
@@ -6595,7 +6595,7 @@
       "id": "180971",
       "category_id": "180971",
       "title": "מארז 3 מחבתות מסדרת IDEAL - סולתם",
-      "supplier": "סולתם",
+      "supplier": "מארז 3 מחבתות מסדרת IDEAL",
       "category": "מארז 3 מחבתות מסדרת IDEAL - סולתם",
       "tags": [
         "מכינים את המטבח"
@@ -6614,8 +6614,8 @@
       "description": "145 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "סולתם",
-      "matched_store_name": "סולתם"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "183224",
@@ -6673,7 +6673,7 @@
       "id": "183798",
       "category_id": "183798",
       "title": "מיקסר פלנטרי KENWOOD HoneBeke KH-830",
-      "supplier": "830",
+      "supplier": "מיקסר פלנטרי KENWOOD HoneBeke KH",
       "category": "מיקסר פלנטרי KENWOOD HoneBeke KH-830",
       "tags": [
         "מכינים את המטבח"
@@ -6699,7 +6699,7 @@
       "id": "175472",
       "category_id": "175472",
       "title": "מיקסר DSM5750 DAVO DSM5750 PRO - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "מיקסר DSM5750 DAVO DSM5750 PRO",
       "category": "מיקסר DSM5750 DAVO DSM5750 PRO - יבואן רשמי",
       "tags": [
         "מכינים את המטבח"
@@ -6725,7 +6725,7 @@
       "id": "169143",
       "category_id": "169143",
       "title": "מכונת קפה Essence ו-50 קפסולות במתנה",
-      "supplier": "50 קפסולות במתנה",
+      "supplier": "מכונת קפה Essence ו",
       "category": "מכונת קפה Essence ו-50 קפסולות במתנה",
       "tags": [
         "מכינים את המטבח"
@@ -6832,7 +6832,7 @@
       "id": "171504",
       "category_id": "171504",
       "title": "סט 3 מחבתות Oxford - צבעים לבחירה",
-      "supplier": "צבעים לבחירה",
+      "supplier": "סט 3 מחבתות Oxford",
       "category": "סט 3 מחבתות Oxford - צבעים לבחירה",
       "tags": [
         "מכינים את המטבח"
@@ -6884,7 +6884,7 @@
       "id": "184408",
       "category_id": "184408",
       "title": "מארז כלי בישול 5/8 חלקים מסדרת Nude - סולתם",
-      "supplier": "סולתם",
+      "supplier": "מארז כלי בישול 5/8 חלקים מסדרת Nude",
       "category": "מארז כלי בישול 5/8 חלקים מסדרת Nude - סולתם",
       "tags": [
         "מכינים את המטבח"
@@ -6903,8 +6903,8 @@
       "description": "החל מ-199 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "סולתם",
-      "matched_store_name": "סולתם"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "185103",
@@ -7274,7 +7274,7 @@
       "id": "166208",
       "category_id": "166208",
       "title": "דשא סינטטי פרו עמיד במיוחד 40-38 מ\"מ 'דיאמונט'",
-      "supplier": "בהצדעה",
+      "supplier": "דשא סינטטי פרו עמיד במיוחד 40",
       "category": "דשא סינטטי פרו עמיד במיוחד 40-38 מ\"מ 'דיאמונט'",
       "tags": [
         "ריהוט ואביזרים לגן ולמרפסת"
@@ -7814,8 +7814,8 @@
       "description": "485 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "184182",
@@ -7873,7 +7873,7 @@
       "id": "153633",
       "category_id": "153633",
       "title": "סט שולחן ו-4 כיסאות לגינה ולמרפסת דגם 'מאווי'",
-      "supplier": "בהצדעה",
+      "supplier": "סט שולחן ו",
       "category": "סט שולחן ו-4 כיסאות לגינה ולמרפסת דגם 'מאווי'",
       "tags": [
         "ריהוט ואביזרים לגן ולמרפסת"
@@ -7951,7 +7951,7 @@
       "id": "60490",
       "category_id": "60490",
       "title": "גריל גז 3 מבערים + כירת צד SONAB KYQ-K23ST",
-      "supplier": "K23ST",
+      "supplier": "גריל גז 3 מבערים + כירת צד SONAB KYQ",
       "category": "גריל גז 3 מבערים + כירת צד SONAB KYQ-K23ST",
       "tags": [
         "ריהוט ואביזרים לגן ולמרפסת"
@@ -8107,7 +8107,7 @@
       "id": "183016",
       "category_id": "183016",
       "title": "מארז זוג חולצות טי-שרט מבית Timberland",
-      "supplier": "שרט מבית Timberland",
+      "supplier": "Timberland",
       "category": "מארז זוג חולצות טי-שרט מבית Timberland",
       "tags": [
         "טקסטיל והלבשה"
@@ -8315,7 +8315,7 @@
       "id": "67465",
       "category_id": "67465",
       "title": "כרית סמארט לוונדר - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "כרית סמארט לוונדר",
       "category": "כרית סמארט לוונדר - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8334,14 +8334,14 @@
       "description": "ב-113 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "103778",
       "category_id": "103778",
       "title": "סט מצעי סאטן יוקרתי 100% כותנה - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "סט מצעי סאטן יוקרתי 100% כותנה",
       "category": "סט מצעי סאטן יוקרתי 100% כותנה - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8360,14 +8360,14 @@
       "description": "החל מ-185 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "26696",
       "category_id": "26696",
       "title": "זוג כריות דיינסטי - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "זוג כריות דיינסטי",
       "category": "זוג כריות דיינסטי - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8386,14 +8386,14 @@
       "description": "ב-165 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "165921",
       "category_id": "165921",
       "title": "שמיכת מזגן Cool Air - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "שמיכת מזגן Cool Air",
       "category": "שמיכת מזגן Cool Air - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8412,8 +8412,8 @@
       "description": "החל מ-155 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "159821",
@@ -8471,7 +8471,7 @@
       "id": "24153",
       "category_id": "24153",
       "title": "סט מצעים לילדים 100% כותנה - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "סט מצעים לילדים 100% כותנה",
       "category": "סט מצעים לילדים 100% כותנה - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8490,8 +8490,8 @@
       "description": "ב-114 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "163166",
@@ -8575,7 +8575,7 @@
       "id": "181338",
       "category_id": "181338",
       "title": "סט מצעים זוגי/ענק 100% כותנה 'זריחה' מבית Yard&co",
-      "supplier": "Yard",
+      "supplier": "בהצדעה",
       "category": "סט מצעים זוגי/ענק 100% כותנה 'זריחה' מבית Yard&co",
       "tags": [
         "טקסטיל והלבשה"
@@ -8601,7 +8601,7 @@
       "id": "180330",
       "category_id": "180330",
       "title": "שמיכת קיץ דגם נורי - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "שמיכת קיץ דגם נורי",
       "category": "שמיכת קיץ דגם נורי - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8620,8 +8620,8 @@
       "description": "החל מ-95 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "181698",
@@ -8783,7 +8783,7 @@
       "id": "185058",
       "category_id": "185058",
       "title": "סט מצעי כותנה מצרית דגם 'דיליה' - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "סט מצעי כותנה מצרית דגם 'דיליה'",
       "category": "סט מצעי כותנה מצרית דגם 'דיליה' - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -8802,8 +8802,8 @@
       "description": "החל מ-331 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "160049",
@@ -9095,7 +9095,7 @@
       "id": "125027",
       "category_id": "125027",
       "title": "מארז 4 מגבות 100% כותנה דגם 'קלאסיקו' - ורדינון",
-      "supplier": "ורדינון",
+      "supplier": "מארז 4 מגבות 100% כותנה דגם 'קלאסיקו'",
       "category": "מארז 4 מגבות 100% כותנה דגם 'קלאסיקו' - ורדינון",
       "tags": [
         "טקסטיל והלבשה"
@@ -9114,14 +9114,14 @@
       "description": "ב-101 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "59769",
       "category_id": "59769",
       "title": "מזרן זוגי iDream Comfort מבית ד״ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "מזרן זוגי iDream Comfort מבית ד״ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9140,8 +9140,8 @@
       "description": "החל מ-2090 ₪ | זוג כריות שינה במתנה",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "149868",
@@ -9199,7 +9199,7 @@
       "id": "149556",
       "category_id": "149556",
       "title": "כיסא משרדי EXTRA COMFORT XL מבית ד״ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "כיסא משרדי EXTRA COMFORT XL מבית ד״ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9218,8 +9218,8 @@
       "description": "619 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "174929",
@@ -9277,7 +9277,7 @@
       "id": "169408",
       "category_id": "169408",
       "title": "מיטת נוער מתכווננת U LIKE מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "מיטת נוער מתכווננת U LIKE מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9296,14 +9296,14 @@
       "description": "החל מ-3390 ₪ | זוג כריות במתנה",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "182431",
       "category_id": "182431",
       "title": "זוג שולחנות סלון עגולים דמוי שיש - צבעים לבחירה",
-      "supplier": "צבעים לבחירה",
+      "supplier": "זוג שולחנות סלון עגולים דמוי שיש",
       "category": "זוג שולחנות סלון עגולים דמוי שיש - צבעים לבחירה",
       "tags": [
         "מרהטים את הבית"
@@ -9374,14 +9374,14 @@
       "description": "5975 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "63812",
       "category_id": "63812",
       "title": "כורסת עיסוי דגם 'סטאר' מעור בונדר לדר KD-7209",
-      "supplier": "7209",
+      "supplier": "כורסת עיסוי דגם 'סטאר' מעור בונדר לדר KD",
       "category": "כורסת עיסוי דגם 'סטאר' מעור בונדר לדר KD-7209",
       "tags": [
         "מרהטים את הבית"
@@ -9407,7 +9407,7 @@
       "id": "159162",
       "category_id": "159162",
       "title": "כיסא משרדי SELECT מבית ד״ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "כיסא משרדי SELECT מבית ד״ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9426,8 +9426,8 @@
       "description": "529 ₪ כולל משלוח",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "158291",
@@ -9667,7 +9667,7 @@
       "id": "154559",
       "category_id": "154559",
       "title": "כורסת טלוויזיה מבד ATLANTIC מבית ד״ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "כורסת טלוויזיה מבד ATLANTIC מבית ד״ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9686,8 +9686,8 @@
       "description": "החל מ-1190 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "63442",
@@ -9719,7 +9719,7 @@
       "id": "182171",
       "category_id": "182171",
       "title": "מערכת ישיבה פינתית 2.7 מ’ שי-לי RAM DESIGN",
-      "supplier": "לי RAM DESIGN",
+      "supplier": "מערכת ישיבה פינתית 2.7 מ’ שי",
       "category": "מערכת ישיבה פינתית 2.7 מ’ שי-לי RAM DESIGN",
       "tags": [
         "מרהטים את הבית"
@@ -9764,14 +9764,14 @@
       "description": "החל מ-125 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "163969",
       "category_id": "163969",
       "title": "מיטה מתקפלת SLEEP-IN GUEST מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "מיטה מתקפלת SLEEP",
       "category": "מיטה מתקפלת SLEEP-IN GUEST מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9790,8 +9790,8 @@
       "description": "החל מ-629 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "180359",
@@ -9901,7 +9901,7 @@
       "id": "180404",
       "category_id": "180404",
       "title": "מיטת נוער חשמלית PIXEL מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "מיטת נוער חשמלית PIXEL מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -9920,8 +9920,8 @@
       "description": "החל מ-2890 ₪ | זוג כריות במתנה",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "149875",
@@ -9953,7 +9953,7 @@
       "id": "184884",
       "category_id": "184884",
       "title": "מושב בטיחות Neo בתקן I-SIZE מבית BabySafe",
-      "supplier": "SIZE מבית BabySafe",
+      "supplier": "BabySafe",
       "category": "מושב בטיחות Neo בתקן I-SIZE מבית BabySafe",
       "tags": [
         "מרהטים את הבית"
@@ -9979,7 +9979,7 @@
       "id": "72049",
       "category_id": "72049",
       "title": "ספת נוער PASHA נפתחת למיטה זוגית מבית BRADEX‏‏",
-      "supplier": "BRADEX",
+      "supplier": "בהצדעה",
       "category": "ספת נוער PASHA נפתחת למיטה זוגית מבית BRADEX‏‏",
       "tags": [
         "מרהטים את הבית"
@@ -10005,7 +10005,7 @@
       "id": "173810",
       "category_id": "173810",
       "title": "כורסת מסאג' מקצועית עור בונדד לדר AMORA CF-188",
-      "supplier": "188",
+      "supplier": "כורסת מסאג' מקצועית עור בונדד לדר AMORA CF",
       "category": "כורסת מסאג' מקצועית עור בונדד לדר AMORA CF-188",
       "tags": [
         "מרהטים את הבית"
@@ -10083,7 +10083,7 @@
       "id": "172099",
       "category_id": "172099",
       "title": "כורסת טלוויזיה מבד MONTREAL מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "כורסת טלוויזיה מבד MONTREAL מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -10102,8 +10102,8 @@
       "description": "החל מ-1190 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "157927",
@@ -10135,7 +10135,7 @@
       "id": "184694",
       "category_id": "184694",
       "title": "ספת אירוח SOCIETY מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "ספת אירוח SOCIETY מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -10154,8 +10154,8 @@
       "description": "החל מ-2490 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "172286",
@@ -10187,7 +10187,7 @@
       "id": "146300",
       "category_id": "146300",
       "title": "כורסת עיסוי חשמלית EPIC מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "כורסת עיסוי חשמלית EPIC מבית ד\"ר גב",
       "tags": [
         "מרהטים את הבית"
@@ -10206,14 +10206,14 @@
       "description": "החל מ-3690 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "176045",
       "category_id": "176045",
       "title": "מכונת קפה נטענת ניידת מבית BPOWER‏",
-      "supplier": "BPOWER",
+      "supplier": "בהצדעה",
       "category": "מכונת קפה נטענת ניידת מבית BPOWER‏",
       "tags": [
         "קמפינג, מחנאות וטיולים"
@@ -10291,7 +10291,7 @@
       "id": "166816",
       "category_id": "166816",
       "title": "מזרן מתנפח IN&OUT AIR MATTRESS מבית ד\"ר גב",
-      "supplier": "ד",
+      "supplier": "בהצדעה",
       "category": "מזרן מתנפח IN&OUT AIR MATTRESS מבית ד\"ר גב",
       "tags": [
         "קמפינג, מחנאות וטיולים"
@@ -10310,8 +10310,8 @@
       "description": "החל מ-215 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "נעמן-ורדינון-אונליין",
-      "matched_store_name": "נעמן ורדינון אונליין"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "137278",
@@ -10343,7 +10343,7 @@
       "id": "171233",
       "category_id": "171233",
       "title": "אוהל ל-4 אנשים AMIGO ושני שקי שינה מבית GoNature",
-      "supplier": "4 אנשים AMIGO ושני שקי שינה מבית GoNature",
+      "supplier": "GoNature",
       "category": "אוהל ל-4 אנשים AMIGO ושני שקי שינה מבית GoNature",
       "tags": [
         "קמפינג, מחנאות וטיולים"
@@ -10837,7 +10837,7 @@
       "id": "169814",
       "category_id": "169814",
       "title": "גריל נייד SAHARA 2 Go Mini Gas BBQ - אמישראגז",
-      "supplier": "אמישראגז",
+      "supplier": "גריל נייד SAHARA 2 Go Mini Gas BBQ",
       "category": "גריל נייד SAHARA 2 Go Mini Gas BBQ - אמישראגז",
       "tags": [
         "קמפינג, מחנאות וטיולים"
@@ -10889,7 +10889,7 @@
       "id": "71031",
       "category_id": "71031",
       "title": "אוהל פתיחה מהירה ל-4 אנשים PLAYA",
-      "supplier": "4 אנשים PLAYA",
+      "supplier": "אוהל פתיחה מהירה ל",
       "category": "אוהל פתיחה מהירה ל-4 אנשים PLAYA",
       "tags": [
         "קמפינג, מחנאות וטיולים"
@@ -11175,7 +11175,7 @@
       "id": "183889",
       "category_id": "183889",
       "title": "מחשב נייד HP 840G7 I5 16/512 דור 10 - מחודש‬",
-      "supplier": "בהצדעה",
+      "supplier": "מחשב נייד HP 840G7 I5 16/512 דור 10",
       "category": "מחשב נייד HP 840G7 I5 16/512 דור 10 - מחודש‬",
       "tags": [
         "מחשבים ואלקטרוניקה"
@@ -11721,7 +11721,7 @@
       "id": "177387",
       "category_id": "177387",
       "title": "‏אורגנית Yamaha PSR-E383",
-      "supplier": "E383",
+      "supplier": "‏אורגנית Yamaha PSR",
       "category": "‏אורגנית Yamaha PSR-E383",
       "tags": [
         "מחשבים ואלקטרוניקה"
@@ -11903,7 +11903,7 @@
       "id": "173713",
       "category_id": "173713",
       "title": "מחשב נייד X1 YOGA LENOVO I7 במבחר צבעים - מחודש",
-      "supplier": "מחודש",
+      "supplier": "מחשב נייד X1 YOGA LENOVO I7 במבחר צבעים",
       "category": "מחשב נייד X1 YOGA LENOVO I7 במבחר צבעים - מחודש",
       "tags": [
         "מחשבים ואלקטרוניקה"
@@ -12033,7 +12033,7 @@
       "id": "183254",
       "category_id": "183254",
       "title": "Dell Pro 14 PV14250 1TB 150U - יבואן רשמי",
-      "supplier": "יבואן רשמי",
+      "supplier": "Dell Pro 14 PV14250 1TB 150U",
       "category": "Dell Pro 14 PV14250 1TB 150U - יבואן רשמי",
       "tags": [
         "מחשבים ואלקטרוניקה"
@@ -12215,7 +12215,7 @@
       "id": "142416",
       "category_id": "142416",
       "title": "קרליין Careline -שובר 200 ₪ לאתר במימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "קרליין Careline",
       "category": "קרליין Careline -שובר 200 ₪ לאתר במימוש חד פעמי",
       "tags": [
         "תווי קניה והטבות כסף"
@@ -12241,7 +12241,7 @@
       "id": "110697",
       "category_id": "110697",
       "title": "ZER4U - שובר קנייה 200 ₪ למימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "ZER4U",
       "category": "ZER4U - שובר קנייה 200 ₪ למימוש חד פעמי",
       "tags": [
         "תווי קניה והטבות כסף"
@@ -12260,14 +12260,14 @@
       "description": "ב-150 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "zer4u",
+      "matched_store_name": "zer4u"
     },
     {
       "id": "68490",
       "category_id": "68490",
       "title": "מיננה- שובר קנייה 250 ₪ לאתר למימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "מיננה",
       "category": "מיננה- שובר קנייה 250 ₪ לאתר למימוש חד פעמי",
       "tags": [
         "תווי קניה והטבות כסף"
@@ -12286,14 +12286,14 @@
       "description": "ב-175 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "מיננה-אונליין",
+      "matched_store_name": "מיננה אונליין"
     },
     {
       "id": "71205",
       "category_id": "71205",
       "title": "לבידו - שובר 100 ₪ למימוש חד פעמי באתר",
-      "supplier": "בילוי ופנאי",
+      "supplier": "לבידו",
       "category": "בילוי ופנאי",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12313,14 +12313,14 @@
       "description": "ב-72 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "לבידו",
+      "matched_store_name": "לבידו"
     },
     {
       "id": "65694",
       "category_id": "65694",
       "title": "אליסיום- elysium- שובר כספי בשווי 200 ₪",
-      "supplier": "בהצדעה",
+      "supplier": "אליסיום",
       "category": "אליסיום- elysium- שובר כספי בשווי 200 ₪",
       "tags": [
         "תווי קניה והטבות כסף"
@@ -12339,8 +12339,8 @@
       "description": "ב-127 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "אליסיום",
+      "matched_store_name": "אליסיום"
     },
     {
       "id": "110418",
@@ -12372,7 +12372,7 @@
       "id": "145744",
       "category_id": "145744",
       "title": "דומינו'ס פיצה- שובר קנייה 100 ₪",
-      "supplier": "בהצדעה",
+      "supplier": "דומינו'ס פיצה",
       "category": "דומינו'ס פיצה- שובר קנייה 100 ₪",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12392,14 +12392,14 @@
       "description": "החל מ-79 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "דומינוס-פיצה-אונליין",
+      "matched_store_name": "דומינוס פיצה אונליין"
     },
     {
       "id": "98091",
       "category_id": "98091",
       "title": "תבליני אביבי-שובר 200 ₪ לקנייה באתר-מימוש חד פעמי",
-      "supplier": "מימוש חד פעמי",
+      "supplier": "תבליני אביבי",
       "category": "תבליני אביבי-שובר 200 ₪ לקנייה באתר-מימוש חד פעמי",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12426,7 +12426,7 @@
       "id": "108585",
       "category_id": "108585",
       "title": "Shookit- שובר בשווי 50 ₪/80 ₪ לאתר למימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "Shookit",
       "category": "Shookit- שובר בשווי 50 ₪/80 ₪ לאתר למימוש חד פעמי",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12446,14 +12446,14 @@
       "description": "החל מ-39 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "שוקיט-shookit",
+      "matched_store_name": "שוקיט- shookit"
     },
     {
       "id": "58144",
       "category_id": "58144",
       "title": "2 חב' עדשות מגע חודשיות HORIZONGEL - אופטיקנה",
-      "supplier": "אופטיקנה",
+      "supplier": "2 חב' עדשות מגע חודשיות HORIZONGEL",
       "category": "צרכנות",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12473,8 +12473,8 @@
       "description": "ב-319 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "אופטיקנה",
-      "matched_store_name": "אופטיקנה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "99624",
@@ -12507,7 +12507,7 @@
       "id": "147475",
       "category_id": "147475",
       "title": "פיתוח והדפסת תמונות - אתר זומה מבית דפוס בארי",
-      "supplier": "אתר זומה מבית דפוס בארי",
+      "supplier": "דפוס בארי",
       "category": "צרכנות",
       "tags": [
         "תווי קניה והטבות כסף",
@@ -12560,7 +12560,7 @@
       "id": "182628",
       "category_id": "182628",
       "title": "מכון נועם - איתך בדרך להצלחה",
-      "supplier": "איתך בדרך להצלחה",
+      "supplier": "מכון נועם",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12587,7 +12587,7 @@
       "id": "182632",
       "category_id": "182632",
       "title": "בידוד פלוס - מזגנים וציוד למיזוג אוויר",
-      "supplier": "מזגנים וציוד למיזוג אוויר",
+      "supplier": "בידוד פלוס",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12668,7 +12668,7 @@
       "id": "182636",
       "category_id": "182636",
       "title": "חיש חי-ציוד ומזון לחיות מחמד",
-      "supplier": "ציוד ומזון לחיות מחמד",
+      "supplier": "חיש חי",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12695,7 +12695,7 @@
       "id": "182637",
       "category_id": "182637",
       "title": "e.BATH- מוצרי אמבטיה בשיווק ישיר",
-      "supplier": "מוצרי אמבטיה בשיווק ישיר",
+      "supplier": "e.BATH",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12722,7 +12722,7 @@
       "id": "182638",
       "category_id": "182638",
       "title": "אווזי הזהב - מסעדת בשרים ישראלית",
-      "supplier": "מסעדת בשרים ישראלית",
+      "supplier": "אווזי הזהב",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12742,14 +12742,14 @@
       "description": "",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "אווזי",
+      "matched_store_name": "אווזי"
     },
     {
       "id": "182641",
       "category_id": "182641",
       "title": "תות בשדה - פירות וירקות ישירות מהשדה",
-      "supplier": "פירות וירקות ישירות מהשדה",
+      "supplier": "תות בשדה",
       "category": "ביטוח ושירותים",
       "tags": [
         "הנחות במעמד חיוב -MAX בהצדעה",
@@ -12776,7 +12776,7 @@
       "id": "26270",
       "category_id": "26270",
       "title": "share spa  - שר ספא מלון הרודס הרצליה",
-      "supplier": "שר ספא מלון הרודס הרצליה",
+      "supplier": "share spa",
       "category": "share spa  - שר ספא מלון הרודס הרצליה",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12795,14 +12795,14 @@
       "description": "החל מ-352 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "27534",
       "category_id": "27534",
       "title": "Share Spa - שר ספא הרודס תל אביב",
-      "supplier": "שר ספא הרודס תל אביב",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא הרודס תל אביב",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12821,14 +12821,14 @@
       "description": "החל מ-303 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "42725",
       "category_id": "42725",
       "title": "Share Spa - שר ספא ניקס הרצליה",
-      "supplier": "שר ספא ניקס הרצליה",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא ניקס הרצליה",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12847,14 +12847,14 @@
       "description": "החל מ-391 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "138147",
       "category_id": "138147",
       "title": "Share Spa - שר ספא - מלון סיטי טאוור רמת גן",
-      "supplier": "מלון סיטי טאוור רמת גן",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא - מלון סיטי טאוור רמת גן",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12873,14 +12873,14 @@
       "description": "החל מ-391 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "167564",
       "category_id": "167564",
       "title": "Share Spa - שר ספא מלון דן ירושלים",
-      "supplier": "שר ספא מלון דן ירושלים",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא מלון דן ירושלים",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12899,14 +12899,14 @@
       "description": "החל מ-352 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "רשת-שר-ספא-מלון-דן-ירושלים",
-      "matched_store_name": "רשת שר ספא מלון דן ירושלים"
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "23654",
       "category_id": "23654",
       "title": "Share Spa - שר ספא מלון יו קורל ביץ' אילת",
-      "supplier": "בהצדעה",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא מלון יו קורל ביץ' אילת",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12925,14 +12925,14 @@
       "description": "החל מ-303 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "170194",
       "category_id": "170194",
       "title": "Share Spa - שר ספא מלון רוקסון אילת",
-      "supplier": "שר ספא מלון רוקסון אילת",
+      "supplier": "Share Spa",
       "category": "Share Spa - שר ספא מלון רוקסון אילת",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12951,14 +12951,14 @@
       "description": "החל מ-303 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "share-spa-דן-כרמל-חיפה",
+      "matched_store_name": "share spa דן כרמל חיפה"
     },
     {
       "id": "95529",
       "category_id": "95529",
       "title": "JAH SPA - ספא דן פנורמה אילת",
-      "supplier": "ספא דן פנורמה אילת",
+      "supplier": "JAH SPA",
       "category": "JAH SPA - ספא דן פנורמה אילת",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -12977,14 +12977,14 @@
       "description": "החל מ-325 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "jah-spa-דן-אילת",
+      "matched_store_name": "JAH SPA דן אילת"
     },
     {
       "id": "57631",
       "category_id": "57631",
       "title": "ספא דן אכדיה - הרצליה",
-      "supplier": "הרצליה",
+      "supplier": "ספא דן אכדיה",
       "category": "ספא דן אכדיה - הרצליה",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13003,14 +13003,14 @@
       "description": "החל מ-512 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "שרנה-ספא-מלון-השרון-הרצליה",
-      "matched_store_name": "שרנה ספא מלון השרון הרצליה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "146233",
       "category_id": "146233",
       "title": "אלמונד ספא- מלון בוטיק אלמונד",
-      "supplier": "מלון בוטיק אלמונד",
+      "supplier": "אלמונד ספא",
       "category": "אלמונד ספא- מלון בוטיק אלמונד",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13029,14 +13029,14 @@
       "description": "החל מ-484 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "אלמונד-ספא-מלון-אלמונד",
+      "matched_store_name": "אלמונד ספא- מלון אלמונד"
     },
     {
       "id": "149060",
       "category_id": "149060",
       "title": "דריה ספא- מלון נבל דוד רמדה נתניה",
-      "supplier": "מלון נבל דוד רמדה נתניה",
+      "supplier": "דריה ספא",
       "category": "דריה ספא- מלון נבל דוד רמדה נתניה",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13055,14 +13055,14 @@
       "description": "החל מ-396 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "דריה-ספא-מלון-נבל-דוד-רמדה-נתניה",
-      "matched_store_name": "דריה ספא מלון נבל דוד רמדה נתניה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "153602",
       "category_id": "153602",
       "title": "דריה ספא- מלון נבל דוד גליל ריזורט",
-      "supplier": "מלון נבל דוד גליל ריזורט",
+      "supplier": "דריה ספא",
       "category": "דריה ספא- מלון נבל דוד גליל ריזורט",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13081,14 +13081,14 @@
       "description": "החל מ-484 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "57624",
       "category_id": "57624",
       "title": "JAH SPA - דן קיסריה ריזורט",
-      "supplier": "דן קיסריה ריזורט",
+      "supplier": "JAH SPA",
       "category": "JAH SPA - דן קיסריה ריזורט",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13107,14 +13107,14 @@
       "description": "החל מ-512 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "jah-spa-דן-קיסריה-ריזורט",
-      "matched_store_name": "JAH SPA דן קיסריה ריזורט"
+      "matched_store_id": "jah-spa-דן-אילת",
+      "matched_store_name": "JAH SPA דן אילת"
     },
     {
       "id": "135614",
       "category_id": "135614",
       "title": "ספא מלון בוטיק מאייר האוס תל אביב- mayer-house",
-      "supplier": "house",
+      "supplier": "ספא מלון בוטיק מאייר האוס תל אביב",
       "category": "ספא מלון בוטיק מאייר האוס תל אביב- mayer-house",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13133,8 +13133,8 @@
       "description": "החל מ-338 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "100438",
@@ -13192,7 +13192,7 @@
       "id": "57627",
       "category_id": "57627",
       "title": "THE spa - דיוויד אינטרקונטיננטל",
-      "supplier": "דיוויד אינטרקונטיננטל",
+      "supplier": "THE spa",
       "category": "THE spa - דיוויד אינטרקונטיננטל",
       "tags": [
         "מבצעי ספא מפנקים"
@@ -13211,14 +13211,14 @@
       "description": "החל מ-512 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "the-spa-דיוויד-אינטרקונטיננטל",
-      "matched_store_name": "The spa דיוויד אינטרקונטיננטל"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "66141",
       "category_id": "66141",
       "title": "דומינו'ס- 2 משפחתיות+ נלווה/קינוח+ שתייה",
-      "supplier": "בהצדעה",
+      "supplier": "דומינו'ס",
       "category": "דומינו'ס- 2 משפחתיות+ נלווה/קינוח+ שתייה",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13244,7 +13244,7 @@
       "id": "153946",
       "category_id": "153946",
       "title": "בורגראנץ'- ארוחת קומבינה משפחתית",
-      "supplier": "ארוחת קומבינה משפחתית",
+      "supplier": "בורגראנץ'",
       "category": "בורגראנץ'- ארוחת קומבינה משפחתית",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13270,7 +13270,7 @@
       "id": "61198",
       "category_id": "61198",
       "title": "rebar - משקה M",
-      "supplier": "משקה M",
+      "supplier": "rebar",
       "category": "rebar - משקה M",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13296,7 +13296,7 @@
       "id": "167264",
       "category_id": "167264",
       "title": "פיצה האט- פיצה GIANT- איסוף בלבד",
-      "supplier": "איסוף בלבד",
+      "supplier": "פיצה האט",
       "category": "פיצה האט- פיצה GIANT- איסוף בלבד",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13348,7 +13348,7 @@
       "id": "138662",
       "category_id": "138662",
       "title": "רשת אצה - קומבינציה מיקס",
-      "supplier": "קומבינציה מיקס",
+      "supplier": "רשת אצה",
       "category": "רשת אצה - קומבינציה מיקס",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13400,7 +13400,7 @@
       "id": "137378",
       "category_id": "137378",
       "title": "פרשוק - שובר 200 ₪ לאתר למימוש חד פעמי",
-      "supplier": "בהצדעה",
+      "supplier": "פרשוק",
       "category": "פרשוק - שובר 200 ₪ לאתר למימוש חד פעמי",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13426,7 +13426,7 @@
       "id": "66294",
       "category_id": "66294",
       "title": "פיצה האט-פיצה אישית+תוספת+פחית - איסוף עצמי",
-      "supplier": "איסוף עצמי",
+      "supplier": "פיצה האט",
       "category": "פיצה האט-פיצה אישית+תוספת+פחית - איסוף עצמי",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13452,7 +13452,7 @@
       "id": "152844",
       "category_id": "152844",
       "title": "דומינו'ס פיצה- משפחתית באיסוף",
-      "supplier": "משפחתית באיסוף",
+      "supplier": "דומינו'ס פיצה",
       "category": "דומינו'ס פיצה- משפחתית באיסוף",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13471,14 +13471,14 @@
       "description": "החל מ-50 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "דומינוס-פיצה-אונליין",
+      "matched_store_name": "דומינוס פיצה אונליין"
     },
     {
       "id": "40894",
       "category_id": "40894",
       "title": "אנרג'וסר - מגשי פירות מעוצבים+משלוח",
-      "supplier": "בהצדעה",
+      "supplier": "אנרג'וסר",
       "category": "אנרג'וסר - מגשי פירות מעוצבים+משלוח",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13497,8 +13497,8 @@
       "description": "החל מ-208 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "אנרג-וסר",
+      "matched_store_name": "אנרג'וסר"
     },
     {
       "id": "904",
@@ -13582,7 +13582,7 @@
       "id": "154367",
       "category_id": "154367",
       "title": "שייקשוק - פירות קפואים",
-      "supplier": "פירות קפואים",
+      "supplier": "שייקשוק",
       "category": "שייקשוק - פירות קפואים",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13601,14 +13601,14 @@
       "description": "החל מ-154 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "שייקשוק-אונליין",
+      "matched_store_name": "שייקשוק אונליין"
     },
     {
       "id": "153956",
       "category_id": "153956",
       "title": "רשת פאפא ג'ונס - מגשי פיצה",
-      "supplier": "מגשי פיצה",
+      "supplier": "רשת פאפא ג'ונס",
       "category": "רשת פאפא ג'ונס - מגשי פיצה",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13634,7 +13634,7 @@
       "id": "145116",
       "category_id": "145116",
       "title": "רשת ג'אסט מיט - Just Meat - למימוש חד פעמי",
-      "supplier": "למימוש חד פעמי",
+      "supplier": "רשת ג'אסט מיט",
       "category": "רשת ג'אסט מיט - Just Meat - למימוש חד פעמי",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13660,7 +13660,7 @@
       "id": "62933",
       "category_id": "62933",
       "title": "מיקסטה קוקטיילס - מארזי קוקטיילים להכנה עצמית",
-      "supplier": "מארזי קוקטיילים להכנה עצמית",
+      "supplier": "מיקסטה קוקטיילס",
       "category": "מיקסטה קוקטיילס - מארזי קוקטיילים להכנה עצמית",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13686,7 +13686,7 @@
       "id": "67288",
       "category_id": "67288",
       "title": "משק משפחת ג'השאן - שמן זית סדרת הפרימיום + משלוח",
-      "supplier": "בהצדעה",
+      "supplier": "משק משפחת ג'השאן",
       "category": "משק משפחת ג'השאן - שמן זית סדרת הפרימיום + משלוח",
       "tags": [
         "טעים, מהיר, משתלם"
@@ -13738,7 +13738,7 @@
       "id": "177018",
       "category_id": "177018",
       "title": "המסע לאנטרקטיקה - נפלאות העולם הקפוא!",
-      "supplier": "מופעים והצגות",
+      "supplier": "המסע לאנטרקטיקה",
       "category": "מופעים והצגות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -13792,7 +13792,7 @@
       "id": "142768",
       "category_id": "142768",
       "title": "D.N.A – מיומנה לכל המשפחה במופע חדש",
-      "supplier": "מיומנה לכל המשפחה במופע חדש",
+      "supplier": "מופעים והצגות",
       "category": "מופעים והצגות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -13819,7 +13819,7 @@
       "id": "44236",
       "category_id": "44236",
       "title": "מפצח האגוזים - הבלט הישראלי",
-      "supplier": "הבלט הישראלי",
+      "supplier": "מפצח האגוזים",
       "category": "מופעים והצגות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -13846,7 +13846,7 @@
       "id": "174019",
       "category_id": "174019",
       "title": "אטרקציות הים האדום - טיולי שטח באגי/רייזרים",
-      "supplier": "אטרקציות",
+      "supplier": "אטרקציות הים האדום",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -13873,7 +13873,7 @@
       "id": "27092",
       "category_id": "27092",
       "title": "אנו - מוזיאון העם היהודי",
-      "supplier": "מוזיאון העם היהודי",
+      "supplier": "אטרקציות",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -13954,7 +13954,7 @@
       "id": "44902",
       "category_id": "44902",
       "title": "מנהרות הכותל- סיורים במנהרות הכותל ועוד",
-      "supplier": "סיורים במנהרות הכותל ועוד",
+      "supplier": "מנהרות הכותל",
       "category": "אטרקציות",
       "tags": [
         "אטרקציות לכל המשפחה",
@@ -14272,7 +14272,7 @@
       "id": "174121",
       "category_id": "174121",
       "title": "זוג משקולות אוניברסליות מתכווננות 2.5-24 ק״ג",
-      "supplier": "בהצדעה",
+      "supplier": "זוג משקולות אוניברסליות מתכווננות 2.5",
       "category": "זוג משקולות אוניברסליות מתכווננות 2.5-24 ק״ג",
       "tags": [
         "כושר וספורט"
@@ -15208,7 +15208,7 @@
       "id": "173504",
       "category_id": "173504",
       "title": "אופניי ספינינג מקצועיים - גלגל תנופה 6 ק\"ג",
-      "supplier": "בהצדעה",
+      "supplier": "אופניי ספינינג מקצועיים",
       "category": "אופניי ספינינג מקצועיים - גלגל תנופה 6 ק\"ג",
       "tags": [
         "כושר וספורט"
@@ -15286,7 +15286,7 @@
       "id": "176971",
       "category_id": "176971",
       "title": "סט מולטי נט 3 ב-1 כדורעף, בדמינגטון, טניס",
-      "supplier": "בהצדעה",
+      "supplier": "סט מולטי נט 3 ב",
       "category": "סט מולטי נט 3 ב-1 כדורעף, בדמינגטון, טניס",
       "tags": [
         "כושר וספורט"
@@ -15312,7 +15312,7 @@
       "id": "180704",
       "category_id": "180704",
       "title": "שער כדורגל מתקפל נייד - מגוון מידות",
-      "supplier": "מגוון מידות",
+      "supplier": "שער כדורגל מתקפל נייד",
       "category": "שער כדורגל מתקפל נייד - מגוון מידות",
       "tags": [
         "כושר וספורט"
@@ -15546,7 +15546,7 @@
       "id": "20740",
       "category_id": "20740",
       "title": "תיאטרון הקאמרי לעונה 2026-2027",
-      "supplier": "2027",
+      "supplier": "תיאטרון הקאמרי לעונה 2026",
       "category": "תיאטרון הקאמרי לעונה 2026-2027",
       "tags": [
         "מנויים והצגות"
@@ -16642,7 +16642,7 @@
       "id": "62768",
       "category_id": "62768",
       "title": "כלל - ביטוח דירה במחיר אטרקטיבי לחברי המועדון",
-      "supplier": "ביטוח דירה במחיר אטרקטיבי לחברי המועדון",
+      "supplier": "ביטוח ושירותים",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוחים ושירותים פיננסים",
@@ -16669,7 +16669,7 @@
       "id": "18355",
       "category_id": "18355",
       "title": "ביטוח החיים של הראל-בהטבה מיוחדת לחברי המועדון",
-      "supplier": "בהטבה מיוחדת לחברי המועדון",
+      "supplier": "ביטוח החיים של הראל",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוחים ושירותים פיננסים",
@@ -16696,7 +16696,7 @@
       "id": "65116",
       "category_id": "65116",
       "title": "מבנים - חבילת בדק בית מקיפה לדירה",
-      "supplier": "חבילת בדק בית מקיפה לדירה",
+      "supplier": "מבנים",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוחים ושירותים פיננסים",
@@ -16777,7 +16777,7 @@
       "id": "29171",
       "category_id": "29171",
       "title": "רשת HOLMES PLACE – מנוי חצי שנתי",
-      "supplier": "מנוי חצי שנתי",
+      "supplier": "רשת HOLMES PLACE",
       "category": "כושר וספורט",
       "tags": [
         "נכנסים לכושר",
@@ -16858,7 +16858,7 @@
       "id": "25164",
       "category_id": "25164",
       "title": "freefit פריפיט- כרטיס נטען לפילאטיס",
-      "supplier": "כרטיס נטען לפילאטיס",
+      "supplier": "freefit פריפיט",
       "category": "כושר וספורט",
       "tags": [
         "נכנסים לכושר",
@@ -16878,14 +16878,14 @@
       "description": "ב-306 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "freefit",
+      "matched_store_name": "freefit"
     },
     {
       "id": "25221",
       "category_id": "25221",
       "title": "freefit פריפיט- כרטיס נטען סטודיו",
-      "supplier": "כרטיס נטען סטודיו",
+      "supplier": "freefit פריפיט",
       "category": "כושר וספורט",
       "tags": [
         "נכנסים לכושר",
@@ -16905,14 +16905,14 @@
       "description": "ב-306 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": null,
-      "matched_store_name": null
+      "matched_store_id": "freefit",
+      "matched_store_name": "freefit"
     },
     {
       "id": "158013",
       "category_id": "158013",
       "title": "DREAM PILATES- דרים פילאטיס",
-      "supplier": "דרים פילאטיס",
+      "supplier": "DREAM PILATES",
       "category": "כושר וספורט",
       "tags": [
         "נכנסים לכושר",
@@ -16939,7 +16939,7 @@
       "id": "145290",
       "category_id": "145290",
       "title": "רבו פיטנס פילאטיס סטודיו לנשים - Revo fitness",
-      "supplier": "Revo fitness",
+      "supplier": "רבו פיטנס פילאטיס סטודיו לנשים",
       "category": "כושר וספורט",
       "tags": [
         "נכנסים לכושר",
@@ -16959,8 +16959,8 @@
       "description": "החל מ-240 ₪",
       "terms_of_use": "",
       "variants": [],
-      "matched_store_id": "רבו-פיטנס-revo-fitness",
-      "matched_store_name": "רבו פיטנס- Revo fitness"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "57532",
@@ -18866,8 +18866,8 @@
       "description": "החל מ-525 ₪",
       "terms_of_use": "- הטיולים יוצאים מחוות הנדיב בכל ימות השבוע - אין כניסת בעלי חיים ביתיים לחווה - מערכות הקשר בכלים מאפשרות הדרכה ושיח גם במהלך הנסיעה - הנסיעה כוללת משקפי אבק + חגורות בטיחות המאפשרות חיבור של סלקל/כיסא בטיחות לילדים",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "158292",
@@ -19022,8 +19022,8 @@
       "description": "החל מ-37 ₪",
       "terms_of_use": "- בתיאום מראש מול בית העסק",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "מועדון-גלישה-דאדיז",
+      "matched_store_name": "מועדון גלישה דאדיז"
     },
     {
       "id": "174731",
@@ -20115,8 +20115,8 @@
       "description": "החל מ-54 ₪",
       "terms_of_use": "- שעות הפעילות: 9:30-17:00 (כניסה מתאפשרת עד השעה 14:00),&nbsp; ימי שישי וערב חג - מיצג המתחיל בשעה 09:30 - חובה לתאם הגעה מראש - הפעילות אורכת כשלוש שעות - על הילדים להיות בהשגחת הורה/ מבוגר מלווה אחר במהלך כל משך הפעילות - ילדים מגיל 5 חייבים בכרטיס כניסה (ילדים מתחת לגיל 5 אינם רשאים להשתתף במערת זחילה, עליהם להמתין במהלך חלק זה של הפעילות ביחד עם מלווה מבוגר) - שימו לב: המחיר לא כולל עלות כניסה לגן הלאומי בית גוברין המשולמת ישירות בכניסה לפארק. חינם לבעלי כרטיס מטמון",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "111424",
@@ -20245,8 +20245,8 @@
       "description": "החל מ-14 ₪",
       "terms_of_use": "- שעות פעילות 10:00 - 18:00, ימים א'-ש' - תקף בכל שעות פעילות המקום, כולל חגים - כרטיס ילד תקף לגילאי 2-14",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "71001",
@@ -20271,8 +20271,8 @@
       "description": "ב-37 ₪",
       "terms_of_use": "תקף בכל שעות פעילות המקום, כולל חגים כרטיס ילד תקף לגילאי 2-14 למעט כניסה רגילה – יש לתאם הגעה בטלפון 054-3537251 &nbsp;",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "98380",
@@ -20427,8 +20427,8 @@
       "description": "החל מ-35 ₪",
       "terms_of_use": "-&nbsp; משחק הלייזר עורך כ 30 דק&#39; כולל הדרכה - משחק הלייזר הינו למינימום 2 אנשים&nbsp; - הפעילות מגיל 6 ומעלה - יש לתאם מראש בטלפון 072-371-7195 - פתוח 7 ימים בשבוע - תוקף מכירה: 31/12/2023 - תוקף מימוש: 31/03/2024",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "לייזר-טאג-לייזר-סטריט-רעננה",
+      "matched_store_name": "לייזר טאג - לייזר סטריט רעננה"
     },
     {
       "id": "73722",
@@ -22484,8 +22484,8 @@
       "description": "החל מ-45 ₪",
       "terms_of_use": "* המטרה- להכניס את הכדור לחור, לכל שחן יש 6 חבטות בכל נסיון, השחקן עם מספר החבטות הנמוך ביותר מנצח.&nbsp; * מי משלם - כל שחקן שנכנס למתחם, ילדים מתחת לגיל 12 נדרשים בליווי מבוגר משולם * בשבתות בחגים מכיוון שמתחם נאון גולף עמוס ומלא, חובה לשריין תור במערכת זימון תורים . ללא זימון תור מראש הכניסה והמימוש על בסיס מקום פנוי בלבד . * המיני גולף מתאים לגילאי 5 ומעלה ומותאם לפעילות משפחתית לילדים ומבוגרים יחד. יש לשים לב שעד גיל 9 ילדים יותר מתקשים לחבוט בכדור ולהבין את חוקי המשחק ולכן חובה ליווי מבוגר להנאה מירבית",
       "variants": [],
-      "matched_store_id": "גולף",
-      "matched_store_name": "גולף"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "142657",
@@ -22536,8 +22536,8 @@
       "description": "החל מ-105 ₪",
       "terms_of_use": "- לאחר הרכישה באתר, חובה לתאם הגעה טלפונית מול בית העסק - תקף בסניף גלילות בלבד&nbsp; - המשחקים תקפים בכל ימי הפעילות&nbsp; - המשחקים הינם בקבוצות&nbsp; - ניתנת אפשרות לשדרוג&nbsp;של משחקים נוספים מול בית העסק",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "לייזר-סיטי-גלילות",
+      "matched_store_name": "לייזר סיטי גלילות"
     },
     {
       "id": "185189",
@@ -22666,8 +22666,8 @@
       "description": "החל מ-15 ₪",
       "terms_of_use": "- בכפוף לנהלי הבטיחות במקום&nbsp; - משך הפעילות: שעה - הפעילות אסורה לנשים בהריון, לאנשים הסובלים ממחלות לב, בעיות גב או צוואר, או לחץ דם גבוה - קרוסלה משוגעת – מעל גובה 1.22 - טרנטולה ובוסטר – מגובה 1.30 הפעילות אסורה לנשים בהריון, לאנשים הסובלים ממחלות לב, בעיות גב או צוואר, או לחץ דם גבוה - קרוסלה משוגעת – מעל גובה 1.22 - טרנטולה ובוסטר – מגובה 1.30 , טרנטולה ובוסטר – מגובה 1.30&nbsp; - שעות פעילות: א&#39;-שבת מ-18:00 עד 24:00 (חצות) כולל חגים, מועדים וחופשים. - עד גמר המלאי - התמונה להמחשה בלבד - בכפוף לתקנון אתר ההטבות",
       "variants": [],
-      "matched_store_id": "בוס",
-      "matched_store_name": "בוס"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "45378",
@@ -23914,8 +23914,8 @@
       "description": "ב-85 ₪",
       "terms_of_use": "- לביקור בחווה ולפעילות הסדנאות יש להזמין מקום מראש באתר גליתא: www.galita.co.il - בסיום ההזמנה יתבצע התשלום עם הקוד של השובר שרכשתם - שימו לב למדיניות הביטולים שמופיעה באתר גליתא - ניתן לממש בסניף צובה בלבד&nbsp; - כל משתתף מגיל 3 צריך כרטיס - ילדים עד גיל 10 חייבים להיכנס עם מבוגר אחד לפחות &nbsp;",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "42878",
@@ -23940,8 +23940,8 @@
       "description": "ב-85 ₪",
       "terms_of_use": "- לביקור בחווה ולפעילות הסדנאות יש להזמין מקום מראש באתר גליתא: www.galita.co.il - בסיום ההזמנה יתבצע התשלום עם הקוד של השובר שרכשתם - ניתן לממש בסניף דגניה בלבד - שימו לב למדיניות הביטולים שמופיעה באתר גליתא - כל משתתף מגיל 3 צריך כרטיס - ילדים עד גיל 10 חייבים להיכנס עם מבוגר אחד לפחות &nbsp;",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "59157",
@@ -23992,8 +23992,8 @@
       "description": "החל מ-75 ₪",
       "terms_of_use": "- הפעילויות מותנות במצב הים - האתר סגור בשבתות &nbsp; &nbsp;&nbsp;",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "66848",
@@ -24174,8 +24174,8 @@
       "description": "החל מ-450 ₪",
       "terms_of_use": "- יש לתאם הגעה מראש&nbsp; - חובה רישיון כדי לנהוג על הרייזר - גיל מינימום 4&nbsp;",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "105936",
@@ -25325,7 +25325,7 @@
       "id": "177549",
       "category_id": "177549",
       "title": "חדש - tami4 Shabat במחיר מיוחד למועדון",
-      "supplier": "tami4 Shabat במחיר מיוחד למועדון",
+      "supplier": "צרכנות",
       "category": "צרכנות",
       "tags": [
         "מטבח ואירוח"
@@ -25507,7 +25507,7 @@
       "id": "164198",
       "category_id": "164198",
       "title": "חבילת אינטרנט מבית בזק 300-5000 מגה",
-      "supplier": "5000 מגה",
+      "supplier": "בזק 300",
       "category": "צרכנות",
       "tags": [
         "תקשורת"
@@ -27951,7 +27951,7 @@
       "id": "143339",
       "category_id": "143339",
       "title": "קורס דיגיטלי מתנה ללא עלות - \"קוד המנצח לצעירים\"",
-      "supplier": "בילוי ופנאי",
+      "supplier": "קורס דיגיטלי מתנה ללא עלות",
       "category": "בילוי ופנאי",
       "tags": [
         "תרבות והעשרה"
@@ -27977,7 +27977,7 @@
       "id": "143591",
       "category_id": "143591",
       "title": "אלון אולמן וניר דובדבני - פגישת ייעוץ ללא עלות",
-      "supplier": "פגישת ייעוץ ללא עלות",
+      "supplier": "אלון אולמן וניר דובדבני",
       "category": "בילוי ופנאי",
       "tags": [
         "תרבות והעשרה"
@@ -28855,8 +28855,8 @@
       "description": "החל מ-45 ₪",
       "terms_of_use": "- ההטבה מקנה כניסה/ כרטיסייה או מנוי לקאנטרי - להפעלת המנוי יש להתקשר- 04-6000776 או להגיע למזכירות הבריכה - המנוי הינו שנתי&nbsp; - כרטיס כניסה חד פעמי/ כרטיסייה - אינם תקפים לבריכת קיץ, חוגים ולחדר הכושר. - כניסה לחדר הכושר תק פה ברכישת מנוי בלבד&nbsp; - תקף בכל שעות הפעילות - הכרטיסייה תקפה לכל ימות השבוע - מנוי לבן משפחה של חבר מועדון- רק מקרבה ראשונה ובהצגת תעודת זהות",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "קאנטרי-נוף-הגליל",
+      "matched_store_name": "קאנטרי נוף הגליל"
     },
     {
       "id": "161748",
@@ -29193,8 +29193,8 @@
       "description": "החל מ-131 ₪",
       "terms_of_use": "- מימוש של שובר אחד לאדם, ללקוחות חדשים שלא היו בקליניקה בחצי שנה האחרונה - יש להודיע על שינוי/ביטול תור 48 שעות מראש, אחרת השובר יחשב כמומש&nbsp;",
       "variants": [],
-      "matched_store_id": "h-o",
-      "matched_store_name": "H&O"
+      "matched_store_id": "shoshka-cosmetics",
+      "matched_store_name": "shoshka cosmetics"
     },
     {
       "id": "153954",
@@ -29609,8 +29609,8 @@
       "description": "ב-37 ₪",
       "terms_of_use": "- ההטבה לא כוללת כרטיסים לסרט פתיחה, רצועה קולונרית ואירועים מיוחדים קרדיט צילום: צחי אוסטרובסקי | עיבוד תמונה באמצעות בינה מלאכותית&nbsp; &nbsp; &nbsp; &nbsp;&nbsp; עיצוב: פרסום מכטינגר.",
       "variants": [],
-      "matched_store_id": "סינמטק-חיפה",
-      "matched_store_name": "סינמטק חיפה"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "45299",
@@ -29661,8 +29661,8 @@
       "description": "החל מ-48 ₪",
       "terms_of_use": "- חובה לתאם הגעה מראש - החל מגיל 18&nbsp; &nbsp; פרטי בית העסק: קיבוץ יראון טלפון: 04-6868748 לאתר הרשמי של בית העסק&nbsp; לחץ כאן",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "62181",
@@ -30155,8 +30155,8 @@
       "description": "החל מ-55 ₪",
       "terms_of_use": "- סיורים מתקיימים בימים שני - שבת (כל השבוע חוץ מיום א')&nbsp;בשעות 11.00, 14.00 - יש לתאם הגעה מראש בטלפון - תקף בכל ימי הפעילות (א-שבת), בכפוף לתנאי מזג האוויר - האירוח נמצא בחוץ -&nbsp;בימי חמישי \"חמישי בשקיעה\" – המקום פתוח עד 22:00",
       "variants": [],
-      "matched_store_id": "בוס",
-      "matched_store_name": "בוס"
+      "matched_store_id": "בוסתן-עברי-יקב-אלבר",
+      "matched_store_name": "בוסתן עברי יקב אלבר"
     },
     {
       "id": "138267",
@@ -30240,7 +30240,7 @@
       "id": "42497",
       "category_id": "42497",
       "title": "תכנית הכשרה לקריירת הייטק - ללא עלות",
-      "supplier": "ללא עלות",
+      "supplier": "תכנית הכשרה לקריירת הייטק",
       "category": "בילוי ופנאי",
       "tags": [
         "לימודים ותעסוקה"
@@ -30266,7 +30266,7 @@
       "id": "148857",
       "category_id": "148857",
       "title": "דנאל  -סיוע במציאות עבודה",
-      "supplier": "סיוע במציאות עבודה",
+      "supplier": "דנאל",
       "category": "בילוי ופנאי",
       "tags": [
         "לימודים ותעסוקה"
@@ -30318,7 +30318,7 @@
       "id": "150609",
       "category_id": "150609",
       "title": "HIGHQ - מצדיעה לחברי בהצדעה 25% הנחה",
-      "supplier": "בילוי ופנאי",
+      "supplier": "HIGHQ",
       "category": "בילוי ופנאי",
       "tags": [
         "לימודים ותעסוקה"
@@ -30370,7 +30370,7 @@
       "id": "24202",
       "category_id": "24202",
       "title": "\"נחשונים להוראה\"  - תכנית יוקרתית ללימודי הוראה",
-      "supplier": "תכנית יוקרתית ללימודי הוראה",
+      "supplier": "\"נחשונים להוראה\"",
       "category": "בילוי ופנאי",
       "tags": [
         "לימודים ותעסוקה"
@@ -30961,8 +30961,8 @@
       "description": "ב-340 ₪",
       "terms_of_use": "- מרגע ביצוע ההזמנה, ישלח לביתך המגזין של החודש הבא בהתאם לכתובת המופיעה במערכת - המחירים כוללים משלוח - מותאם לגילאי 7-15&nbsp; - הטבה ברכישת המנוי- גיליון נוסף מתנה - ניתן לראות דוגמא בא ת ר האינטרנט &nbsp; טלפון שירות לקוחות: 077-2340605",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "111721",
@@ -30987,8 +30987,8 @@
       "description": "ב-340 ₪",
       "terms_of_use": "&nbsp;מרגע ביצוע ההזמנה, ישלח לביתך המגזין של החודש הבא בהתאם לכתובת המופיעה במערכת - המחירים כוללים משלוח - מותאם לגילאי גן חובה והכיתות הנמוכות טלפון שירות לקוחות: 077-2340605 לאתר בית העסק לחצו כאן&nbsp; אופן מימוש: מרגע ביצוע ההזמנה, ישלח לביתך המגזין של החודש הבא",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "18550",
@@ -31046,7 +31046,7 @@
       "id": "84918",
       "category_id": "84918",
       "title": "אסטרל - Ananas",
-      "supplier": "Ananas",
+      "supplier": "אסטרל",
       "category": "תיירות ונופש",
       "tags": [
         "בתי מלון בישראל"
@@ -31072,7 +31072,7 @@
       "id": "84916",
       "category_id": "84916",
       "title": "ישרוטל - Ananas",
-      "supplier": "Ananas",
+      "supplier": "ישרוטל",
       "category": "תיירות ונופש",
       "tags": [
         "בתי מלון בישראל"
@@ -31098,7 +31098,7 @@
       "id": "67689",
       "category_id": "67689",
       "title": "פתאל - Ananas",
-      "supplier": "Ananas",
+      "supplier": "פתאל",
       "category": "תיירות ונופש",
       "tags": [
         "בתי מלון בישראל"
@@ -31124,7 +31124,7 @@
       "id": "84917",
       "category_id": "84917",
       "title": "Ananas - VERT",
-      "supplier": "VERT",
+      "supplier": "Ananas",
       "category": "תיירות ונופש",
       "tags": [
         "בתי מלון בישראל"
@@ -31143,14 +31143,14 @@
       "description": "",
       "terms_of_use": ".",
       "variants": [],
-      "matched_store_id": "vert-אילת",
-      "matched_store_name": "VERT אילת"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "67688",
       "category_id": "67688",
       "title": "דן - Ananas",
-      "supplier": "Ananas",
+      "supplier": "תיירות ונופש",
       "category": "תיירות ונופש",
       "tags": [
         "בתי מלון בישראל"
@@ -31202,7 +31202,7 @@
       "id": "176294",
       "category_id": "176294",
       "title": "ביטוח רכב - הפניקס",
-      "supplier": "הפניקס",
+      "supplier": "ביטוח רכב",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח רכב"
@@ -31228,7 +31228,7 @@
       "id": "176293",
       "category_id": "176293",
       "title": "כלל - ביטוח רכב",
-      "supplier": "ביטוח רכב",
+      "supplier": "ביטוח ושירותים",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח רכב"
@@ -31280,7 +31280,7 @@
       "id": "151971",
       "category_id": "151971",
       "title": "הראל -ביטוח נסיעות לחו\"ל",
-      "supplier": "ביטוח ושירותים",
+      "supplier": "הראל",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח נסיעות"
@@ -31306,7 +31306,7 @@
       "id": "160982",
       "category_id": "160982",
       "title": "הפניקס - ביטוח נסיעות לחו\"ל",
-      "supplier": "ביטוח ושירותים",
+      "supplier": "הפניקס",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח נסיעות"
@@ -31462,7 +31462,7 @@
       "id": "173820",
       "category_id": "173820",
       "title": "AIG - ביטוח דירה",
-      "supplier": "ביטוח דירה",
+      "supplier": "ביטוח ושירותים",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח דירה"
@@ -31488,7 +31488,7 @@
       "id": "147911",
       "category_id": "147911",
       "title": "הראל - ביטוח דירה",
-      "supplier": "ביטוח דירה",
+      "supplier": "הראל",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח דירה"
@@ -31644,7 +31644,7 @@
       "id": "125054",
       "category_id": "125054",
       "title": "כלל - ביטוח משכנתא",
-      "supplier": "ביטוח משכנתא",
+      "supplier": "ביטוח ושירותים",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח וייעוץ משכנתא",
@@ -31698,7 +31698,7 @@
       "id": "166967",
       "category_id": "166967",
       "title": "חיותא- ביטוח חיות מחמד",
-      "supplier": "ביטוח חיות מחמד",
+      "supplier": "חיותא",
       "category": "ביטוח ושירותים",
       "tags": [
         "ביטוח בעלי חיים"
@@ -32445,8 +32445,8 @@
       "description": "ב-1500 ₪",
       "terms_of_use": "- המחיר אינו כולל דמי רישום בסך 200 ₪ שישולמו ישירות לבית העסק - ההטבה למצטרפים חדשים בלבד - ביטולים יתבצעו ישירות ע&quot;י הלקוח מול סניף חדש הכושר והזיכוי יעשה ע&quot;י צ&#39;ק מאת בית העסק- למדיניות הביטולים של חוק חדרי הכושר&nbsp; לחץ כאן",
       "variants": [],
-      "matched_store_id": "ספא-halo-spa-במלון-sealife",
-      "matched_store_name": "ספא HALO SPA במלון  SeaLife"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "177324",
@@ -32523,8 +32523,8 @@
       "description": "החל מ-37 ₪",
       "terms_of_use": "- להפעלת המנוי יש להתקשר למספר 04-8473777 או להגיע למזכירות הבריכה - כרטיס כניסה חד פעמי אינו כולל חוגים - תאריך סיום מכירה&nbsp;31/12/2025 מימוש עד&nbsp;28/02/2026 - תקף בכל שעות פעילות המתחם&nbsp; טלפון: 04-8473777 כתובת: שדרות מעלה יצחק 4, נוף הגליל",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "המתחם-נוף-הגליל",
+      "matched_store_name": "המתחם נוף הגליל"
     },
     {
       "id": "97689",
@@ -32601,8 +32601,8 @@
       "description": "החל מ-380 ₪",
       "terms_of_use": "-&nbsp;להפעלת המינוי יש לחייג למספר 04-8473777 או להגיע למזכירות \"המתחם\". - תאריך סיום מכירה&nbsp;31/12/2025 מימוש עד&nbsp;28/02/2026 - כרטיסייה של 8 או 16 כניסות. -&nbsp;כרטיסיית 8 כניסות תקפה לחודשיים מיום הפעלתה (60 יום) וכרטיסיית 16 כניסות תקפה ל-4 חודשים מיום הפעלתה.&nbsp; - ביטול בהתאם למדיניות בית העסק. - ביטול אימון עד 24 שעות לפני מועד האימון.&nbsp; טלפון: 04-8473777 כתובת: שדרות מעלה יצחק 6, נוף הגליל",
       "variants": [],
-      "matched_store_id": "גלי",
-      "matched_store_name": "גלי"
+      "matched_store_id": "המתחם-נוף-הגליל",
+      "matched_store_name": "המתחם נוף הגליל"
     },
     {
       "id": "57936",
@@ -45739,7 +45739,7 @@
       "id": "59254",
       "category_id": "59254",
       "title": "טריידמוביל - רכב מיד ראשונה פרטית",
-      "supplier": "רכב מיד ראשונה פרטית",
+      "supplier": "טריידמוביל",
       "category": "מבצעי רכב",
       "tags": [
         "רכב מיד ראשונה"
@@ -45836,8 +45836,8 @@
       "description": "",
       "terms_of_use": ".",
       "variants": [],
-      "matched_store_id": "בוסתן-עברי-יקב-אלבר",
-      "matched_store_name": "בוסתן עברי יקב אלבר"
+      "matched_store_id": null,
+      "matched_store_name": null
     },
     {
       "id": "172017",
@@ -45921,7 +45921,7 @@
       "id": "163603",
       "category_id": "163603",
       "title": "אוטו שי – השכרת רכב בחו\"ל",
-      "supplier": "מבצעי רכב",
+      "supplier": "אוטו שי",
       "category": "מבצעי רכב",
       "tags": [
         "השכרת רכב בחו\"ל"
@@ -45947,7 +45947,7 @@
       "id": "163606",
       "category_id": "163606",
       "title": "אוטו יורופ - השכרת רכב בחו\"ל",
-      "supplier": "מבצעי רכב",
+      "supplier": "אוטו יורופ",
       "category": "מבצעי רכב",
       "tags": [
         "השכרת רכב בחו\"ל"
