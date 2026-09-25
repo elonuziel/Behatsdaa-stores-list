@@ -159,9 +159,15 @@ async function runTests() {
   await new Promise(r => setTimeout(r, 50));
   console.log('  -> PASS (Price filter works correctly)');
 
-  // --- Test 7: Deal Details Modal ---
-  console.log('[Test 7] Testing Deal details modal...');
+  // --- Test 7: Deal Details Modal & Crossed-Out Price ---
+  console.log('[Test 7] Testing Deal details modal & crossed-out original price...');
   const firstDealCard = document.querySelector('#deals-grid .deal-card');
+  
+  // Check that deal card shows both discounted and strikethrough original price
+  const cardOrigPrice = firstDealCard.querySelector('.line-through');
+  assert.ok(cardOrigPrice, 'Deal card should show crossed-out original price');
+  assert.ok(cardOrigPrice.textContent.includes('₪'), 'Crossed price should have currency symbol');
+
   firstDealCard.click();
   await new Promise(r => setTimeout(r, 50));
 
@@ -169,6 +175,10 @@ async function runTests() {
   assert.ok(!dealModal.classList.contains('hidden'), 'Deal modal should be open');
   const modalTitle = document.getElementById('deal-modal-title').textContent;
   assert.ok(modalTitle.length > 0, 'Modal title should be populated');
+  const modalOrigPrice = document.getElementById('deal-modal-orig-price');
+  assert.ok(!modalOrigPrice.classList.contains('hidden'), 'Modal should show crossed-out original price');
+  assert.ok(modalOrigPrice.classList.contains('line-through'), 'Original price should have line-through class');
+
   const buyLink = document.getElementById('deal-modal-buy-link').href;
   assert.ok(buyLink.includes('behatsdaa.org.il/category/productPage'), 'Buy link should point to Behatsdaa product page');
 
@@ -176,10 +186,33 @@ async function runTests() {
   const dealModalCloseBtn = document.getElementById('deal-modal-close-btn');
   dealModalCloseBtn.click();
   assert.ok(dealModal.classList.contains('hidden'), 'Deal modal should be closed');
-  console.log('  -> PASS (Deal modal opens with complete details and closes cleanly)');
+  console.log('  -> PASS (Both discounted and crossed-out original prices shown on card & modal)');
 
-  // --- Test 8: Store Card to Deals Jump Navigation ---
-  console.log('[Test 8] Testing cross-link jump from store card to deals...');
+  // --- Test 8: Reverse Link: Voucher to Store on Card ---
+  console.log('[Test 8] Testing reverse link from voucher to store on cards...');
+  const dealWithStore = Array.from(document.querySelectorAll('#deals-grid .deal-card')).find(c => 
+    c.textContent.includes('ורדינון') || c.textContent.includes('אצה')
+  );
+  assert.ok(dealWithStore, 'Found deal for Vardinon or Atza');
+  const storeLinkBtn = dealWithStore.querySelector('[data-action="view-linked-store"]');
+  assert.ok(storeLinkBtn, 'Deal card should have link to store on cards');
+
+  // Open deal modal for this deal and verify banner
+  dealWithStore.click();
+  await new Promise(r => setTimeout(r, 50));
+  const modalStoreBanner = document.getElementById('deal-modal-linked-store-banner');
+  assert.ok(!modalStoreBanner.classList.contains('hidden'), 'Deal modal should show linked store banner');
+
+  // Click banner button to jump to store
+  const viewStoreBtn = document.getElementById('deal-modal-view-store-btn');
+  viewStoreBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  assert.ok(!storesSection.classList.contains('hidden'), 'Should transition to Stores tab');
+  assert.ok(document.getElementById('search-input').value.length > 0, 'Store search should be pre-filled');
+  console.log('  -> PASS (Reverse link from voucher to store works on both card and modal)');
+
+  // --- Test 9: Store Card to Deals Jump Navigation ---
+  console.log('[Test 9] Testing cross-link jump from store card to deals...');
   // Switch back to stores
   const tabStoresBtn = document.getElementById('tab-stores-btn');
   tabStoresBtn.click();
@@ -196,8 +229,8 @@ async function runTests() {
   assert.strictEqual(dealsSearchInput.value, 'ורדינון', 'Deals search should be pre-filled with store name');
   console.log('  -> PASS (Store badge jump successfully navigates to pre-filtered Deals tab)');
 
-  // --- Test 9: Dark / Light Mode Toggle ---
-  console.log('[Test 9] Testing Theme Toggle...');
+  // --- Test 10: Dark / Light Mode Toggle ---
+  console.log('[Test 10] Testing Theme Toggle...');
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
   const wasDark = document.documentElement.classList.contains('dark');
   themeToggleBtn.click();
@@ -206,13 +239,13 @@ async function runTests() {
   assert.strictEqual(document.documentElement.classList.contains('dark'), wasDark);
   console.log('  -> PASS (Theme toggle switches light/dark classes properly)');
 
-  // --- Test 10: Zero Console Errors ---
-  console.log('[Test 10] Checking for console errors...');
+  // --- Test 11: Zero Console Errors ---
+  console.log('[Test 11] Checking for console errors...');
   assert.strictEqual(consoleErrors.length, 0, `Expected 0 console errors, but found: ${consoleErrors.join(', ')}`);
   console.log('  -> PASS (Zero errors during entire session)');
 
   console.log('\n====================================================');
-  console.log('   ALL 10 UI & DOM INTEGRATION TESTS PASSED!       ');
+  console.log('   ALL 11 UI & DOM INTEGRATION TESTS PASSED!       ');
   console.log('====================================================\n');
   process.exit(0);
 }

@@ -112,6 +112,9 @@
   const dealModalLimits = document.getElementById('deal-modal-limits');
   const dealModalLimitsWrapper = document.getElementById('deal-modal-limits-wrapper');
   const dealModalBuyLink = document.getElementById('deal-modal-buy-link');
+  const dealModalLinkedStoreBanner = document.getElementById('deal-modal-linked-store-banner');
+  const dealModalLinkedStoreTitle = document.getElementById('deal-modal-linked-store-title');
+  const dealModalViewStoreBtn = document.getElementById('deal-modal-view-store-btn');
 
   let activeModalStore = null;
 
@@ -673,6 +676,22 @@
       <span class="text-xs line-through text-slate-400 dark:text-slate-500">${formatILS(deal.original_price)}</span>
     ` : '';
 
+    const matchedStore = allStores.find(s => 
+      (deal.matched_store_id && s.id === deal.matched_store_id) || 
+      (deal.matched_store_name && s.name === deal.matched_store_name) || 
+      normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
+    );
+
+    const storeLinkBadge = matchedStore ? `
+      <div class="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-xl hover:bg-blue-100 transition-colors mb-2.5" data-action="view-linked-store" data-store-name="${encodeURIComponent(matchedStore.name)}">
+        <span class="flex items-center gap-1 font-semibold truncate">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
+          <span class="truncate">מכבד כרטיסים (עד ${matchedStore.max_discount}% הנחה)</span>
+        </span>
+        <span class="text-[11px] underline flex-shrink-0 mr-1">לרשת</span>
+      </div>
+    ` : '';
+
     card.innerHTML = `
       <div>
         <!-- Deal Image Container -->
@@ -711,6 +730,9 @@
           <span class="text-[11px] text-slate-500 dark:text-slate-400">${deal.shipping_included ? 'כולל משלוח' : (deal.locations || 'מגוון סניפים')}</span>
         </div>
 
+        <!-- Linked Store on Rechargeable Cards (if matched) -->
+        ${storeLinkBadge}
+
         <!-- Action Button -->
         <button class="w-full py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold transition flex items-center justify-center gap-1.5">
           <span>פרטים ואפשרויות רכישה</span>
@@ -719,7 +741,21 @@
       </div>
     `;
 
-    card.addEventListener('click', () => openDealModal(deal));
+    card.addEventListener('click', (e) => {
+      const storeAction = e.target.closest('[data-action="view-linked-store"]');
+      if (storeAction) {
+        e.stopPropagation();
+        const storeName = decodeURIComponent(storeAction.dataset.storeName);
+        searchInput.value = storeName;
+        searchQuery = storeName;
+        clearSearchBtn.classList.remove('hidden');
+        switchTab('stores');
+        const st = allStores.find(s => s.name === storeName);
+        if (st) setTimeout(() => openStoreModal(st), 100);
+        return;
+      }
+      openDealModal(deal);
+    });
     return card;
   }
 
@@ -781,6 +817,28 @@
       dealModalSavingsText.textContent = `חיסכון של ${deal.discount_percent}%`;
     } else {
       dealModalSavingsBadge.classList.add('hidden');
+    }
+
+    // Linked Store on Cards Banner
+    const matchedStore = allStores.find(s => 
+      (deal.matched_store_id && s.id === deal.matched_store_id) || 
+      (deal.matched_store_name && s.name === deal.matched_store_name) || 
+      normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
+    );
+
+    if (matchedStore) {
+      dealModalLinkedStoreBanner.classList.remove('hidden');
+      dealModalLinkedStoreTitle.textContent = `רשת "${matchedStore.name}" מכבדת גם כרטיסים נטענים (עד ${matchedStore.max_discount}% הנחה)!`;
+      dealModalViewStoreBtn.onclick = () => {
+        closeDealModal();
+        searchInput.value = matchedStore.name;
+        searchQuery = matchedStore.name;
+        clearSearchBtn.classList.remove('hidden');
+        switchTab('stores');
+        setTimeout(() => openStoreModal(matchedStore), 100);
+      };
+    } else {
+      dealModalLinkedStoreBanner.classList.add('hidden');
     }
 
     // Variants List
