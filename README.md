@@ -36,6 +36,7 @@ stores-list/
 ├── styles.css           # Custom RTL styling, dark theme, and animations
 ├── app.js               # Frontend search, filtering, and cross-linking logic
 ├── scraper.py           # Unified Python Playwright scraper for cards & rotating deals
+├── extract_behatsdaa_deals.js # In-browser JS extractor for logged-in sessions (1,700+ deals)
 ├── requirements.txt     # Python dependencies
 ├── data/
 │   ├── stores.json      # Structured JSON catalog (980+ stores, 8 cards)
@@ -53,35 +54,69 @@ stores-list/
 
 ---
 
-## 🛠️ Scraper Installation & Usage
+## 🛠️ Scraper Usage & Data Extraction
 
-### 1. Prerequisites & Dependencies
-Ensure Python 3.10+ is installed, then install required packages:
+Two extraction workflows are supported:
 
+---
+
+### Method 1: In-Browser JavaScript Extractor (`extract_behatsdaa_deals.js`) 🚀 *(Recommended)*
+
+The fastest, simplest, and most reliable method to capture the full live catalog (**1,700+ deals** across all 99 sub-categories and 28+ campaign tags). Because it executes directly inside your authenticated browser session, it bypasses Imperva WAF / Cloudflare bot protections instantly with zero setup.
+
+#### Step-by-Step Instructions:
+1. **Open & Log In**: In your standard browser (Chrome, Edge, Brave, etc.), navigate to [https://www.behatsdaa.org.il/](https://www.behatsdaa.org.il/) and log into your account.
+2. **Open Developer Console**: Press `F12` (or right-click $\rightarrow$ **Inspect**) and click the **Console** tab.
+3. **Run the Script**: Copy the entire contents of [`extract_behatsdaa_deals.js`](extract_behatsdaa_deals.js), paste it into the console, and press `Enter`.
+4. **Automatic Extraction**: The script will crawl:
+   - All 28+ campaign carousels (*"החמים של ספטמבר"*, *"מבצעי צרכנות לחג"*, *"אטרקציות"*, etc.)
+   - All 99 sub-categories across the entire navigation tree.
+   - Upon completion, it automatically triggers a download of `deals_raw.json` to your browser's Downloads folder.
+5. **Import into the Project Catalog**:
+   Run the normalization pipeline to process the raw file:
+   ```bash
+   python scraper.py --import-deals ~/Downloads/deals_raw.json
+   ```
+   **What the import pipeline handles automatically**:
+   - **Filters Dead Ghost Shells**: Removes empty category nodes that have no products or inventory.
+   - **Direct Partner URLs**: Resolves external partner links with club discount keys (e.g. hotel booking portals on `ananas.holiday`, car rental, telecom).
+   - **Normalized Pricing**: Computes member prices, crossed-out original prices, savings %, and variant breakdowns.
+   - **Cross-Linking**: Matches deals with stores on rechargeable cards.
+   - **Catalog Generation**: Updates production-ready `data/deals.json` and `data/deals.csv`.
+
+---
+
+### Method 2: Automated Playwright Python Scraper (`scraper.py`) 🤖
+
+Automated scraper powered by Python and Playwright with anti-detection flags.
+
+#### 1. Prerequisites & Dependencies:
+Ensure Python 3.10+ is installed:
 ```bash
 pip install -r requirements.txt
 playwright install chromium
 ```
 
-### 2. Run the Scraper
-Run the scraper using your preferred mode:
-
+#### 2. Running the Scraper:
 ```bash
 # Scrape BOTH rechargeable cards and rotating deals:
 python scraper.py --browser chrome
 
-# Scrape ONLY rotating deals and vouchers (faster weekly refresh):
+# Scrape ONLY rotating deals and vouchers:
 python scraper.py --deals-only
 
-# Scrape ONLY rechargeable card stores:
+# Scrape ONLY rechargeable card stores (980+ chains across 8 cards):
 python scraper.py --cards-only
 
-# Limit number of deals to deeply scrape (useful for testing):
+# Quick test run with a limited number of deals:
 python scraper.py --deals-only --max-deals 10
 ```
 
-> **Note on Authentication:**
-> The scraper connects to Behatsdaa's backend API behind Imperva WAF. When running for the first time, log in once via the opened browser window. The session is saved to `./behatsdaa_profile` so subsequent scrapes execute completely automatically.
+#### 3. Authentication & Imperva WAF Bypass:
+- Behatsdaa's backend API (`back.behatsdaa.org.il`) is protected by Imperva Incapsula WAF.
+- When running `scraper.py` interactively, a browser window opens. Log in once with your credentials / SMS verification.
+- The scraper automatically saves session cookies and browser tokens into `./behatsdaa_profile`.
+- Subsequent runs reuse the persistent profile without requiring repeated logins.
 
 ---
 
