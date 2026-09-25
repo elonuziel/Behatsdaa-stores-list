@@ -1,6 +1,6 @@
 /**
  * Headless UI & DOM Integration Tests for stores-list & deals dashboard.
- * Runs in Node.js using JSDOM.
+ * Runs in Node.js using JSDOM with ES module support.
  */
 
 const fs = require('fs');
@@ -22,26 +22,32 @@ const htmlSource = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf-8');
 const storesData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'stores.json'), 'utf-8'));
 const dealsData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'deals.json'), 'utf-8'));
 const billingData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'billing_stores.json'), 'utf-8'));
-const appJsSource = fs.readFileSync(path.join(ROOT_DIR, 'app.js'), 'utf-8');
 
 async function runTests() {
   console.log('====================================================');
   console.log('   Running UI & DOM Integration Tests (JSDOM)       ');
   console.log('====================================================\n');
 
-  // Create virtual browser window without trying to load external resources
+  // Create virtual browser window
   const dom = new JSDOM(htmlSource, {
     url: 'https://elonuziel.github.io/stores-list/',
-    runScripts: 'outside-only'
+    runScripts: 'dangerously'
   });
 
   const { window } = dom;
   const { document } = window;
 
+  // Set up window/document globals for ES modules in Node context
+  global.window = window;
+  global.document = document;
+  global.localStorage = window.localStorage;
+  global.navigator = window.navigator;
+
   // Polyfill Lucide icons
   window.lucide = {
     createIcons: () => {}
   };
+  global.lucide = window.lucide;
 
   // Mock matchMedia
   window.matchMedia = window.matchMedia || function() {
@@ -51,9 +57,10 @@ async function runTests() {
       removeListener: function() {}
     };
   };
+  global.matchMedia = window.matchMedia;
 
   // Mock fetch to serve data/stores.json, data/deals.json, and data/billing_stores.json
-  window.fetch = async (url) => {
+  const mockFetch = async (url) => {
     if (url.includes('billing_stores.json')) {
       return {
         ok: true,
@@ -74,6 +81,8 @@ async function runTests() {
     }
     return { ok: false, status: 404 };
   };
+  window.fetch = mockFetch;
+  global.fetch = mockFetch;
 
   // Intercept uncaught console errors
   const consoleErrors = [];
@@ -83,8 +92,9 @@ async function runTests() {
     originalError.apply(window.console, args);
   };
 
-  // Execute app.js in window context
-  window.eval(appJsSource);
+  // Dynamically import app.js entry module
+  const appJsPath = 'file://' + path.join(ROOT_DIR, 'app.js');
+  await import(appJsPath);
 
   // Wait for initial store render and background datasets
   await new Promise(r => setTimeout(r, 250));
@@ -415,6 +425,7 @@ async function runTests() {
 
   assert.ok(!billingSection.classList.contains('hidden'), 'Should transition to Billing tab');
   assert.ok(billingSearchInput.value.length > 0, 'Billing search should be pre-filled with store name');
+
   // --- Test 16: Tab 3 Store Search vs Description & Cross-Linking Integrity ---
   console.log('[Test 16] Verifying Tab 3 store-only matching for "אהבה" and cross-link integrity...');
   // Ensure we are on billing tab
@@ -433,7 +444,6 @@ async function runTests() {
   renderedAhavaCards.forEach(card => {
     const cardTitle = card.querySelector('h3').textContent;
     assert.ok(cardTitle.includes('אהבה'), `Card title "${cardTitle}" must contain "אהבה"`);
-    // Ensure no false-positive store like DAS or EMILYA is present
     assert.ok(!cardTitle.includes('DAS') && !cardTitle.includes('EMILYA'), 'Description-only stores must be excluded');
   });
 
