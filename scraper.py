@@ -96,6 +96,11 @@ def parse_arguments():
         default=None,
         help="Maximum number of deals to deeply scrape (default: all)"
     )
+    parser.add_argument(
+        "--import-deals",
+        default=None,
+        help="Path to raw deals JSON file (e.g. extracted from browser console) to process and save directly"
+    )
     return parser.parse_args()
 
 
@@ -211,11 +216,23 @@ def merge_stores_into_catalog(catalog, stores, card_info):
             store_entry["website"] = s["website"]
 
 
+def safe_float(val, default=0.0):
+    if val is None or val == "":
+        return default
+    if isinstance(val, (int, float)):
+        return float(val)
+    val_clean = re.sub(r'[^\d.]+', '', str(val).replace(',', ''))
+    try:
+        return float(val_clean) if val_clean else default
+    except Exception:
+        return default
+
+
 def parse_deal(raw_deal, stores_catalog=None):
     """Normalize a raw deal/category/variant JSON object from Behatsdaa into a clean deal dict."""
     category_id = str(raw_deal.get("categoryId") or raw_deal.get("id") or "")
-    title = (raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
-    supplier = (raw_deal.get("supplierName") or "").strip()
+    title = (raw_deal.get("title") or raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
+    supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
 
     # Extract supplier from title if missing
     if not supplier:
@@ -250,11 +267,11 @@ def parse_deal(raw_deal, stores_catalog=None):
     original_prices = []
 
     for idx, v in enumerate(variants_raw):
-        v_price = float(v.get("price") or 0)
-        v_orig = float(v.get("discount") or 0)
+        v_price = safe_float(v.get("price"))
+        v_orig = safe_float(v.get("original_price") or v.get("discount"))
         v_name = (v.get("name") or title).strip()
-        v_barcode = str(v.get("barCode") or "")
-        v_stock = "אזל במלאי" if v.get("outofStock") else "במלאי"
+        v_barcode = str(v.get("barCode") or v.get("barcode") or "")
+        v_stock = v.get("stock") or ("אזל במלאי" if v.get("outofStock") else "במלאי")
 
         orig_price = v_orig if v_orig > v_price else (v_price + v_orig if v_orig > 0 else v_price)
         disc_pct = round(((orig_price - v_price) / orig_price) * 100) if orig_price > v_price else 0
@@ -267,15 +284,15 @@ def parse_deal(raw_deal, stores_catalog=None):
             "discount_percent": disc_pct,
             "barcode": v_barcode,
             "stock": v_stock,
-            "expire_date": v.get("expireDate") or raw_deal.get("eventDate") or ""
+            "expire_date": v.get("expireDate") or v.get("expire_date") or raw_deal.get("eventDate") or ""
         })
         if v_price > 0:
             prices.append(v_price)
         if orig_price > 0:
             original_prices.append(orig_price)
 
-    main_price = min(prices) if prices else float(raw_deal.get("price") or 0)
-    main_orig = max(original_prices) if original_prices else float(raw_deal.get("discount") or main_price)
+    main_price = min(prices) if prices else safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
+    main_orig = max(original_prices) if original_prices else safe_float(raw_deal.get("original_price") or raw_deal.get("discount") or main_price)
     if main_orig < main_price:
         main_orig = main_price
     discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
@@ -454,32 +471,40 @@ def fetch_deals_via_evaluate(page, max_deals=None):
             const dealsMap = new Map();
             const discoveredTags = [];
 
+            function extractFromInfo(info) {
+                if (!info) return [];
+                if (Array.isArray(info.categories)) return info.categories;
+                if (info.categories && typeof info.categories === "object") return [info.categories];
+                if (info.categoryId || info.id) return [info];
+                return [];
+            }
+
             // 1. Fetch top tags from homepage (holiday specials, featured carousels)
             try {
-                const topTagsRes = await window.fetch("https://back.behatsdaa.org.il/api/tags/GetCategorysByTopTag?selectTop=30&skipTags=0", {
+                const topTagsRes = await window.fetch("https://back.behatsdaa.org.il/api/tags/GetCategorysByTopTag?selectTop=50&skipTags=0", {
                     headers,
                     credentials: "include"
                 });
                 const topTagsJson = await topTagsRes.json();
-                const tagsData = topTagsJson?.data || [];
+                const tagsData = topTagsJson?.data?.data || topTagsJson?.data || [];
 
                 for (const tag of tagsData) {
                     const tagId = tag.tagId;
-                    const tagName = tag.tagName;
-                    discoveredTags.push({ id: tagId, name: tagName });
+                    const tagName = (tag.tagName || "").trim();
+                    if (tagName) discoveredTags.push({ id: tagId, name: tagName });
 
                     const categoryInfos = tag.tagCategoryInfo || [];
                     for (const catInfo of categoryInfos) {
-                        const subCats = catInfo.categories || [];
-                        for (const cat of subCats) {
+                        for (const cat of extractFromInfo(catInfo)) {
                             if (cat && (cat.categoryId || cat.id)) {
                                 const cid = String(cat.categoryId || cat.id);
                                 if (!dealsMap.has(cid)) {
-                                    cat.sourceTags = [tagName];
+                                    cat.sourceTags = tagName ? [tagName] : [];
                                     dealsMap.set(cid, cat);
                                 } else {
                                     const existing = dealsMap.get(cid);
-                                    if (!existing.sourceTags.includes(tagName)) {
+                                    if (tagName && (!existing.sourceTags || !existing.sourceTags.includes(tagName))) {
+                                        existing.sourceTags = existing.sourceTags || [];
                                         existing.sourceTags.push(tagName);
                                     }
                                 }
@@ -494,18 +519,18 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                             credentials: "include"
                         });
                         const tagFullJson = await tagFullRes.json();
-                        const fullInfo = tagFullJson?.data?.tagCategoryInfo || [];
+                        const fullInfo = tagFullJson?.data?.data?.tagCategoryInfo || tagFullJson?.data?.tagCategoryInfo || [];
                         for (const catInfo of fullInfo) {
-                            const subCats = catInfo.categories || [];
-                            for (const cat of subCats) {
+                            for (const cat of extractFromInfo(catInfo)) {
                                 if (cat && (cat.categoryId || cat.id)) {
                                     const cid = String(cat.categoryId || cat.id);
                                     if (!dealsMap.has(cid)) {
-                                        cat.sourceTags = [tagName];
+                                        cat.sourceTags = tagName ? [tagName] : [];
                                         dealsMap.set(cid, cat);
                                     } else {
                                         const existing = dealsMap.get(cid);
-                                        if (!existing.sourceTags.includes(tagName)) {
+                                        if (tagName && (!existing.sourceTags || !existing.sourceTags.includes(tagName))) {
+                                            existing.sourceTags = existing.sourceTags || [];
                                             existing.sourceTags.push(tagName);
                                         }
                                     }
@@ -520,7 +545,7 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                 console.warn("Failed fetching top tags:", err);
             }
 
-            // 2. Fetch full category hierarchy
+            // 2. Fetch full category hierarchy and crawl sub-categories for all products
             try {
                 const catHeaderRes = await window.fetch("https://back.behatsdaa.org.il/api/category/GetCategoryHeader", {
                     headers,
@@ -529,30 +554,59 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                 const catHeaderJson = await catHeaderRes.json();
                 const headerData = catHeaderJson?.data?.data || catHeaderJson?.data || [];
 
-                function extractCategories(nodes) {
-                    let items = [];
-                    if (!nodes || !Array.isArray(nodes)) return items;
+                const subCategoryList = [];
+                function extractSubCategories(nodes, parentName) {
+                    if (!nodes || !Array.isArray(nodes)) return;
                     for (const n of nodes) {
-                        if (n.categoryId || n.id) items.push(n);
-                        if (n.children && n.children.length) items = items.concat(extractCategories(n.children));
-                        if (n.subCategories && n.subCategories.length) items = items.concat(extractCategories(n.subCategories));
+                        const curName = n.categoryName || parentName || "צרכנות";
+                        if (n.children && n.children.length > 0) {
+                            extractSubCategories(n.children, curName);
+                        } else if (n.subCategories && n.subCategories.length > 0 && !n.isLeaf) {
+                            extractSubCategories(n.subCategories, curName);
+                        } else if (n.categoryId || n.id) {
+                            subCategoryList.push({
+                                id: String(n.categoryId || n.id),
+                                name: curName,
+                                parent: parentName || curName
+                            });
+                        }
                     }
-                    return items;
                 }
+                extractSubCategories(headerData, "צרכנות");
 
-                const allHeaderCats = extractCategories(headerData);
-                for (const cat of allHeaderCats) {
-                    const cid = String(cat.categoryId || cat.id);
-                    if (!dealsMap.has(cid)) {
-                        cat.sourceTags = [cat.categoryName || "כללי"];
-                        dealsMap.set(cid, cat);
+                // Fetch products from each subcategory
+                for (const sub of subCategoryList) {
+                    try {
+                        const subRes = await window.fetch(`https://back.behatsdaa.org.il/api/category/GetCategoryById?categoryId=${sub.id}`, {
+                            headers,
+                            credentials: "include"
+                        });
+                        const subJson = await subRes.json();
+                        const products = subJson?.data?.subCategories || subJson?.data?.categories || [];
+                        for (const p of products) {
+                            if (p && (p.categoryId || p.id)) {
+                                const pid = String(p.categoryId || p.id);
+                                if (!dealsMap.has(pid)) {
+                                    p.category = sub.parent;
+                                    p.sourceTags = [sub.name];
+                                    dealsMap.set(pid, p);
+                                } else {
+                                    const existing = dealsMap.get(pid);
+                                    if (!existing.sourceTags.includes(sub.name)) {
+                                        existing.sourceTags.push(sub.name);
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // ignore single subcategory error
                     }
                 }
             } catch (err) {
                 console.warn("Failed fetching category header:", err);
             }
 
-            // 3. Deep-fetch product details & variants in batches
+            // 3. Deep-fetch product details & variants in batches if needed
             const rawDeals = Array.from(dealsMap.values());
             const dealsToFetch = maxCount ? rawDeals.slice(0, maxCount) : rawDeals;
             const finalDeals = [];
@@ -562,7 +616,7 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                 const batch = dealsToFetch.slice(i, i + batchSize);
                 const promises = batch.map(async (deal) => {
                     const cid = deal.categoryId || deal.id;
-                    if (deal.variants && deal.variants.length > 0 && deal.howToUse) {
+                    if (deal.variants && deal.variants.length > 0 && (deal.howToUse || deal.termsOfUse)) {
                         return deal;
                     }
                     try {
@@ -574,6 +628,7 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                         if (pJson?.data?.data) {
                             const detail = pJson.data.data;
                             detail.sourceTags = deal.sourceTags || [];
+                            if (!detail.category && deal.category) detail.category = deal.category;
                             return detail;
                         }
                     } catch (err) {
@@ -860,9 +915,48 @@ def scrape_with_playwright(args):
     print("\n[SUCCESS] Scraping completed successfully!")
 
 
+def import_deals_from_file(args):
+    """Import and process raw deals from a JSON file directly without Playwright."""
+    import_path = Path(args.import_deals)
+    if not import_path.exists():
+        print(f"[ERROR] Import file not found: {import_path}")
+        sys.exit(1)
+
+    print(f"[*] Importing raw deals from: {import_path} ...")
+    with open(import_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    raw_deals = data.get("deals", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+    discovered_tags = data.get("tags", []) if isinstance(data, dict) else []
+
+    all_scraped_stores = {}
+    stores_path = Path(args.output_dir) / "stores.json"
+    if stores_path.exists():
+        try:
+            with open(stores_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+                for s in existing_data.get("stores", []):
+                    all_scraped_stores[s["name"]] = s
+        except Exception:
+            pass
+
+    final_deals_list = []
+    for rd in raw_deals:
+        parsed = parse_deal(rd, all_scraped_stores)
+        if parsed.get("title"):
+            final_deals_list.append(parsed)
+
+    print(f"[+] Processed {len(final_deals_list)} valid deals & vouchers.")
+    save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
+    print("\n[SUCCESS] Deals import completed successfully!")
+
+
 def main():
     args = parse_arguments()
-    scrape_with_playwright(args)
+    if args.import_deals:
+        import_deals_from_file(args)
+    else:
+        scrape_with_playwright(args)
 
 
 if __name__ == "__main__":
