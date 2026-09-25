@@ -230,8 +230,15 @@ def safe_float(val, default=0.0):
 
 def parse_deal(raw_deal, stores_catalog=None):
     """Normalize a raw deal/category/variant JSON object from Behatsdaa into a clean deal dict."""
+    # Skip intermediate category folder nodes that contain no products/prices
+    if raw_deal.get("isLeaf") is False and not raw_deal.get("prices") and not raw_deal.get("variants"):
+        return None
+
     category_id = str(raw_deal.get("categoryId") or raw_deal.get("id") or "")
     title = (raw_deal.get("title") or raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
+    if not title:
+        return None
+
     supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
 
     # Extract supplier from title if missing
@@ -248,10 +255,16 @@ def parse_deal(raw_deal, stores_catalog=None):
     if not supplier:
         supplier = (raw_deal.get("category") or "בהצדעה").strip()
 
-    # Image extraction
+    # Image extraction (including CDN prefix for Behatsdaa media)
     image = raw_deal.get("image") or ""
     if not image and raw_deal.get("images") and isinstance(raw_deal["images"], list) and raw_deal["images"]:
-        image = raw_deal["images"][0]
+        first_img = raw_deal["images"][0]
+        if isinstance(first_img, dict):
+            fpath = first_img.get("file") or first_img.get("externalUrl") or ""
+            if fpath:
+                image = fpath if fpath.startswith("http") else f"https://pics.k4a.co.il/share/{fpath}"
+        elif isinstance(first_img, str):
+            image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
 
     # Category name
     cat_name = (raw_deal.get("category") or raw_deal.get("parentCategoryName") or raw_deal.get("categoryName") or "כללי").strip()
@@ -291,21 +304,43 @@ def parse_deal(raw_deal, stores_catalog=None):
         if orig_price > 0:
             original_prices.append(orig_price)
 
+    # Support top-level prices list from category catalog responses
+    if not prices and raw_deal.get("prices") and isinstance(raw_deal["prices"], list):
+        for p in raw_deal["prices"]:
+            num_p = safe_float(p)
+            if num_p > 0:
+                prices.append(num_p)
+
     main_price = min(prices) if prices else safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
+    if "חינם" in title:
+        main_price = 0.0
+
     main_orig = max(original_prices) if original_prices else safe_float(raw_deal.get("original_price") or raw_deal.get("discount") or main_price)
     if main_orig < main_price:
         main_orig = main_price
     discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
 
-    # Locations & Shipping
+    # Locations & Shipping (support business.address or locations list)
     locs = raw_deal.get("locations") or []
     loc_str = "מגוון סניפים"
     shipping_included = False
-    if isinstance(locs, list) and locs:
+    business = raw_deal.get("business") or {}
+    if isinstance(business, dict) and business.get("address"):
+        loc_str = business["address"].strip()
+    elif isinstance(locs, list) and locs:
         loc_str = ", ".join([l.get("address", "") for l in locs if l.get("address")]) or "מגוון סניפים"
-    if "משלוח" in title or "משלוח" in str(raw_deal.get("description", "")) or "משלוח" in str(raw_deal.get("termsOfUse", "")):
+
+    raw_desc = raw_deal.get("description") or raw_deal.get("shortDescription") or raw_deal.get("categoryHTML") or ""
+    clean_desc = re.sub(r'<[^>]+>', ' ', str(raw_desc)).strip()
+    clean_desc = re.sub(r'\s+', ' ', clean_desc)
+
+    raw_terms = raw_deal.get("termsOfUse") or raw_deal.get("howToUse") or raw_deal.get("redimType") or ""
+    clean_terms = re.sub(r'<[^>]+>', ' ', str(raw_terms)).strip()
+    clean_terms = re.sub(r'\s+', ' ', clean_terms)
+
+    if "משלוח" in title or "משלוח" in clean_desc or "משלוח" in clean_terms:
         shipping_included = True
-        if not locs:
+        if not locs and (not isinstance(business, dict) or not business.get("address")):
             loc_str = "כולל משלוח עד הבית"
 
     # Cross-link with stores in catalog
@@ -320,13 +355,17 @@ def parse_deal(raw_deal, stores_catalog=None):
                 matched_store_name = sname
                 break
 
+    tags = raw_deal.get("sourceTags") or raw_deal.get("tags") or []
+    if isinstance(tags, str):
+        tags = [tags]
+
     return {
         "id": category_id,
         "category_id": category_id,
         "title": title,
         "supplier": supplier,
         "category": cat_name,
-        "tags": raw_deal.get("sourceTags") or [],
+        "tags": tags,
         "image": image,
         "url": f"https://www.behatsdaa.org.il/category/productPage/{category_id}",
         "price": main_price,
@@ -336,8 +375,8 @@ def parse_deal(raw_deal, stores_catalog=None):
         "shipping_included": shipping_included,
         "expiration_date": raw_deal.get("expireDate") or raw_deal.get("eventDate") or "",
         "limits": str(raw_deal.get("monthlyLimit") or raw_deal.get("orderLimit") or ""),
-        "description": raw_deal.get("description") or raw_deal.get("shortDescription") or "",
-        "terms_of_use": raw_deal.get("termsOfUse") or raw_deal.get("howToUse") or "",
+        "description": clean_desc,
+        "terms_of_use": clean_terms,
         "variants": parsed_variants,
         "matched_store_id": matched_store_id,
         "matched_store_name": matched_store_name
@@ -896,7 +935,7 @@ def scrape_with_playwright(args):
 
                 for rd in raw_deals:
                     parsed = parse_deal(rd, all_scraped_stores)
-                    if parsed["title"]:
+                    if parsed and parsed.get("title"):
                         final_deals_list.append(parsed)
 
         context.close()
@@ -943,7 +982,7 @@ def import_deals_from_file(args):
     final_deals_list = []
     for rd in raw_deals:
         parsed = parse_deal(rd, all_scraped_stores)
-        if parsed.get("title"):
+        if parsed and parsed.get("title"):
             final_deals_list.append(parsed)
 
     print(f"[+] Processed {len(final_deals_list)} valid deals & vouchers.")
