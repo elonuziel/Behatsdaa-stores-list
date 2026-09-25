@@ -111,6 +111,7 @@
   const dealModalTitle = document.getElementById('deal-modal-title');
   const dealModalSupplier = document.getElementById('deal-modal-supplier');
   const dealModalPrice = document.getElementById('deal-modal-price');
+  const dealModalPriceLabel = document.getElementById('deal-modal-price-label');
   const dealModalOrigPrice = document.getElementById('deal-modal-orig-price');
   const dealModalSavingsBadge = document.getElementById('deal-modal-savings-badge');
   const dealModalSavingsText = document.getElementById('deal-modal-savings-text');
@@ -749,8 +750,19 @@
         <!-- Price section -->
         <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-baseline justify-between mb-2.5">
           <div class="flex items-baseline gap-1.5">
-            <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">${formatILS(deal.price)}</span>
-            ${origPriceHtml}
+            ${deal.is_external ? `
+              <span class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 rounded-lg">
+                <i data-lucide="external-link" class="w-3 h-3"></i>
+                הטבה באתר השותף
+              </span>
+            ` : (deal.deal_type === 'free_benefit' || deal.price === 0 ? `
+              <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/50 px-2 py-0.5 rounded-lg">
+                חינם (0 ₪)
+              </span>
+            ` : `
+              <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">${formatILS(deal.price)}</span>
+              ${origPriceHtml}
+            `)}
           </div>
           <span class="text-[11px] text-slate-500 dark:text-slate-400">${deal.shipping_included ? 'כולל משלוח' : (deal.locations || 'מגוון סניפים')}</span>
         </div>
@@ -759,9 +771,9 @@
         ${storeLinkBadge}
 
         <!-- Action Button -->
-        <button class="w-full py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 text-xs font-semibold transition flex items-center justify-center gap-1.5">
-          <span>פרטים ואפשרויות רכישה</span>
-          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        <button class="w-full py-2 rounded-xl ${deal.is_external ? 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300' : 'bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'} text-xs font-semibold transition flex items-center justify-center gap-1.5">
+          <span>${deal.is_external ? 'למעבר להטבה באתר השותף' : 'פרטים ואפשרויות רכישה'}</span>
+          <i data-lucide="${deal.is_external ? 'external-link' : 'arrow-left'}" class="w-3.5 h-3.5"></i>
         </button>
       </div>
     `;
@@ -839,20 +851,60 @@
 
     dealModalTitle.textContent = deal.title;
     dealModalSupplier.textContent = deal.supplier || 'בהצדעה';
-    dealModalPrice.textContent = formatILS(deal.price);
 
-    if (deal.original_price && deal.original_price > deal.price) {
-      dealModalOrigPrice.textContent = formatILS(deal.original_price);
-      dealModalOrigPrice.classList.remove('hidden');
-    } else {
+    const isExternal = Boolean(deal.is_external || deal.deal_type === 'external_partner');
+    const isFree = Boolean(deal.deal_type === 'free_benefit' || (deal.price === 0 && !isExternal));
+
+    if (isExternal) {
+      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'הטבת מועדון בהצדעה:';
+      dealModalPrice.textContent = 'הנחה בלעדית באתר השותף';
+      dealModalPrice.className = 'text-lg font-bold text-blue-700 dark:text-blue-300';
       dealModalOrigPrice.classList.add('hidden');
-    }
-
-    if (deal.discount_percent > 0) {
       dealModalSavingsBadge.classList.remove('hidden');
-      dealModalSavingsText.textContent = `חיסכון של ${deal.discount_percent}%`;
+      dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-xs flex items-center gap-1';
+      dealModalSavingsText.textContent = 'הזמנה ישירה ↗';
+      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
+      dealModalBuyLink.innerHTML = `
+        <span>מעבר להזמנה והנחת מועדון באתר השותף</span>
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+      `;
+    } else if (isFree) {
+      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'מחיר מועדון בהצדעה:';
+      dealModalPrice.textContent = 'חינם (0 ₪)';
+      dealModalPrice.className = 'text-2xl font-black text-emerald-700 dark:text-emerald-400';
+      dealModalOrigPrice.classList.add('hidden');
+      dealModalSavingsBadge.classList.remove('hidden');
+      dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-xs flex items-center gap-1';
+      dealModalSavingsText.textContent = 'הטבה ללא עלות';
+      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
+      dealModalBuyLink.innerHTML = `
+        <span>מימוש הטבה באתר בהצדעה</span>
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+      `;
     } else {
-      dealModalSavingsBadge.classList.add('hidden');
+      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'מחיר מועדון בהצדעה:';
+      dealModalPrice.textContent = formatILS(deal.price);
+      dealModalPrice.className = 'text-2xl font-black text-emerald-700 dark:text-emerald-400';
+      if (deal.original_price && deal.original_price > deal.price) {
+        dealModalOrigPrice.textContent = formatILS(deal.original_price);
+        dealModalOrigPrice.classList.remove('hidden');
+      } else {
+        dealModalOrigPrice.classList.add('hidden');
+      }
+
+      if (deal.discount_percent > 0) {
+        dealModalSavingsBadge.classList.remove('hidden');
+        dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-xs flex items-center gap-1';
+        dealModalSavingsText.textContent = `חיסכון של ${deal.discount_percent}%`;
+      } else {
+        dealModalSavingsBadge.classList.add('hidden');
+      }
+
+      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
+      dealModalBuyLink.innerHTML = `
+        <span>מעבר לרכישה באתר בהצדעה</span>
+        <i data-lucide="external-link" class="w-4 h-4"></i>
+      `;
     }
 
     // Linked Store on Cards Banner

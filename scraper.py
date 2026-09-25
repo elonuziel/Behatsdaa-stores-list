@@ -273,6 +273,15 @@ def parse_deal(raw_deal, stores_catalog=None):
             if num_p > 0:
                 prices.append(num_p)
 
+    # Support top-level single price & discount field
+    single_price = safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
+    if not prices and single_price > 0:
+        prices.append(single_price)
+
+    single_orig = safe_float(raw_deal.get("original_price") or raw_deal.get("discount"))
+    if not original_prices and single_orig > 0:
+        original_prices.append(single_orig)
+
     category_url = (raw_deal.get("categoryUrl") or "").strip()
     is_free = "חינם" in title or "מוזיאון" in title
 
