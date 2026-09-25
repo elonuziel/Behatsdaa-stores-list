@@ -63,7 +63,7 @@ def fetch_url(url: str, timeout: int = 15, retries: int = 3, backoff: float = 1.
             with urlopen(req, timeout=timeout) as resp:
                 data = resp.read().decode('utf-8', errors='replace')
                 return json.loads(data)
-        except (URLError, HTTPError, json.JSONDecodeError) as e:
+        except Exception as e:
             if attempt < retries:
                 time.sleep(backoff * (2 ** (attempt - 1)))
             else:
@@ -142,11 +142,28 @@ def parse_business_item(item: dict, cat_lookup: dict[int, dict]) -> dict:
     subcategory = cat_info.get('sub_name') or ''
     color = item.get('color') or cat_info.get('color') or '#8B5CF6'
 
-    # Logo/Image URLs
-    icon = item.get('icon', '')
-    image = item.get('image', '')
-    logo_filename = icon or image
-    logo_url = f"{BASE_URL}/media/com_product/images/{logo_filename}" if logo_filename else ""
+    # Logo/Image URLs (matching Be-Plus CRM getLogoImage logic: icon -> logo -> image)
+    raw_icon = str(item.get('icon') or '').strip().strip('"\'')
+    raw_logo = str(item.get('logo') or '').strip().strip('"\'')
+    raw_image = str(item.get('image') or '').strip().strip('"\'')
+
+    def clean_media_path(path: str) -> str:
+        if not path or any(bad in path for bad in ('u0022', '&quot;')):
+            return ''
+        return path
+
+    icon = clean_media_path(raw_icon)
+    logo = clean_media_path(raw_logo)
+    image = clean_media_path(raw_image)
+
+    if icon:
+        logo_url = icon if icon.startswith('http') else f"{BASE_URL}{icon if icon.startswith('/') else f'/media/com_product/icons/{icon}'}"
+    elif logo:
+        logo_url = logo if logo.startswith('http') else f"{BASE_URL}{logo if logo.startswith('/') else f'/media/com_product/category/{logo}'}"
+    elif image:
+        logo_url = image if image.startswith('http') else f"{BASE_URL}{image if image.startswith('/') else f'/media/com_product/images/{image}'}"
+    else:
+        logo_url = ""
 
     return {
         "id": item_id,

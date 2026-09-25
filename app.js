@@ -593,7 +593,7 @@
       <div>
         <div class="flex items-start justify-between gap-3 mb-3">
           <div class="w-12 h-12 rounded-xl bg-slate-50 dark:bg-slate-700 p-1.5 border border-slate-100 dark:border-slate-600 flex items-center justify-center flex-shrink-0">
-            ${store.logo ? `<img src="${store.logo}" alt="${store.name}" class="max-h-full max-w-full object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛍️</text></svg>'"/>` : `<i data-lucide="shopping-bag" class="w-6 h-6 text-slate-400"></i>`}
+            ${store.logo ? `<img src="${store.logo}" alt="${store.name}" class="max-h-full max-w-full object-contain" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛍️</text></svg>'"/>` : `<i data-lucide="shopping-bag" class="w-6 h-6 text-slate-400"></i>`}
           </div>
           <div class="flex flex-col items-end gap-1">
             <span class="${badgeBg} px-2.5 py-1 rounded-xl text-xs shadow-xs">
@@ -993,6 +993,9 @@
             src="${deal.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎁</text></svg>'}" 
             alt="${deal.title}" 
             class="max-h-full max-w-full object-contain transition-transform duration-300 hover:scale-105"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer"
             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎁</text></svg>'"
           />
           <div class="absolute top-2 right-2 flex flex-col gap-1 items-end">
@@ -1311,6 +1314,22 @@
     return result;
   }
 
+  function getBillingCategoryIcon(category) {
+    if (!category) return 'credit-card';
+    if (/מסעדות|בתי קפה|מאפה|מזון|סושי|פיצה|גלידה/i.test(category)) return 'utensils';
+    if (/אופנה|הלבשה|הנעלה|בגדי/i.test(category)) return 'shirt';
+    if (/רכב|מוסכים|דלק|תחבורה/i.test(category)) return 'car';
+    if (/ספורט|כושר|מחנאות/i.test(category)) return 'dumbbell';
+    if (/מחשבים|סלולר|אלקטרוניקה|צילום/i.test(category)) return 'smartphone';
+    if (/בית|גן|ריהוט|כלי בית/i.test(category)) return 'home';
+    if (/טיפוח|קוסמטיקה|יופי|שיער|ספא/i.test(category)) return 'sparkles';
+    if (/בריאות|רפואה|רופאי|שיניים|פארם/i.test(category)) return 'heart-pulse';
+    if (/תיירות|נופש|אטרקציות|מלונות|טיסות/i.test(category)) return 'palmtree';
+    if (/אופטיקה|משקפיים/i.test(category)) return 'glasses';
+    if (/ספרים|לימודים|חוגים/i.test(category)) return 'book-open';
+    return 'credit-card';
+  }
+
   function createBillingCardElement(store) {
     const card = document.createElement('div');
     card.className = 'billing-card bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200/90 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer relative';
@@ -1347,11 +1366,24 @@
       </div>
     ` : '';
 
+    const catIcon = getBillingCategoryIcon(store.category);
+    const logoHtml = store.logo ? `
+      <img 
+        src="${store.logo}" 
+        alt="${store.name}" 
+        class="max-h-full max-w-full object-contain" 
+        loading="lazy" 
+        decoding="async" 
+        referrerpolicy="no-referrer"
+        onerror="if(this.src.includes('/icons/')){this.src=this.src.replace('/icons/','/images/');}else{this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>💳</text></svg>';}"
+      />
+    ` : `<i data-lucide="${catIcon}" class="w-6 h-6 text-purple-400"></i>`;
+
     card.innerHTML = `
       <div>
         <div class="flex items-start justify-between gap-3 mb-3">
           <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-slate-700 p-1.5 border border-purple-100 dark:border-slate-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
-            ${store.logo ? `<img src="${store.logo}" alt="${store.name}" class="max-h-full max-w-full object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>💳</text></svg>'"/>` : `<i data-lucide="credit-card" class="w-6 h-6 text-purple-400"></i>`}
+            ${logoHtml}
           </div>
           <div class="flex flex-col items-end gap-1">
             ${discountBadge}
@@ -1448,9 +1480,16 @@
     const rawUrl = store.detail_url || `https://be-plus.co.il/product/${store.id}`;
     billingModalOfficialLink.href = rawUrl.replace('/component/crm/product/', '/product/');
 
+    billingModalLogo.referrerPolicy = 'no-referrer';
     if (store.logo) {
       billingModalLogo.src = store.logo;
-      billingModalLogo.onerror = () => { billingModalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">💳</text></svg>'; };
+      billingModalLogo.onerror = () => {
+        if (billingModalLogo.src.includes('/icons/')) {
+          billingModalLogo.src = billingModalLogo.src.replace('/icons/', '/images/');
+        } else {
+          billingModalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">💳</text></svg>';
+        }
+      };
     } else {
       billingModalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">💳</text></svg>';
     }

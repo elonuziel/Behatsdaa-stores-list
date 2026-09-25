@@ -375,6 +375,17 @@ async function runTests() {
   assert.ok(officialLink.includes('be-plus.co.il/product/'), 'Official link should use valid /product/{id} routing');
   assert.ok(!officialLink.includes('/component/crm/'), 'Official link must not contain broken /component/crm/ route');
 
+  // Verify card logo attributes
+  const cardImg = firstBillingCard.querySelector('img');
+  if (cardImg) {
+    assert.strictEqual(cardImg.getAttribute('loading'), 'lazy', 'Card image should have loading="lazy"');
+    assert.strictEqual(cardImg.getAttribute('referrerpolicy'), 'no-referrer', 'Card image should have referrerpolicy="no-referrer"');
+  }
+
+  // Verify modal logo attributes
+  const modalLogo = document.getElementById('billing-modal-logo');
+  assert.strictEqual(modalLogo.getAttribute('referrerpolicy'), 'no-referrer', 'Modal logo should have referrerpolicy="no-referrer"');
+
   // Close modal
   const billingModalCloseBtn = document.getElementById('billing-modal-close-btn');
   billingModalCloseBtn.click();
