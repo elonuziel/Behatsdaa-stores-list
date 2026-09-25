@@ -296,8 +296,42 @@ function applyViewMode(mode) {
   renderStores();
 }
 
-function switchTab(tab) {
+function getTabSearchQuery(tab) {
+  if (tab === 'stores') return state.searchQuery || '';
+  if (tab === 'deals') return state.dealsSearchQuery || '';
+  if (tab === 'billing') return state.billingSearchQuery || '';
+  return '';
+}
+
+function setTabSearchQuery(tab, query) {
+  const term = query || '';
+  if (tab === 'stores') {
+    state.searchQuery = term;
+    if (searchInput) searchInput.value = term;
+    if (clearSearchBtn) clearSearchBtn.classList.toggle('hidden', !term);
+    state.storesVisibleCount = state.STORES_PAGE_SIZE;
+  } else if (tab === 'deals') {
+    state.dealsSearchQuery = term;
+    if (dealsSearchInput) dealsSearchInput.value = term;
+    if (clearDealsSearchBtn) clearDealsSearchBtn.classList.toggle('hidden', !term);
+    state.dealsVisibleCount = state.DEALS_PAGE_SIZE;
+  } else if (tab === 'billing') {
+    state.billingSearchQuery = term;
+    if (billingSearchInput) billingSearchInput.value = term;
+    if (clearBillingSearchBtn) clearBillingSearchBtn.classList.toggle('hidden', !term);
+    state.billingVisibleCount = state.BILLING_PAGE_SIZE;
+  }
+}
+
+function switchTab(tab, options = {}) {
+  const previousTab = state.currentTab;
   state.currentTab = tab;
+
+  if (!options.preserveSearch && previousTab && previousTab !== tab) {
+    const currentQuery = getTabSearchQuery(previousTab);
+    setTabSearchQuery(tab, currentQuery);
+  }
+
   window.location.hash = tab === 'deals' ? 'deals' : (tab === 'billing' ? 'billing' : 'stores');
 
   const inactiveClass = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
@@ -365,7 +399,7 @@ const storeModalCallbacks = {
     dealsSearchInput.value = store.name;
     state.dealsSearchQuery = store.name;
     clearDealsSearchBtn.classList.remove('hidden');
-    switchTab('deals');
+    switchTab('deals', { preserveSearch: true });
   },
   onViewBilling: (store) => {
     billingSearchInput.value = store.name;
@@ -374,7 +408,7 @@ const storeModalCallbacks = {
     state.currentBillingCity = 'all';
     state.currentBillingCategory = 'all';
     if (billingCitySelect) billingCitySelect.value = 'all';
-    switchTab('billing');
+    switchTab('billing', { preserveSearch: true });
   }
 };
 
@@ -383,7 +417,7 @@ const dealModalCallbacks = {
     searchInput.value = matchedStore.name;
     state.searchQuery = matchedStore.name;
     clearSearchBtn.classList.remove('hidden');
-    switchTab('stores');
+    switchTab('stores', { preserveSearch: true });
     setTimeout(() => openStoreModal(matchedStore, storeModalElements, storeModalCallbacks), 100);
   },
   onViewBilling: (deal) => {
@@ -393,7 +427,7 @@ const dealModalCallbacks = {
     state.currentBillingCity = 'all';
     state.currentBillingCategory = 'all';
     if (billingCitySelect) billingCitySelect.value = 'all';
-    switchTab('billing');
+    switchTab('billing', { preserveSearch: true });
   }
 };
 
@@ -402,14 +436,14 @@ const billingModalCallbacks = {
     searchInput.value = linkedStore.name;
     state.searchQuery = linkedStore.name;
     clearSearchBtn.classList.remove('hidden');
-    switchTab('stores');
+    switchTab('stores', { preserveSearch: true });
     setTimeout(() => openStoreModal(linkedStore, storeModalElements, storeModalCallbacks), 100);
   },
   onViewDeal: (dealQuery) => {
     dealsSearchInput.value = dealQuery;
     state.dealsSearchQuery = dealQuery;
     clearDealsSearchBtn.classList.remove('hidden');
-    switchTab('deals');
+    switchTab('deals', { preserveSearch: true });
   }
 };
 
@@ -783,7 +817,7 @@ document.addEventListener('click', (e) => {
       state.currentDealMaxPrice = 'all';
       dealsPriceFilterSelect.value = 'all';
       updateDealsCategoryChips(dealsCategoryChipsContainer);
-      switchTab('deals');
+      switchTab('deals', { preserveSearch: true });
     }
     return;
   }
@@ -800,7 +834,7 @@ document.addEventListener('click', (e) => {
       cardFilterSelect.value = 'all';
       state.currentCategory = 'all';
       updateCategoryChips(categoryChipsContainer);
-      switchTab('stores');
+      switchTab('stores', { preserveSearch: true });
     }
     return;
   }
@@ -819,7 +853,7 @@ document.addEventListener('click', (e) => {
       if (billingCitySelect) billingCitySelect.value = 'all';
       state.currentBillingCategory = 'all';
       if (billingCategoryChipsContainer) updateBillingCategoryChips(billingCategoryChipsContainer);
-      switchTab('billing');
+      switchTab('billing', { preserveSearch: true });
     }
     return;
   }

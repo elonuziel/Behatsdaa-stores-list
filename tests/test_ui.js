@@ -297,7 +297,7 @@ async function runTests() {
   assert.strictEqual(document.documentElement.classList.contains('dark'), wasDark);
   console.log('  -> PASS (Theme toggle switches light/dark classes properly)');
 
-  // --- Test 11: Switch to Statement Discounts (Billing) Tab ---
+  // --- Test 11: Switch to Statement Discounts (Billing) Tab & Carryover ---
   console.log('[Test 11] Switching to Statement Discounts (Billing) tab...');
   const tabBillingBtn = document.getElementById('tab-billing-btn');
   assert.ok(tabBillingBtn, 'Tab billing button should exist');
@@ -308,6 +308,14 @@ async function runTests() {
   assert.ok(!billingSection.classList.contains('hidden'), 'Billing section should be visible');
   assert.ok(storesSection.classList.contains('hidden'), 'Stores section should be hidden');
   assert.ok(dealsSection.classList.contains('hidden'), 'Deals section should be hidden');
+
+  // Verify search term carried over from Deals tab (from Test 9)
+  assert.strictEqual(document.getElementById('billing-search-input').value, storeName, 'Billing search should carry over search term from Deals tab');
+
+  // Clear billing search to verify progressive rendering on full dataset
+  const clearBtn = document.getElementById('clear-billing-search-btn');
+  if (clearBtn) clearBtn.click();
+  await new Promise(r => setTimeout(r, 50));
 
   let billingCards = document.querySelectorAll('#billing-grid .billing-card');
   const initialBillingExpected = Math.min(billingData.stores.length, 60);
@@ -533,13 +541,82 @@ async function runTests() {
   await new Promise(r => setTimeout(r, 50));
   console.log('  -> PASS (Tab 3 displays compatible cards & deals on cards and in modal)');
 
+  // --- Test 19: Search Term Carryover, Overwriting, Clearing & Cross-Link Preservation ---
+  console.log('[Test 19] Testing Search-Term Carryover, Overwriting, Clearing, and Cross-Link Preservation...');
+  {
+    const tabStoresBtnEl = document.getElementById('tab-stores-btn');
+    const tabDealsBtnEl = document.getElementById('tab-deals-btn');
+    const tabBillingBtnEl = document.getElementById('tab-billing-btn');
+    const searchInputEl = document.getElementById('search-input');
+    const dealsSearchInputEl = document.getElementById('deals-search-input');
+    const billingSearchInputEl = document.getElementById('billing-search-input');
+    const clearSearchBtnEl = document.getElementById('clear-search-btn');
+    const clearDealsBtnEl = document.getElementById('clear-deals-search-btn');
+    const clearBillingBtnEl = document.getElementById('clear-billing-search-btn');
+
+    // 1. Carrying search term: Stores -> Deals
+    tabStoresBtnEl.click();
+    searchInputEl.value = 'פיצה';
+    searchInputEl.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 180));
+
+    tabDealsBtnEl.click();
+    await new Promise(r => setTimeout(r, 50));
+    assert.strictEqual(dealsSearchInputEl.value, 'פיצה', 'Deals search input should carry over "פיצה" from Stores tab');
+    assert.ok(!clearDealsBtnEl.classList.contains('hidden'), 'Clear deals search button should be visible');
+    const dealsCards = document.querySelectorAll('#deals-grid .deal-card');
+    assert.ok(dealsCards.length > 0, 'Deals should render results for carried search term');
+
+    // 2. Overwriting destination search term: Deals -> Billing
+    dealsSearchInputEl.value = 'ספורט';
+    dealsSearchInputEl.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 180));
+
+    tabBillingBtnEl.click();
+    await new Promise(r => setTimeout(r, 50));
+    assert.strictEqual(billingSearchInputEl.value, 'ספורט', 'Billing search input should overwrite with "ספורט" from Deals tab');
+    assert.ok(!clearBillingBtnEl.classList.contains('hidden'), 'Clear billing search button should be visible');
+
+    // 3. Clearing destination search when source search is empty: Billing -> Stores
+    clearBillingBtnEl.click();
+    await new Promise(r => setTimeout(r, 50));
+    assert.strictEqual(billingSearchInputEl.value, '', 'Billing search should be empty after clear');
+
+    tabStoresBtnEl.click();
+    await new Promise(r => setTimeout(r, 50));
+    assert.strictEqual(searchInputEl.value, '', 'Stores search input should be cleared when switching from empty Billing tab');
+    assert.ok(clearSearchBtnEl.classList.contains('hidden'), 'Clear stores search button should be hidden when search is empty');
+
+    // 4. Preserving intended search for cross-link navigation
+    searchInputEl.value = 'פיצה';
+    searchInputEl.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 180));
+
+    const storeWithBadge = Array.from(document.querySelectorAll('#cards-view .store-card')).find(c =>
+      c.querySelector('[data-action="view-linked-deal"]')
+    );
+    assert.ok(storeWithBadge, 'Found store card with linked deal badge');
+    const badgeBtn = storeWithBadge.querySelector('[data-action="view-linked-deal"]');
+    const badgeStoreName = storeWithBadge.querySelector('h3').textContent.trim();
+    badgeBtn.click();
+    await new Promise(r => setTimeout(r, 50));
+
+    assert.strictEqual(dealsSearchInputEl.value, badgeStoreName, 'Cross-link jump should preserve intended store search term, not source search term ("פיצה")');
+    assert.notStrictEqual(dealsSearchInputEl.value, 'פיצה', 'Cross-link search should not be overwritten by source tab search query');
+
+    // Clean up search
+    if (clearDealsBtnEl) clearDealsBtnEl.click();
+    await new Promise(r => setTimeout(r, 50));
+  }
+  console.log('  -> PASS (Search term carryover, overwriting, clearing, and cross-link preservation validated)');
+
   // --- Test 17: Zero Console Errors ---
   console.log('[Test 17] Checking for console errors...');
   assert.strictEqual(consoleErrors.length, 0, `Expected 0 console errors, but found: ${consoleErrors.join(', ')}`);
   console.log('  -> PASS (Zero errors during entire session)');
 
   console.log('\n====================================================');
-  console.log('   ALL 18 UI & DOM INTEGRATION TESTS PASSED!       ');
+  console.log('   ALL 19 UI & DOM INTEGRATION TESTS PASSED!       ');
   console.log('====================================================\n');
   process.exit(0);
 }
