@@ -60,6 +60,17 @@
   const viewTableBtn = document.getElementById('view-table-btn');
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
 
+  // Progressive Rendering (Page size of 60 items for instant 60fps responsiveness)
+  const STORES_PAGE_SIZE = 60;
+  let storesVisibleCount = STORES_PAGE_SIZE;
+  const DEALS_PAGE_SIZE = 60;
+  let dealsVisibleCount = DEALS_PAGE_SIZE;
+
+  const storesLoadMoreContainer = document.getElementById('stores-load-more-container');
+  const storesLoadMoreBtn = document.getElementById('stores-load-more-btn');
+  const dealsLoadMoreContainer = document.getElementById('deals-load-more-container');
+  const dealsLoadMoreBtn = document.getElementById('deals-load-more-btn');
+
   // DOM Elements - Store Modal
   const storeModal = document.getElementById('store-modal');
   const modalCloseBtn = document.getElementById('modal-close-btn');
@@ -455,17 +466,22 @@
 
     noResultsEl.classList.add('hidden');
 
+    const storesToRender = filteredStores.slice(0, storesVisibleCount);
+
     if (currentView === 'grid') {
       cardsView.classList.remove('hidden');
       tableView.classList.add('hidden');
       cardsView.innerHTML = '';
-      filteredStores.forEach(s => cardsView.appendChild(createStoreCardElement(s)));
+      const fragment = document.createDocumentFragment();
+      storesToRender.forEach(s => fragment.appendChild(createStoreCardElement(s)));
+      cardsView.appendChild(fragment);
     } else {
       cardsView.classList.add('hidden');
       tableView.classList.remove('hidden');
       tableTbody.innerHTML = '';
+      const fragment = document.createDocumentFragment();
 
-      filteredStores.forEach(s => {
+      storesToRender.forEach(s => {
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-750 transition cursor-pointer';
 
@@ -486,8 +502,17 @@
           </td>
         `;
         tr.addEventListener('click', () => openStoreModal(s));
-        tableTbody.appendChild(tr);
+        fragment.appendChild(tr);
       });
+      tableTbody.appendChild(fragment);
+    }
+
+    if (storesLoadMoreContainer) {
+      if (storesVisibleCount < filteredStores.length) {
+        storesLoadMoreContainer.classList.remove('hidden');
+      } else {
+        storesLoadMoreContainer.classList.add('hidden');
+      }
     }
 
     if (window.lucide) lucide.createIcons();
@@ -784,7 +809,18 @@
     noDealsResults.classList.add('hidden');
     dealsGrid.classList.remove('hidden');
     dealsGrid.innerHTML = '';
-    filteredDeals.forEach(d => dealsGrid.appendChild(createDealCardElement(d)));
+    const fragment = document.createDocumentFragment();
+    const dealsToRender = filteredDeals.slice(0, dealsVisibleCount);
+    dealsToRender.forEach(d => fragment.appendChild(createDealCardElement(d)));
+    dealsGrid.appendChild(fragment);
+
+    if (dealsLoadMoreContainer) {
+      if (dealsVisibleCount < filteredDeals.length) {
+        dealsLoadMoreContainer.classList.remove('hidden');
+      } else {
+        dealsLoadMoreContainer.classList.add('hidden');
+      }
+    }
 
     if (window.lucide) lucide.createIcons();
   }
@@ -895,6 +931,7 @@
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim();
     clearSearchBtn.classList.toggle('hidden', !searchQuery);
+    storesVisibleCount = STORES_PAGE_SIZE;
     renderStores();
   });
 
@@ -902,17 +939,20 @@
     searchInput.value = '';
     searchQuery = '';
     clearSearchBtn.classList.add('hidden');
+    storesVisibleCount = STORES_PAGE_SIZE;
     renderStores();
   });
 
   cardFilterSelect.addEventListener('change', (e) => {
     currentCard = e.target.value;
+    storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
     renderStores();
   });
 
   sortSelect.addEventListener('change', (e) => {
     currentSort = e.target.value;
+    storesVisibleCount = STORES_PAGE_SIZE;
     renderStores();
   });
 
@@ -920,6 +960,7 @@
     const chip = e.target.closest('.category-chip');
     if (!chip) return;
     currentCategory = chip.dataset.category;
+    storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
     renderStores();
   });
@@ -931,6 +972,7 @@
     cardFilterSelect.value = 'all';
     currentCategory = 'all';
     clearSearchBtn.classList.add('hidden');
+    storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
     renderStores();
   });
@@ -942,6 +984,7 @@
     cardFilterSelect.value = 'all';
     currentCategory = 'all';
     clearSearchBtn.classList.add('hidden');
+    storesVisibleCount = STORES_PAGE_SIZE;
     updateCategoryChips();
     renderStores();
   });
@@ -961,6 +1004,7 @@
   dealsSearchInput.addEventListener('input', (e) => {
     dealsSearchQuery = e.target.value.trim();
     clearDealsSearchBtn.classList.toggle('hidden', !dealsSearchQuery);
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     renderDeals();
   });
 
@@ -968,21 +1012,25 @@
     dealsSearchInput.value = '';
     dealsSearchQuery = '';
     clearDealsSearchBtn.classList.add('hidden');
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     renderDeals();
   });
 
   dealsTagSelect.addEventListener('change', (e) => {
     currentDealTag = e.target.value;
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     renderDeals();
   });
 
   dealsPriceFilterSelect.addEventListener('change', (e) => {
     currentDealMaxPrice = e.target.value;
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     renderDeals();
   });
 
   dealsSortSelect.addEventListener('change', (e) => {
     currentDealSort = e.target.value;
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     renderDeals();
   });
 
@@ -990,6 +1038,7 @@
     const chip = e.target.closest('.deal-category-chip');
     if (!chip) return;
     currentDealCategory = chip.dataset.category;
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     updateDealsCategoryChips();
     renderDeals();
   });
@@ -1003,6 +1052,7 @@
     currentDealMaxPrice = 'all';
     dealsPriceFilterSelect.value = 'all';
     clearDealsSearchBtn.classList.add('hidden');
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     updateDealsCategoryChips();
     renderDeals();
   });
@@ -1016,6 +1066,7 @@
     currentDealMaxPrice = 'all';
     dealsPriceFilterSelect.value = 'all';
     clearDealsSearchBtn.classList.add('hidden');
+    dealsVisibleCount = DEALS_PAGE_SIZE;
     updateDealsCategoryChips();
     renderDeals();
   });
@@ -1026,6 +1077,21 @@
   dealModal.addEventListener('click', (e) => {
     if (e.target === dealModal) closeDealModal();
   });
+
+  // Progressive Rendering - Load More Buttons
+  if (storesLoadMoreBtn) {
+    storesLoadMoreBtn.addEventListener('click', () => {
+      storesVisibleCount += STORES_PAGE_SIZE;
+      renderStores();
+    });
+  }
+
+  if (dealsLoadMoreBtn) {
+    dealsLoadMoreBtn.addEventListener('click', () => {
+      dealsVisibleCount += DEALS_PAGE_SIZE;
+      renderDeals();
+    });
+  }
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {

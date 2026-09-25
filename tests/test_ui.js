@@ -103,7 +103,15 @@ async function runTests() {
   console.log('[Test 3] Verifying cross-linking badge on stores with deals...');
   const matchedDeal = dealsData.deals.find(d => d.matched_store_name);
   const targetStoreName = matchedDeal ? matchedDeal.matched_store_name : 'אסקייפלנד';
-  const storeWithDeal = Array.from(storeCards).find(card => 
+
+  // Search for the store with a deal so it is rendered
+  const searchInput = document.getElementById('search-input');
+  searchInput.value = targetStoreName;
+  searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 50));
+
+  const storeCardsAfterSearch = document.querySelectorAll('#cards-view .store-card');
+  const storeWithDeal = Array.from(storeCardsAfterSearch).find(card => 
     card.textContent.includes(targetStoreName)
   );
   assert.ok(storeWithDeal, `Found store card for ${targetStoreName}`);
@@ -111,7 +119,17 @@ async function runTests() {
   assert.ok(dealBadge, 'Store card should have a linked deal badge');
   console.log('  -> PASS (Linked deal badge successfully detected on store card)');
 
-  // --- Test 4: Switching to Deals Tab ---
+  // Clear search for subsequent tests
+  const clearStoresSearchBtn = document.getElementById('clear-search-btn');
+  if (clearStoresSearchBtn) {
+    clearStoresSearchBtn.click();
+  } else {
+    searchInput.value = '';
+    searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  }
+  await new Promise(r => setTimeout(r, 50));
+
+  // --- Test 4: Switching to Deals Tab & Progressive Rendering ---
   console.log('[Test 4] Switching to Deals & Vouchers tab...');
   const tabDealsBtn = document.getElementById('tab-deals-btn');
   tabDealsBtn.click();
@@ -121,9 +139,22 @@ async function runTests() {
   assert.ok(!dealsSection.classList.contains('hidden'), 'Deals section should be visible');
   const tabDealsCount = document.getElementById('tab-deals-count');
   assert.strictEqual(tabDealsCount.textContent, String(dealsData.deals.length));
-  const dealCards = document.querySelectorAll('#deals-grid .deal-card');
-  assert.strictEqual(dealCards.length, dealsData.deals.length, 'All deals should be rendered');
-  console.log(`  -> PASS (Successfully switched to Deals tab with ${dealCards.length} deals)`);
+  
+  let dealCards = document.querySelectorAll('#deals-grid .deal-card');
+  const initialExpected = Math.min(dealsData.deals.length, 60);
+  assert.strictEqual(dealCards.length, initialExpected, `Expected initial batch of ${initialExpected} deals`);
+
+  // Test Load More button
+  const loadMoreBtn = document.getElementById('deals-load-more-btn');
+  if (dealsData.deals.length > 60) {
+    assert.ok(loadMoreBtn, 'Load more button should exist');
+    loadMoreBtn.click();
+    await new Promise(r => setTimeout(r, 50));
+    dealCards = document.querySelectorAll('#deals-grid .deal-card');
+    const secondExpected = Math.min(dealsData.deals.length, 120);
+    assert.strictEqual(dealCards.length, secondExpected, `Deals count should expand to ${secondExpected} after Load More`);
+  }
+  console.log(`  -> PASS (Successfully switched to Deals tab with progressive rendering validated)`);
 
   // --- Test 5: Deals Live Search Filter ---
   console.log('[Test 5] Testing Deals live search filter...');
@@ -142,7 +173,8 @@ async function runTests() {
   clearDealsSearchBtn.click();
   await new Promise(r => setTimeout(r, 50));
   filteredDeals = document.querySelectorAll('#deals-grid .deal-card');
-  assert.strictEqual(filteredDeals.length, dealsData.deals.length, 'All deals restored after clear');
+  const resetExpected = Math.min(dealsData.deals.length, 60);
+  assert.strictEqual(filteredDeals.length, resetExpected, `Expected ${resetExpected} deals restored after clear`);
   console.log('  -> PASS (Live search filter works correctly)');
 
   // --- Test 6: Deals Price Filter ---
@@ -185,6 +217,12 @@ async function runTests() {
 
   // --- Test 8: Reverse Link: Voucher to Store on Card ---
   console.log('[Test 8] Testing reverse link from voucher to store on cards...');
+  const dealWithStoreData = dealsData.deals.find(d => d.matched_store_name);
+  if (dealWithStoreData) {
+    dealsSearchInput.value = dealWithStoreData.title;
+    dealsSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 50));
+  }
   const dealWithStore = Array.from(document.querySelectorAll('#deals-grid .deal-card')).find(c => 
     c.querySelector('[data-action="view-linked-store"]')
   );
@@ -208,13 +246,13 @@ async function runTests() {
 
   // --- Test 9: Store Card to Deals Jump Navigation ---
   console.log('[Test 9] Testing cross-link jump from store card to deals...');
-  // Switch back to stores and clear search
+  // Switch back to stores and search for store with deal
   const tabStoresBtn = document.getElementById('tab-stores-btn');
   tabStoresBtn.click();
-  const searchInput = document.getElementById('search-input');
-  if (searchInput) {
-    searchInput.value = '';
-    searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  const searchInputStores = document.getElementById('search-input');
+  if (searchInputStores) {
+    searchInputStores.value = targetStoreName;
+    searchInputStores.dispatchEvent(new window.Event('input', { bubbles: true }));
   }
   await new Promise(r => setTimeout(r, 50));
 

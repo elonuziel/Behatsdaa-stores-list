@@ -57,3 +57,8 @@ cookies.txt
 node_modules/
 package-lock.json
 
+# Raw scrape dumps
+deals_raw.json
+*_raw.json
+
+
