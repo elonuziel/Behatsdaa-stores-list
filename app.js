@@ -195,12 +195,18 @@
     if (!allStores.length || !allDeals.length) return;
 
     allStores.forEach(store => {
-      const sNorm = normalizeHebrew(store.name);
+      // Strip non-alnum characters for fuzzy comparison (mirrors Python normalisation)
+      const sNorm = store.name.toLowerCase().replace(/[^א-תa-z0-9]/g, '');
       store.linkedDeals = allDeals.filter(d => {
         if (d.matched_store_id && d.matched_store_id === store.id) return true;
         if (d.matched_store_name && d.matched_store_name === store.name) return true;
-        const suppNorm = normalizeHebrew(d.supplier);
-        return suppNorm && (sNorm.includes(suppNorm) || suppNorm.includes(sNorm));
+        // Fuzzy fallback: require ≥4 chars AND length-coverage ratio ≥0.4 (mirrors scraper.py)
+        const suppNorm = d.supplier ? d.supplier.toLowerCase().replace(/[^א-תa-z0-9]/g, '') : '';
+        if (!suppNorm || suppNorm.length < 4) return false;
+        if (!sNorm.includes(suppNorm) && !suppNorm.includes(sNorm)) return false;
+        const minLen = Math.min(suppNorm.length, sNorm.length);
+        const maxLen = Math.max(suppNorm.length, sNorm.length);
+        return (minLen / maxLen) >= 0.4;
       });
     });
   }

@@ -31,6 +31,31 @@ try:
 except ImportError:
     pass
 
+# ---------------------------------------------------------------------------
+# Module-level constants shared by parse_deal() — defined once, never rebuilt
+# ---------------------------------------------------------------------------
+
+# Words/tokens that must NOT be accepted as supplier names (dietary labels,
+# generic adjectives, distribution words, etc.)
+_GENERIC_TOKENS: set[str] = {
+    'כשר', 'כשרה', 'חלבי', 'בשרי', 'פרווה', 'אנרגיה', 'אילת', 'אונליין', 'online',
+    'חינם', 'מבצע', 'חדש', 'חדשה', 'ישן', 'מוגבל', 'בלבד', 'כולל', 'ללא',
+    'גדול', 'קטן', 'ממוחזר', 'עץ', 'פלסטיק', 'גב', 'רשת', 'סט', 'ערכת',
+}
+# Pre-normalised forms of _GENERIC_TOKENS (strip non-alnum, lower-case)
+_GENERIC_NORMS: set[str] = {re.sub(r'[^א-תa-zA-Z0-9]+', '', t).lower() for t in _GENERIC_TOKENS}
+
+# Top-level Behatsdaa category names — short, well-known super-categories
+_SUPER_CATS: set[str] = {
+    'צרכנות', 'אטרקציות', 'קולינריה', 'בילוי ופנאי', 'מופעים והצגות',
+    'תיירות ונופש', 'כושר וספורט', 'מבצעי רכב', 'ביטוח ושירותים',
+    'מחשבים ואלקטרוניקה', 'מרהטים את הבית', 'חשמל לבית ולמטבח',
+    'ריהוט ואביזרים לגן ולמרפסת', 'טקסטיל והלבשה', 'קמפינג, מחנאות וטיולים',
+    'מכינים את המטבח', 'נופש בארץ', 'מבצעי צרכנות לחג',
+}
+
+# ---------------------------------------------------------------------------
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Scrape participating stores and rotating deals across Behatsdaa.")
@@ -248,7 +273,10 @@ def parse_deal(raw_deal, stores_catalog=None):
         v_barcode = str(v.get("barCode") or v.get("barcode") or "")
         v_stock = v.get("stock") or ("אזל במלאי" if v.get("outofStock") else "במלאי")
 
-        orig_price = v_orig if v_orig > v_price else (v_price + v_orig if v_orig > 0 else v_price)
+        # v_orig is the ORIGINAL (pre-discount) price from the API.
+        # On Behatsdaa the "discount" field actually stores the original price, not a reduction amount.
+        # Only accept v_orig as original when it is strictly greater than the sale price.
+        orig_price = v_orig if v_orig > v_price else v_price
         disc_pct = round(((orig_price - v_price) / orig_price) * 100) if orig_price > v_price else 0
 
         parsed_variants.append({
@@ -295,35 +323,28 @@ def parse_deal(raw_deal, stores_catalog=None):
 
     supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
 
-    # Generic adjectives/attributes that should NOT be treated as supplier names
-    _GENERIC_TOKENS = {
-        'כשר', 'כשרה', 'חלבי', 'בשרי', 'פרווה', 'אנרגיה', 'אילת', 'אונליין', 'online',
-        'חינם', 'מבצע', 'חדש', 'חדשה', 'ישן', 'מוגבל', 'בלבד', 'כולל', 'ללא',
-        'גדול', 'קטן', 'ממוחזר', 'עץ', 'פלסטיק', 'גב', 'רשת', 'סט', 'ערכת',
-    }
-
     # Extract supplier from title if missing from API fields
     if not supplier:
         # Try "מבית <Brand>" pattern first (most reliable)
-        supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]{3,}?)[\'"]?(?:\s*[-–]|\s*$)', title)
-        if supplier_match2:
-            supplier = supplier_match2.group(1).strip()
+        supplier_match = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]{3,}?)[\'"]?(?:\s*[-–]|\s*$)', title)
+        if supplier_match:
+            supplier = supplier_match.group(1).strip()
         else:
-            # Try "Title – Brand" pattern: take the FIRST segment (before dash) which is usually the brand
-            # Only if the first segment is meaningful (≥4 chars, not a generic category word)
+            # Take FIRST segment before a dash — it is usually the brand name
+            # Require ≥4 normalised chars and not a known generic token
             first_seg_match = re.match(r'^([^\-–]{4,50}?)\s*[-–]', title)
             if first_seg_match:
                 candidate = first_seg_match.group(1).strip()
                 norm_candidate = re.sub(r'[^א-תa-zA-Z0-9]+', '', candidate).lower()
-                if len(norm_candidate) >= 4 and norm_candidate not in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
+                if len(norm_candidate) >= 4 and norm_candidate not in _GENERIC_NORMS:
                     supplier = candidate
 
-    # Fallback to category if supplier still empty or too short/generic
-    if not supplier or len(re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()) < 3:
+    # Fallback to category if supplier is still empty or too short
+    if not supplier or len(re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier)) < 3:
         supplier = (raw_deal.get("category") or "בהצדעה").strip()
 
-    # Clear out generic tokens that slipped through
-    if re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower() in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
+    # Clear generic tokens that slipped through (e.g. "כשר")
+    if re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower() in _GENERIC_NORMS:
         supplier = (raw_deal.get("category") or "בהצדעה").strip()
 
     # Image extraction (including CDN prefix for Behatsdaa media)
@@ -338,7 +359,6 @@ def parse_deal(raw_deal, stores_catalog=None):
             image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
 
     # Category name — prefer structured API fields; never let category equal the full deal title
-    _SUPER_CATS = {'צרכנות', 'אטרקציות', 'קולינריה', 'בילוי ופנאי', 'מופעים והצגות', 'תיירות ונופש', 'כושר וספורט', 'מבצעי רכב', 'ביטוח ושירותים'}
     raw_cat = raw_deal.get("category") or ""
     # Only use the "category" field if it's a proper super-category, not if it accidentally equals the title
     if raw_cat and raw_cat != title and (raw_cat in _SUPER_CATS or len(raw_cat) <= 30):
@@ -359,6 +379,10 @@ def parse_deal(raw_deal, stores_catalog=None):
             cat_name = "כללי"
 
     # Determine deal type
+    # is_free: title says "חינם"/"מוזיאון" OR all prices are 0
+    all_prices_free = bool(prices) and all(p == 0.0 for p in prices)
+    is_free = "חינם" in title or "מוזיאון" in title or all_prices_free
+
     is_external = bool(category_url and not prices and not parsed_variants)
     if is_external:
         deal_type = "external_partner"
@@ -406,16 +430,14 @@ def parse_deal(raw_deal, stores_catalog=None):
         if not locs and (not isinstance(business, dict) or not business.get("address")):
             loc_str = "כולל משלוח עד הבית"
 
-    # Cross-link with stores in catalog — require meaningful match length and bidirectional overlap
+    # Cross-link with stores in catalog — require meaningful match (≥4 chars, ≥40% length coverage)
     matched_store_id = None
     matched_store_name = None
     if stores_catalog and supplier:
         supp_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()
-        # Require supplier to be at least 4 chars and not a generic token before attempting match
-        if len(supp_norm) >= 4 and supp_norm not in {re.sub(r'[^א-תa-zA-Z0-9]+', '', g).lower() for g in _GENERIC_TOKENS}:
+        if len(supp_norm) >= 4 and supp_norm not in _GENERIC_NORMS:
             for sname, sdata in stores_catalog.items():
                 sname_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', sname).lower()
-                # Accept match only if the shorter token covers ≥60% of the longer one
                 min_len = min(len(supp_norm), len(sname_norm))
                 max_len = max(len(supp_norm), len(sname_norm))
                 if min_len >= 4 and (supp_norm in sname_norm or sname_norm in supp_norm) and (min_len / max_len) >= 0.4:
