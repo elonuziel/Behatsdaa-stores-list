@@ -53,3 +53,7 @@ desktop.ini
 *.log
 cookies.txt
 
+# Node modules
+node_modules/
+package-lock.json
+

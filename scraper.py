@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """
-Behatsdaa Participating Stores Multi-Card Scraper (Modular Refactor)
+Behatsdaa Participating Stores & Changing Deals Scraper
+Supports extracting both:
+1. Rechargeable Wallet Cards & Stores Catalog (stores.json / stores.csv)
+2. Changing Promotional Deals & Vouchers (deals.json / deals.csv)
 """
 
 import os
@@ -30,22 +33,27 @@ except ImportError:
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(description="Scrape participating stores across all Behatsdaa cards.")
+    parser = argparse.ArgumentParser(description="Scrape participating stores and rotating deals across Behatsdaa.")
     parser.add_argument(
         "--output-dir",
         default="data",
-        help="Directory to save stores.json and stores.csv (default: 'data')"
+        help="Directory to save stores and deals JSON/CSV (default: 'data')"
     )
     parser.add_argument(
         "--headless",
         action="store_true",
         default=False,
-        help="Run browser in headless mode (default: False, headful required for login & WAF)"
+        help="Run browser in headless mode (default: False, headful recommended for initial login & WAF)"
     )
     parser.add_argument(
         "--card-url",
         default="https://www.behatsdaa.org.il/card/chargingCard",
         help="Main cards page URL"
+    )
+    parser.add_argument(
+        "--home-url",
+        default="https://www.behatsdaa.org.il/",
+        help="Behatsdaa homepage URL"
     )
     parser.add_argument(
         "--browser", "--channel",
@@ -69,6 +77,24 @@ def parse_arguments():
         "--profile-dir",
         default="./behatsdaa_profile",
         help="Directory to store persistent browser profile and login session (default: ./behatsdaa_profile)"
+    )
+    parser.add_argument(
+        "--deals-only",
+        action="store_true",
+        default=False,
+        help="Scrape only rotating deals & vouchers, skipping wallet cards"
+    )
+    parser.add_argument(
+        "--cards-only",
+        action="store_true",
+        default=False,
+        help="Scrape only rechargeable card stores, skipping deals"
+    )
+    parser.add_argument(
+        "--max-deals",
+        type=int,
+        default=None,
+        help="Maximum number of deals to deeply scrape (default: all)"
     )
     return parser.parse_args()
 
@@ -137,9 +163,7 @@ def parse_chains_from_categories(categories, card_info):
 
 
 def merge_stores_into_catalog(catalog, stores, card_info):
-    """
-    Merge scraped stores into unified catalog with deduplication across cards.
-    """
+    """Merge scraped stores into unified catalog with deduplication across cards."""
     card_id = card_info["id"]
     card_name = card_info["name"]
     discount_str = card_info["discount_default"]
@@ -187,6 +211,120 @@ def merge_stores_into_catalog(catalog, stores, card_info):
             store_entry["website"] = s["website"]
 
 
+def parse_deal(raw_deal, stores_catalog=None):
+    """Normalize a raw deal/category/variant JSON object from Behatsdaa into a clean deal dict."""
+    category_id = str(raw_deal.get("categoryId") or raw_deal.get("id") or "")
+    title = (raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
+    supplier = (raw_deal.get("supplierName") or "").strip()
+
+    # Extract supplier from title if missing
+    if not supplier:
+        supplier_match = re.search(r'[-–]\s*([א-תA-Za-z0-9\s]+)$', title)
+        if supplier_match:
+            supplier = supplier_match.group(1).strip()
+        else:
+            supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]+)[\'"]?', title)
+            if supplier_match2:
+                supplier = supplier_match2.group(1).strip()
+
+    # Fallback to category if supplier still empty
+    if not supplier:
+        supplier = (raw_deal.get("category") or "בהצדעה").strip()
+
+    # Image extraction
+    image = raw_deal.get("image") or ""
+    if not image and raw_deal.get("images") and isinstance(raw_deal["images"], list) and raw_deal["images"]:
+        image = raw_deal["images"][0]
+
+    # Category name
+    cat_name = (raw_deal.get("category") or raw_deal.get("parentCategoryName") or raw_deal.get("categoryName") or "כללי").strip()
+    if cat_name in ["", "כללי"] and raw_deal.get("breadcrumbs"):
+        crumbs = raw_deal.get("breadcrumbs")
+        if isinstance(crumbs, list) and crumbs:
+            cat_name = crumbs[0].get("name", "כללי")
+
+    # Variants & Pricing
+    variants_raw = raw_deal.get("variants") or []
+    parsed_variants = []
+    prices = []
+    original_prices = []
+
+    for idx, v in enumerate(variants_raw):
+        v_price = float(v.get("price") or 0)
+        v_orig = float(v.get("discount") or 0)
+        v_name = (v.get("name") or title).strip()
+        v_barcode = str(v.get("barCode") or "")
+        v_stock = "אזל במלאי" if v.get("outofStock") else "במלאי"
+
+        orig_price = v_orig if v_orig > v_price else (v_price + v_orig if v_orig > 0 else v_price)
+        disc_pct = round(((orig_price - v_price) / orig_price) * 100) if orig_price > v_price else 0
+
+        parsed_variants.append({
+            "id": str(v.get("id") or f"v-{category_id}-{idx}"),
+            "name": v_name,
+            "price": v_price,
+            "original_price": orig_price,
+            "discount_percent": disc_pct,
+            "barcode": v_barcode,
+            "stock": v_stock,
+            "expire_date": v.get("expireDate") or raw_deal.get("eventDate") or ""
+        })
+        if v_price > 0:
+            prices.append(v_price)
+        if orig_price > 0:
+            original_prices.append(orig_price)
+
+    main_price = min(prices) if prices else float(raw_deal.get("price") or 0)
+    main_orig = max(original_prices) if original_prices else float(raw_deal.get("discount") or main_price)
+    if main_orig < main_price:
+        main_orig = main_price
+    discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
+
+    # Locations & Shipping
+    locs = raw_deal.get("locations") or []
+    loc_str = "מגוון סניפים"
+    shipping_included = False
+    if isinstance(locs, list) and locs:
+        loc_str = ", ".join([l.get("address", "") for l in locs if l.get("address")]) or "מגוון סניפים"
+    if "משלוח" in title or "משלוח" in str(raw_deal.get("description", "")) or "משלוח" in str(raw_deal.get("termsOfUse", "")):
+        shipping_included = True
+        if not locs:
+            loc_str = "כולל משלוח עד הבית"
+
+    # Cross-link with stores in catalog
+    matched_store_id = None
+    matched_store_name = None
+    if stores_catalog and supplier:
+        supp_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()
+        for sname, sdata in stores_catalog.items():
+            sname_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', sname).lower()
+            if supp_norm and (supp_norm in sname_norm or sname_norm in supp_norm):
+                matched_store_id = sdata.get("id")
+                matched_store_name = sname
+                break
+
+    return {
+        "id": category_id,
+        "category_id": category_id,
+        "title": title,
+        "supplier": supplier,
+        "category": cat_name,
+        "tags": raw_deal.get("sourceTags") or [],
+        "image": image,
+        "url": f"https://www.behatsdaa.org.il/category/productPage/{category_id}",
+        "price": main_price,
+        "original_price": main_orig,
+        "discount_percent": discount_pct,
+        "locations": loc_str,
+        "shipping_included": shipping_included,
+        "expiration_date": raw_deal.get("expireDate") or raw_deal.get("eventDate") or "",
+        "limits": str(raw_deal.get("monthlyLimit") or raw_deal.get("orderLimit") or ""),
+        "description": raw_deal.get("description") or raw_deal.get("shortDescription") or "",
+        "terms_of_use": raw_deal.get("termsOfUse") or raw_deal.get("howToUse") or "",
+        "variants": parsed_variants,
+        "matched_store_id": matched_store_id,
+        "matched_store_name": matched_store_name
+    }
 
 
 def launch_stealth_context(p, profile_dir, headless=False, channel=None):
@@ -252,7 +390,7 @@ def wait_for_user_login(page):
 
 
 def fetch_wallets_via_evaluate(page):
-    """Execute high-speed API extraction inside active browser session."""
+    """Execute high-speed API extraction inside active browser session for rechargeable cards."""
     return page.evaluate("""
         async () => {
             const headers = {
@@ -304,6 +442,159 @@ def fetch_wallets_via_evaluate(page):
     """)
 
 
+def fetch_deals_via_evaluate(page, max_deals=None):
+    """Execute deep catalog scraping for rotating deals, coupons, and vouchers."""
+    return page.evaluate("""
+        async (maxCount) => {
+            const headers = {
+                "OrganizationId": "20",
+                "Accept": "application/json"
+            };
+
+            const dealsMap = new Map();
+            const discoveredTags = [];
+
+            // 1. Fetch top tags from homepage (holiday specials, featured carousels)
+            try {
+                const topTagsRes = await window.fetch("https://back.behatsdaa.org.il/api/tags/GetCategorysByTopTag?selectTop=30&skipTags=0", {
+                    headers,
+                    credentials: "include"
+                });
+                const topTagsJson = await topTagsRes.json();
+                const tagsData = topTagsJson?.data || [];
+
+                for (const tag of tagsData) {
+                    const tagId = tag.tagId;
+                    const tagName = tag.tagName;
+                    discoveredTags.push({ id: tagId, name: tagName });
+
+                    const categoryInfos = tag.tagCategoryInfo || [];
+                    for (const catInfo of categoryInfos) {
+                        const subCats = catInfo.categories || [];
+                        for (const cat of subCats) {
+                            if (cat && (cat.categoryId || cat.id)) {
+                                const cid = String(cat.categoryId || cat.id);
+                                if (!dealsMap.has(cid)) {
+                                    cat.sourceTags = [tagName];
+                                    dealsMap.set(cid, cat);
+                                } else {
+                                    const existing = dealsMap.get(cid);
+                                    if (!existing.sourceTags.includes(tagName)) {
+                                        existing.sourceTags.push(tagName);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Also fetch full items under this specific tag
+                    try {
+                        const tagFullRes = await window.fetch(`https://back.behatsdaa.org.il/api/tags/GetCategorysByTagID?tagid=${tagId}`, {
+                            headers,
+                            credentials: "include"
+                        });
+                        const tagFullJson = await tagFullRes.json();
+                        const fullInfo = tagFullJson?.data?.tagCategoryInfo || [];
+                        for (const catInfo of fullInfo) {
+                            const subCats = catInfo.categories || [];
+                            for (const cat of subCats) {
+                                if (cat && (cat.categoryId || cat.id)) {
+                                    const cid = String(cat.categoryId || cat.id);
+                                    if (!dealsMap.has(cid)) {
+                                        cat.sourceTags = [tagName];
+                                        dealsMap.set(cid, cat);
+                                    } else {
+                                        const existing = dealsMap.get(cid);
+                                        if (!existing.sourceTags.includes(tagName)) {
+                                            existing.sourceTags.push(tagName);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // ignore single tag error
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed fetching top tags:", err);
+            }
+
+            // 2. Fetch full category hierarchy
+            try {
+                const catHeaderRes = await window.fetch("https://back.behatsdaa.org.il/api/category/GetCategoryHeader", {
+                    headers,
+                    credentials: "include"
+                });
+                const catHeaderJson = await catHeaderRes.json();
+                const headerData = catHeaderJson?.data?.data || catHeaderJson?.data || [];
+
+                function extractCategories(nodes) {
+                    let items = [];
+                    if (!nodes || !Array.isArray(nodes)) return items;
+                    for (const n of nodes) {
+                        if (n.categoryId || n.id) items.push(n);
+                        if (n.children && n.children.length) items = items.concat(extractCategories(n.children));
+                        if (n.subCategories && n.subCategories.length) items = items.concat(extractCategories(n.subCategories));
+                    }
+                    return items;
+                }
+
+                const allHeaderCats = extractCategories(headerData);
+                for (const cat of allHeaderCats) {
+                    const cid = String(cat.categoryId || cat.id);
+                    if (!dealsMap.has(cid)) {
+                        cat.sourceTags = [cat.categoryName || "כללי"];
+                        dealsMap.set(cid, cat);
+                    }
+                }
+            } catch (err) {
+                console.warn("Failed fetching category header:", err);
+            }
+
+            // 3. Deep-fetch product details & variants in batches
+            const rawDeals = Array.from(dealsMap.values());
+            const dealsToFetch = maxCount ? rawDeals.slice(0, maxCount) : rawDeals;
+            const finalDeals = [];
+
+            const batchSize = 6;
+            for (let i = 0; i < dealsToFetch.length; i += batchSize) {
+                const batch = dealsToFetch.slice(i, i + batchSize);
+                const promises = batch.map(async (deal) => {
+                    const cid = deal.categoryId || deal.id;
+                    if (deal.variants && deal.variants.length > 0 && deal.howToUse) {
+                        return deal;
+                    }
+                    try {
+                        const pRes = await window.fetch(`https://back.behatsdaa.org.il/api/category/GetCategoryProducts?categoryId=${cid}`, {
+                            headers,
+                            credentials: "include"
+                        });
+                        const pJson = await pRes.json();
+                        if (pJson?.data?.data) {
+                            const detail = pJson.data.data;
+                            detail.sourceTags = deal.sourceTags || [];
+                            return detail;
+                        }
+                    } catch (err) {
+                        // ignore and use shallow deal
+                    }
+                    return deal;
+                });
+
+                const batchResults = await Promise.all(promises);
+                finalDeals.push(...batchResults);
+            }
+
+            return {
+                ok: true,
+                deals: finalDeals,
+                tags: discoveredTags
+            };
+        }
+    """, max_deals)
+
+
 def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
     """Save finalized stores list into stores.json and stores.csv."""
     output_dir = Path(output_dir)
@@ -311,7 +602,6 @@ def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
     json_path = output_dir / "stores.json"
     csv_path = output_dir / "stores.csv"
 
-    # Categories list
     all_categories = sorted(list({s.get("category", "כללי") for s in final_stores_list if s.get("category")}))
     if "הכל" not in all_categories:
         all_categories.insert(0, "הכל")
@@ -330,7 +620,7 @@ def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
 
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(output_payload, f, ensure_ascii=False, indent=2)
-    print(f"[+] Saved JSON catalog to: {json_path}")
+    print(f"[+] Saved stores JSON catalog to: {json_path}")
 
     with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
         writer = csv.writer(f)
@@ -355,7 +645,72 @@ def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
                 s.get("website", ""),
                 s.get("conditions", "")
             ])
-    print(f"[+] Saved CSV catalog to: {csv_path}")
+    print(f"[+] Saved stores CSV catalog to: {csv_path}")
+
+
+def save_deals(final_deals_list, discovered_tags, output_dir, home_url):
+    """Save finalized deals and vouchers into deals.json and deals.csv."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / "deals.json"
+    csv_path = output_dir / "deals.csv"
+
+    all_categories = sorted(list({d.get("category", "כללי") for d in final_deals_list if d.get("category")}))
+    if "הכל" not in all_categories:
+        all_categories.insert(0, "הכל")
+
+    all_tags = sorted(list({t for d in final_deals_list for t in d.get("tags", [])}))
+
+    output_payload = {
+        "metadata": {
+            "title": "מבצעים ושוברים ייעודיים - בהצדעה",
+            "source": home_url,
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "total_deals": len(final_deals_list),
+            "tags": all_tags,
+            "categories": all_categories
+        },
+        "deals": final_deals_list
+    }
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(output_payload, f, ensure_ascii=False, indent=2)
+    print(f"[+] Saved deals JSON catalog to: {json_path}")
+
+    with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            "מזהה",
+            "שם המוצר / שובר",
+            "ספק / מותג",
+            "קטגוריה",
+            "מחיר בהצדעה ₪",
+            "מחיר מקורי ₪",
+            "אחוז חיסכון %",
+            "תגיות מבצע",
+            "מיקום / משלוח",
+            "תוקף המבצע",
+            "הגבלת רכישה",
+            "רשת מקושרת",
+            "קישור למוצר"
+        ])
+        for d in final_deals_list:
+            writer.writerow([
+                d.get("id", ""),
+                d.get("title", ""),
+                d.get("supplier", ""),
+                d.get("category", ""),
+                d.get("price", 0),
+                d.get("original_price", 0),
+                f"{d.get('discount_percent', 0)}%",
+                ", ".join(d.get("tags", [])),
+                d.get("locations", ""),
+                d.get("expiration_date", ""),
+                d.get("limits", ""),
+                d.get("matched_store_name") or "ללא",
+                d.get("url", "")
+            ])
+    print(f"[+] Saved deals CSV catalog to: {csv_path}")
 
 
 def scrape_with_playwright(args):
@@ -367,18 +722,34 @@ def scrape_with_playwright(args):
 
     all_scraped_stores = {}
     discovered_cards = []
-    intercepted_api_data = {}
+    final_deals_list = []
+    discovered_tags = []
 
     print("==========================================================")
-    print("      Behatsdaa - Multi-Card Stores Scraper               ")
+    print("      Behatsdaa - Stores & Rotating Deals Scraper         ")
     print("==========================================================")
     print(f"[*] Target URL: {args.card_url}")
     print(f"[*] Headless: {args.headless}")
+    print(f"[*] Mode: Cards={'No' if args.deals_only else 'Yes'} | Deals={'No' if args.cards_only else 'Yes'}")
+    if args.max_deals:
+        print(f"[*] Max deals limit: {args.max_deals}")
+
     if args.cdp:
         print(f"[*] Mode: Connect to existing open browser (CDP: {args.cdp})")
     else:
         print(f"[*] Browser: {args.browser}")
         print(f"[*] Profile Directory: {args.profile_dir}")
+
+    # Load existing stores.json for deal cross-linking if deals-only
+    stores_path = Path(args.output_dir) / "stores.json"
+    if stores_path.exists():
+        try:
+            with open(stores_path, "r", encoding="utf-8") as f:
+                existing_data = json.load(f)
+                for s in existing_data.get("stores", []):
+                    all_scraped_stores[s["name"]] = s
+        except Exception:
+            pass
 
     with sync_playwright() as p:
         if args.cdp:
@@ -403,133 +774,89 @@ def scrape_with_playwright(args):
             )
 
         page = context.pages[0] if context.pages else context.new_page()
-
-        # Stealth flag
         page.add_init_script("Object.defineProperty(navigator, 'webdriver', { get: () => undefined });")
 
-        # Network interceptor as safety net
-        def handle_response(response):
-            try:
-                url = response.url
-                if ("back.behatsdaa.org.il" in url or "cards" in url.lower() or "shops" in url.lower()) and "json" in response.headers.get("content-type", ""):
-                    try:
-                        intercepted_api_data[url] = response.json()
-                    except Exception:
-                        pass
-            except Exception:
-                pass
-
-        page.on("response", handle_response)
-
-        # 1. Navigate to main chargingCard page
-        print(f"\n[1/3] Navigating to: {args.card_url}")
+        # Navigate & check authentication
+        nav_url = args.home_url if args.deals_only else args.card_url
+        print(f"\n[1/3] Navigating to: {nav_url}")
         try:
-            page.goto(args.card_url, wait_until="domcontentloaded", timeout=args.timeout)
+            page.goto(nav_url, wait_until="domcontentloaded", timeout=args.timeout)
         except Exception as e:
             print(f"[*] Navigation note: {e}")
 
-        # Check authentication
         wait_for_user_login(page)
         time.sleep(2)
 
-        # 2. Extract Data via In-Browser API Execution
-        print("\n[2/3] Extracting wallets and stores across all cards...")
-        start_time = time.time()
-        raw_result = None
+        # 1. Scrape Cards (unless deals-only)
+        if not args.deals_only:
+            print("\n[2/3] Extracting wallets and stores across all cards...")
+            start_time = time.time()
+            raw_result = None
+            try:
+                raw_result = fetch_wallets_via_evaluate(page)
+            except Exception as err:
+                print(f"[!] In-browser evaluation error: {err}")
 
-        try:
-            raw_result = fetch_wallets_via_evaluate(page)
-        except Exception as err:
-            print(f"[!] In-browser evaluation error: {err}")
+            if raw_result and raw_result.get("ok"):
+                results = raw_result.get("results", [])
+                print(f"[+] Successfully retrieved data for {len(results)} cards in {time.time() - start_time:.2f}s!")
 
-        if raw_result and raw_result.get("ok"):
-            results = raw_result.get("results", [])
-            print(f"[+] Successfully retrieved data for {len(results)} cards in {time.time() - start_time:.2f}s!")
+                for item in results:
+                    w = item["wallet"]
+                    wid = str(w.get("walletID"))
+                    wname = (w.get("walletName") or f"כרטיס ארנק {wid}").strip()
+                    disc_num = extract_discount_percent(w.get("discountRate", 0))
+                    disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
 
-            for item in results:
-                w = item["wallet"]
-                wid = str(w.get("walletID"))
-                wname = (w.get("walletName") or f"כרטיס ארנק {wid}").strip()
-                disc_num = extract_discount_percent(w.get("discountRate", 0))
-                disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
+                    card_entry = {
+                        "id": f"card-{wid}",
+                        "name": wname,
+                        "wallet_id": wid,
+                        "discount_default": disc_str,
+                        "discount_numeric": disc_num,
+                        "max_deposit": w.get("maxDeposit"),
+                        "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
+                    }
+                    discovered_cards.append(card_entry)
 
-                card_entry = {
-                    "id": f"card-{wid}",
-                    "name": wname,
-                    "wallet_id": wid,
-                    "discount_default": disc_str,
-                    "discount_numeric": disc_num,
-                    "max_deposit": w.get("maxDeposit"),
-                    "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
-                }
-                discovered_cards.append(card_entry)
+                    categories = item.get("categories", [])
+                    stores = parse_chains_from_categories(categories, card_entry)
+                    print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
+                    merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
 
-                categories = item.get("categories", [])
-                stores = parse_chains_from_categories(categories, card_entry)
-                print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
+        # 2. Scrape Deals & Vouchers (unless cards-only)
+        if not args.cards_only:
+            print("\n[3/3] Extracting rotating deals, coupons, and vouchers across all categories...")
+            start_time = time.time()
+            deals_result = None
+            try:
+                deals_result = fetch_deals_via_evaluate(page, max_deals=args.max_deals)
+            except Exception as err:
+                print(f"[!] In-browser deals extraction error: {err}")
 
-                merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+            if deals_result and deals_result.get("ok"):
+                raw_deals = deals_result.get("deals", [])
+                discovered_tags = deals_result.get("tags", [])
+                print(f"[+] Successfully extracted {len(raw_deals)} raw deals in {time.time() - start_time:.2f}s!")
 
-        else:
-            # Fallback path
-            print("[*] Direct API call fallback: navigating through cards...")
-            wallets = []
-            for url, json_data in intercepted_api_data.items():
-                if "GetCardGeneralInfo" in url and isinstance(json_data, dict):
-                    wallets = json_data.get("data", {}).get("wallets", [])
-                    if wallets:
-                        break
-
-            if not wallets:
-                wallets = [{"walletID": "3379", "walletName": "כרטיס בהצדעה ראשי", "discountRate": 20}]
-
-            for w in wallets:
-                wid = str(w.get("walletID"))
-                wname = (w.get("walletName") or f"כרטיס ארנק {wid}").strip()
-                disc_num = extract_discount_percent(w.get("discountRate", 0))
-                disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
-
-                card_entry = {
-                    "id": f"card-{wid}",
-                    "name": wname,
-                    "wallet_id": wid,
-                    "discount_default": disc_str,
-                    "discount_numeric": disc_num,
-                    "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
-                }
-                discovered_cards.append(card_entry)
-
-                try:
-                    page.goto(card_entry["url"], wait_until="domcontentloaded", timeout=args.timeout)
-                    time.sleep(2)
-                except Exception as e:
-                    print(f"[*] Navigation note: {e}")
-
-                categories = []
-                for url, json_data in intercepted_api_data.items():
-                    if "GetWalletChain" in url and wid in url and isinstance(json_data, dict):
-                        categories = json_data.get("data", [])
-                        if isinstance(categories, list) and categories:
-                            break
-
-                stores = parse_chains_from_categories(categories, card_entry) if categories else []
-                print(f"[+] Found {len(stores)} stores for '{wname}'.")
-                merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+                for rd in raw_deals:
+                    parsed = parse_deal(rd, all_scraped_stores)
+                    if parsed["title"]:
+                        final_deals_list.append(parsed)
 
         context.close()
 
-    final_stores_list = list(all_scraped_stores.values())
-    print(f"\n==========================================================")
-    print(f"[+] Total unique participating stores scraped: {len(final_stores_list)}")
-    print(f"[+] Total unique cards discovered: {len(discovered_cards)}")
-    print(f"==========================================================")
+    # Save Stores Catalog
+    if not args.deals_only and all_scraped_stores:
+        final_stores_list = list(all_scraped_stores.values())
+        print(f"\n[+] Total unique stores saved: {len(final_stores_list)}")
+        save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
 
-    if not final_stores_list:
-        print("[!] No stores could be extracted during session.")
-        return
+    # Save Deals Catalog
+    if not args.cards_only and final_deals_list:
+        print(f"[+] Total unique deals & vouchers saved: {len(final_deals_list)}")
+        save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
 
-    # Save to disk
-    save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
     print("\n[SUCCESS] Scraping completed successfully!")
 
 
