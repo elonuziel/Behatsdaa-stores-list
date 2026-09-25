@@ -305,90 +305,91 @@
 
     const cleanKey = (str) => (str || '').toLowerCase().replace(/[^א-תa-z0-9]/g, '');
 
-    // Map: normalized billing name -> array of billing stores
-    const billingByName = new Map();
+    // Extract core brand name by stripping common noise/channel words & normalizing Hebrew final letters
+    function getCoreBrand(name) {
+      if (!name) return '';
+      let s = (name || '').toLowerCase();
+      s = s.replace(/\b(אונליין|online|רשת|אתר|סניף|סניפי|בע"מ|בעמ|בע'מ|ltd|ישראל|israel|shop|store)\b/gi, ' ');
+      s = s.replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ץ/g, 'צ').replace(/ף/g, 'פ').replace(/ך/g, 'כ');
+      return cleanKey(s);
+    }
+
+    // 1. Map: core brand -> array of billing stores
+    const billingByCore = new Map();
     allBillingStores.forEach(b => {
-      const k = cleanKey(b.name);
-      if (!k) return;
-      if (!billingByName.has(k)) billingByName.set(k, []);
-      billingByName.get(k).push(b);
+      const core = getCoreBrand(b.name);
+      if (!core) return;
+      if (!billingByCore.has(core)) billingByCore.set(core, []);
+      billingByCore.get(core).push(b);
     });
 
-    // Helper: find best billing match for a given brand name
+    // Helper: find best billing match for a given brand name (highest discount)
     function findBestBillingMatch(name) {
       if (!name) return null;
-      const k = cleanKey(name);
-      if (billingByName.has(k)) {
-        const matches = billingByName.get(k);
+      const core = getCoreBrand(name);
+      if (!core) return null;
+      const matches = billingByCore.get(core);
+      if (matches && matches.length > 0) {
         return matches.reduce((best, cur) => (cur.discount > best.discount ? cur : best), matches[0]);
-      }
-      if (k.length >= 4) {
-        for (const [bk, bList] of billingByName.entries()) {
-          if (bk.length >= 4 && (bk.includes(k) || k.includes(bk))) {
-            const minLen = Math.min(bk.length, k.length);
-            const maxLen = Math.max(bk.length, k.length);
-            if ((minLen / maxLen) >= 0.5) {
-              return bList.reduce((best, cur) => (cur.discount > best.discount ? cur : best), bList[0]);
-            }
-          }
-        }
       }
       return null;
     }
 
+    // 2. Map: core brand -> store (Tab 1)
+    const storeByCore = new Map();
+    allStores.forEach(s => {
+      const core = getCoreBrand(s.name);
+      if (core && !storeByCore.has(core)) storeByCore.set(core, s);
+    });
+
+    // 3. Map: core brand -> deals (Tab 2)
+    const dealsByCore = new Map();
+    allDeals.forEach(d => {
+      const keys = new Set();
+      const k1 = getCoreBrand(d.supplier);
+      if (k1) keys.add(k1);
+      const k2 = getCoreBrand(d.matched_store_name);
+      if (k2) keys.add(k2);
+      keys.forEach(k => {
+        if (!dealsByCore.has(k)) dealsByCore.set(k, []);
+        if (!dealsByCore.get(k).includes(d)) dealsByCore.get(k).push(d);
+      });
+    });
+
     // 1. Cross-link Stores (Tab 1)
     allStores.forEach(store => {
-      const sNorm = cleanKey(store.name);
-      // Link Deals
+      const sCore = getCoreBrand(store.name);
+      // Link Deals: matched_store_id or exact store_name or exact core brand
       store.linkedDeals = allDeals.filter(d => {
         if (d.matched_store_id && d.matched_store_id === store.id) return true;
         if (d.matched_store_name && d.matched_store_name === store.name) return true;
-        const suppNorm = cleanKey(d.supplier);
-        if (!suppNorm || suppNorm.length < 4) return false;
-        if (!sNorm.includes(suppNorm) && !suppNorm.includes(sNorm)) return false;
-        const minLen = Math.min(suppNorm.length, sNorm.length);
-        const maxLen = Math.max(suppNorm.length, sNorm.length);
-        return (minLen / maxLen) >= 0.4;
+        const suppCore = getCoreBrand(d.supplier);
+        return Boolean(suppCore && sCore && suppCore === sCore);
       });
 
-      // Link Billing
+      // Link Billing: exact core brand match
       store.linkedBillingStore = findBestBillingMatch(store.name);
     });
 
     // 2. Cross-link Deals (Tab 2)
     allDeals.forEach(deal => {
-      // Link Store
+      // Link Store: matched_store_id, matched_store_name, or exact core brand
+      const suppCore = getCoreBrand(deal.supplier);
       deal.linkedStore = allStores.find(s => 
         (deal.matched_store_id && s.id === deal.matched_store_id) || 
         (deal.matched_store_name && s.name === deal.matched_store_name) || 
-        normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
-      );
+        (suppCore && getCoreBrand(s.name) === suppCore)
+      ) || null;
 
-      // Link Billing
+      // Link Billing: exact core brand match
       deal.linkedBillingStore = findBestBillingMatch(deal.supplier);
-    });
-
-    // Map stores and deals by normalized keys for O(1) matching
-    const storeByNorm = new Map();
-    allStores.forEach(s => {
-      const k = cleanKey(s.name);
-      if (k) storeByNorm.set(k, s);
-    });
-
-    const dealsBySuppNorm = new Map();
-    allDeals.forEach(d => {
-      const k = cleanKey(d.supplier);
-      if (k) {
-        if (!dealsBySuppNorm.has(k)) dealsBySuppNorm.set(k, []);
-        dealsBySuppNorm.get(k).push(d);
-      }
     });
 
     // 3. Cross-link Billing Stores (Tab 3)
     allBillingStores.forEach(b => {
-      const bNorm = cleanKey(b.name);
-      b.linkedStore = storeByNorm.get(bNorm) || null;
-      b.linkedDeals = dealsBySuppNorm.get(bNorm) || [];
+      const bCore = getCoreBrand(b.name);
+      b.linkedStore = storeByCore.get(bCore) || null;
+      b.linkedDeals = dealsByCore.get(bCore) || [];
     });
   }
 
@@ -471,7 +472,12 @@
 
     allBillingStores = billingData.stores || [];
     allBillingStores.forEach(s => {
-      s._searchStr = normalizeHebrew(`${s.name} ${s.city || ''} ${s.address || ''} ${s.category || ''} ${s.subcategory || ''} ${s.description || ''}`);
+      s._nameNorm = normalizeHebrew(s.name || '');
+      s._cityNorm = normalizeHebrew(s.city || '');
+      s._catNorm = normalizeHebrew(`${s.category || ''} ${s.subcategory || ''}`);
+      s._addressNorm = normalizeHebrew(s.address || '');
+      // Exclude s.description so search strictly matches the store itself (name, category, city/address)
+      s._searchStr = `${s._nameNorm} ${s._cityNorm} ${s._catNorm} ${s._addressNorm}`.trim();
     });
 
     if (totalBillingCountEl) totalBillingCountEl.textContent = allBillingStores.length.toLocaleString('he-IL');
@@ -1384,6 +1390,23 @@
     if (billingSearchQuery) {
       const queryNorm = normalizeHebrew(billingSearchQuery);
       result = result.filter(s => s._searchStr && s._searchStr.includes(queryNorm));
+
+      // Prioritize store name matches (exact > startsWith > includes) over category/city/address
+      result.sort((a, b) => {
+        const aName = a._nameNorm || '';
+        const bName = b._nameNorm || '';
+        const aScore = aName === queryNorm ? 3 : (aName.startsWith(queryNorm) ? 2 : (aName.includes(queryNorm) ? 1 : 0));
+        const bScore = bName === queryNorm ? 3 : (bName.startsWith(queryNorm) ? 2 : (bName.includes(queryNorm) ? 1 : 0));
+        if (aScore !== bScore) return bScore - aScore;
+
+        if (currentBillingSort === 'discount-desc') return b.discount - a.discount || a.name.localeCompare(b.name, 'he');
+        if (currentBillingSort === 'discount-asc') return a.discount - b.discount || a.name.localeCompare(b.name, 'he');
+        if (currentBillingSort === 'name-asc') return a.name.localeCompare(b.name, 'he');
+        if (currentBillingSort === 'city-asc') return (a.city || '').localeCompare(b.city || '', 'he') || a.name.localeCompare(b.name, 'he');
+        return b.discount - a.discount || a.name.localeCompare(b.name, 'he');
+      });
+
+      return result;
     }
 
     switch (currentBillingSort) {
@@ -1446,8 +1469,9 @@
     ` : '';
 
     const hasLinkedDeals = store.linkedDeals && store.linkedDeals.length > 0;
+    const dealSearchQuery = hasLinkedDeals ? (store.linkedDeals[0].supplier || store.name) : store.name;
     const dealsBadgeHtml = hasLinkedDeals ? `
-      <div class="mt-1.5 pt-1.5 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(store.name)}">
+      <div class="mt-1.5 pt-1.5 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(dealSearchQuery)}">
         <span class="flex items-center gap-1 font-semibold truncate">
           <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
           <span class="truncate">שובר/מבצע פעיל (${store.linkedDeals.length})</span>
@@ -1603,10 +1627,11 @@
     if (store.linkedDeals && store.linkedDeals.length > 0) {
       billingModalLinkedDealBanner.classList.remove('hidden');
       billingModalLinkedDealTitle.textContent = `לרשת זו קיים שובר/מבצע ייעודי פעיל (${store.linkedDeals.length})!`;
+      const dealQuery = (store.linkedDeals[0] && store.linkedDeals[0].supplier) || store.name;
       billingModalViewDealBtn.onclick = () => {
         closeBillingModal();
-        dealsSearchInput.value = store.name;
-        dealsSearchQuery = store.name;
+        dealsSearchInput.value = dealQuery;
+        dealsSearchQuery = dealQuery;
         clearDealsSearchBtn.classList.remove('hidden');
         switchTab('deals');
       };

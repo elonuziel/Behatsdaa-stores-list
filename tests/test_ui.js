@@ -415,15 +415,47 @@ async function runTests() {
 
   assert.ok(!billingSection.classList.contains('hidden'), 'Should transition to Billing tab');
   assert.ok(billingSearchInput.value.length > 0, 'Billing search should be pre-filled with store name');
-  console.log('  -> PASS (Store badge jump successfully navigates to pre-filtered Billing tab)');
+  // --- Test 16: Tab 3 Store Search vs Description & Cross-Linking Integrity ---
+  console.log('[Test 16] Verifying Tab 3 store-only matching for "אהבה" and cross-link integrity...');
+  // Ensure we are on billing tab
+  tabBillingBtn.click();
+  billingSearchInput.value = 'אהבה';
+  billingSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 200));
 
-  // --- Test 16: Zero Console Errors ---
-  console.log('[Test 16] Checking for console errors...');
+  const matchingCountText = document.getElementById('matching-billing-count').textContent.trim();
+  assert.strictEqual(matchingCountText, '14', `Expected exactly 14 billing stores matching "אהבה", got ${matchingCountText}`);
+
+  const renderedAhavaCards = document.querySelectorAll('#billing-grid .billing-card');
+  assert.strictEqual(renderedAhavaCards.length, 14, 'Should render all 14 stores with "אהבה"');
+
+  // Verify that all 14 stores actually contain "אהבה" in their name, and description-only false positives are excluded
+  renderedAhavaCards.forEach(card => {
+    const cardTitle = card.querySelector('h3').textContent;
+    assert.ok(cardTitle.includes('אהבה'), `Card title "${cardTitle}" must contain "אהבה"`);
+    // Ensure no false-positive store like DAS or EMILYA is present
+    assert.ok(!cardTitle.includes('DAS') && !cardTitle.includes('EMILYA'), 'Description-only stores must be excluded');
+  });
+
+  // Verify that stores "זמן לאהבה" and "סוד האהבה" do NOT falsely link to store "אהבה" (AHAVA cosmetics)
+  const zmanCard = Array.from(renderedAhavaCards).find(c => c.textContent.includes('זמן לאהבה'));
+  if (zmanCard) {
+    const falseStoreLink = zmanCard.querySelector('[data-action="view-linked-store"]');
+    assert.strictEqual(falseStoreLink, null, '"זמן לאהבה" must not falsely link to store "אהבה"');
+  }
+
+  // Clear billing search
+  clearBillingSearchBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  console.log('  -> PASS (Tab 3 search strictly matches store name without description false positives, and cross-linking integrity verified)');
+
+  // --- Test 17: Zero Console Errors ---
+  console.log('[Test 17] Checking for console errors...');
   assert.strictEqual(consoleErrors.length, 0, `Expected 0 console errors, but found: ${consoleErrors.join(', ')}`);
   console.log('  -> PASS (Zero errors during entire session)');
 
   console.log('\n====================================================');
-  console.log('   ALL 16 UI & DOM INTEGRATION TESTS PASSED!       ');
+  console.log('   ALL 17 UI & DOM INTEGRATION TESTS PASSED!       ');
   console.log('====================================================\n');
   process.exit(0);
 }
