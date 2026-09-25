@@ -294,12 +294,16 @@ def parse_deal(raw_deal, stores_catalog=None):
         if orig_price > 0:
             original_prices.append(orig_price)
 
-    # Support top-level prices list from category catalog responses
+    # Support top-level prices list from category catalog responses.
+    # Behatsdaa encodes prices as a flat array where the values represent
+    # different variants/tiers — min() = cheapest sale price, max() = highest
+    # original (pre-discount) price shown as crossed-out.
     if not prices and raw_deal.get("prices") and isinstance(raw_deal["prices"], list):
-        for p in raw_deal["prices"]:
-            num_p = safe_float(p)
-            if num_p > 0:
-                prices.append(num_p)
+        raw_prices = [safe_float(p) for p in raw_deal["prices"] if safe_float(p) > 0]
+        if raw_prices:
+            prices.append(min(raw_prices))               # sale / member price
+            if max(raw_prices) > min(raw_prices):
+                original_prices.append(max(raw_prices))  # original / non-member price
 
     # Support top-level single price & discount field
     single_price = safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
