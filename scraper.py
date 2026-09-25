@@ -379,9 +379,10 @@ def parse_deal(raw_deal, stores_catalog=None):
             cat_name = "כללי"
 
     # Determine deal type
-    # is_free: title says "חינם"/"מוזיאון" OR all prices are 0
+    # is_free: "חינם" explicitly in title OR every listed price is 0
+    # Do NOT use "מוזיאון" — museums can cost money (e.g. מוזיאון האשליות = 85 ₪)
     all_prices_free = bool(prices) and all(p == 0.0 for p in prices)
-    is_free = "חינם" in title or "מוזיאון" in title or all_prices_free
+    is_free = "חינם" in title or all_prices_free
 
     is_external = bool(category_url and not prices and not parsed_variants)
     if is_external:
