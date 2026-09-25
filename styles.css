@@ -58,10 +58,10 @@ body {
 }
 
 /* Card hover transitions */
-.store-card, .deal-card {
+.store-card, .deal-card, .billing-card {
   transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.store-card:hover, .deal-card:hover {
+.store-card:hover, .deal-card:hover, .billing-card:hover {
   transform: translateY(-3px);
 }
 
@@ -79,6 +79,11 @@ body {
 .badge-savings-emerald {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.25);
+}
+
+.badge-savings-purple {
+  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  box-shadow: 0 2px 8px rgba(126, 34, 206, 0.25);
 }
 
 /* Tab buttons state */

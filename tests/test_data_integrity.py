@@ -85,6 +85,44 @@ class TestDataIntegrity(unittest.TestCase):
 
         self.assertGreater(matched_count, 0, "At least some deals should link to known stores (e.g. אצה, ורדינון)")
 
+    def test_billing_stores_integrity(self):
+        json_path = DATA_DIR / "billing_stores.json"
+        self.assertTrue(json_path.exists(), "data/billing_stores.json must exist")
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        self.assertIn("metadata", data)
+        self.assertIn("stores", data)
+        stores = data["stores"]
+        self.assertGreater(len(stores), 5000, "billing_stores.json must contain 5,000+ stores")
+
+        for s in stores[:200]:
+            self.assertTrue(s.get("id"), f"Store missing id: {s}")
+            self.assertTrue(s.get("name"), f"Store missing name: {s}")
+            self.assertIn("discount", s)
+            self.assertGreaterEqual(s["discount"], 0)
+            self.assertIn("city", s)
+            self.assertIn("category", s)
+
+    def test_cross_linking_with_billing_stores(self):
+        with open(DATA_DIR / "stores.json", "r", encoding="utf-8") as f:
+            stores = json.load(f)["stores"]
+        with open(DATA_DIR / "billing_stores.json", "r", encoding="utf-8") as f:
+            billing = json.load(f)["stores"]
+
+        import re
+        clean_key = lambda s: re.sub(r"[^א-תa-z0-9]", "", (s or "").lower())
+        billing_keys = {clean_key(b["name"]) for b in billing}
+
+        matched_stores = 0
+        for s in stores:
+            sk = clean_key(s["name"])
+            if sk in billing_keys:
+                matched_stores += 1
+
+        self.assertGreater(matched_stores, 0, "At least some card stores should match billing stores (e.g. ביגה, אופיס דיפו, ריקושט)")
+
 
 if __name__ == "__main__":
     unittest.main()

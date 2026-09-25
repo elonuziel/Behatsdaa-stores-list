@@ -1,10 +1,11 @@
-# Behatsdaa Participating Stores & Changing Deals Catalog 💳🎁
+# Behatsdaa Participating Stores, Changing Deals & Billing Discounts Catalog 💳🎁🏷️
 
 > **Live Web Application:** [https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)
 
-A fast, interactive web catalog and automated scraper for:
+A fast, interactive web catalog and automated scraper suite for:
 1. **Rechargeable Card Stores**: All stores, chains, restaurants, fashion brands, and attractions participating in **[Behatsdaa](https://www.behatsdaa.org.il/card/chargingCard)** recharge cards (Club Cards, Fighter Card, Restaurants, Carrefour, Online Grocery, etc.).
 2. **Rotating Deals, Coupons & Vouchers**: Dedicated consumer goods (holiday specials, electronics, home goods), attraction tickets, and food vouchers that rotate weekly/monthly.
+3. **Statement Discounts (הנחות במעמד החיוב)**: Over 10,600 local businesses, shops, and services granting automatic statement discounts when paying with a Behatsdaa credit card (Max), powered by **[Be-Plus](https://be-plus.co.il/)**.
 
 ---
 
@@ -12,19 +13,25 @@ A fast, interactive web catalog and automated scraper for:
 
 Explore the catalog live at: **[https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)**
 
-- 🗂️ **Dual-Tab Dashboard**:
+- 🗂️ **Tri-Tab Dashboard**:
   - **Tab 1: רשתות וכרטיסים נטענים**: Search & filter 980+ participating store chains across 8 rechargeable wallets with accurate percentage discounts.
   - **Tab 2: מבצעים ושוברים ייעודיים**: Explore rotating, time-limited consumer deals, holiday specials, food vouchers, and attraction tickets with live pricing, savings calculation, and stock limits.
-- 🔗 **Smart Cross-Linking**: Store cards in Tab 1 display an interactive badge whenever an active deal or voucher is available for that brand (e.g., Vardinon, Atza). Clicking the badge jumps directly to the Deals tab filtered for that brand!
-- ⚡ **Ultra-Fast Search**: Real-time Hebrew search with diacritics and final-letter normalization (`ך/כ`, `ם/מ`, `ן/נ`, `ף/פ`, `ץ/צ`).
-- � **Comprehensive Deal Filters**: Filter by campaign tags ("מבצעי חג", "הכי משתלם"), product category chips, maximum price presets (עד 100 ₪, עד 300 ₪, הכל), and sort by discount %, price, or title.
-- 🔍 **Rich Deal Details Modal**: Inspect full specifications, multi-variant price options, purchase limits per member, expiration dates, redemption rules, and click directly through to the official Behatsdaa product page.
-- 📊 **Dual Views**: Seamless toggle between responsive Grid Cards and compact Table View for stores.
+  - **Tab 3: הנחות במעמד החיוב**: Search & filter 10,600+ businesses across Israel granting automatic discounts (up to 20%+) at billing on Behatsdaa credit cards.
+- 🔗 **Smart Tri-Directional Cross-Linking**:
+  - Store cards in Tab 1 display badges when an active voucher (Tab 2) or a statement discount (Tab 3) exists for that merchant.
+  - Deal cards in Tab 2 display badges when the supplier is also accepted on rechargeable wallets or grants credit card billing discounts.
+  - Billing cards in Tab 3 link directly back to cards and vouchers.
+- ⚡ **Ultra-Fast Search**: Real-time Hebrew search with diacritics, punctuation, and final-letter normalization (`ך/כ`, `ם/מ`, `ן/נ`, `ף/פ`, `ץ/צ`), with pre-indexed search tokens for instantaneous results across 10,000+ items.
+- 🏙️ **City & Location Filters**: Filter billing merchants by specific cities across Israel (Tel Aviv, Jerusalem, Haifa, Rishon LeZion, etc.) or nationwide online websites.
+- 🎯 **Comprehensive Deal & Category Filters**: Filter by campaign tags ("מבצעי חג", "הכי משתלם"), product category chips, maximum price presets (עד 100 ₪, עד 300 ₪, הכל), and sort by discount %, price, or title.
+- 🔍 **Rich Details Modals**: Inspect full specifications, multi-variant price options, purchase limits per member, addresses, and official redemption links.
+- 📊 **Dual Views & Progressive Rendering**: Seamless toggle between responsive Grid Cards and compact Table View, with smooth 60-item progressive pagination.
 - 🌙 **Dark & Light Themes**: Full dark mode support with automatic system preference detection and local persistence.
 - 📥 **Export Ready**: Download the complete datasets anytime:
   - Stores: [stores.csv](data/stores.csv) & [stores.json](data/stores.json)
   - Deals: [deals.csv](data/deals.csv) & [deals.json](data/deals.json)
-- 🔒 **Zero External AI Dependencies**: 100% self-contained and accurate data extracted directly from Behatsdaa's official REST API.
+  - Statement Discounts: [billing_stores.csv](data/billing_stores.csv) & [billing_stores.json](data/billing_stores.json)
+- 🔒 **Zero External AI Dependencies**: 100% self-contained, lightweight, fast, and runs directly on GitHub Pages.
 
 ---
 
@@ -32,21 +39,25 @@ Explore the catalog live at: **[https://elonuziel.github.io/stores-list/](https:
 
 ```text
 stores-list/
-├── index.html           # Main web application (GitHub Pages) with Stores & Deals tabs
+├── index.html           # Main web application (GitHub Pages) with Tri-Tab dashboard
 ├── styles.css           # Custom RTL styling, dark theme, and animations
-├── app.js               # Frontend search, filtering, and cross-linking logic
+├── app.js               # Frontend search, progressive rendering & cross-linking logic
 ├── scraper.py           # Unified Python Playwright scraper for cards & rotating deals
+├── scrape_beplus.py     # High-speed scraper for Be-Plus billing discounts (10,600+ stores)
 ├── extract_behatsdaa_deals.js # In-browser JS extractor for logged-in sessions (1,700+ deals)
 ├── requirements.txt     # Python dependencies
 ├── data/
 │   ├── stores.json      # Structured JSON catalog (980+ stores, 8 cards)
 │   ├── stores.csv       # Excel-compatible stores CSV
 │   ├── deals.json       # Structured JSON catalog of rotating deals & vouchers
-│   └── deals.csv        # Excel-compatible deals & vouchers CSV
+│   ├── deals.csv        # Excel-compatible deals & vouchers CSV
+│   ├── billing_stores.json # Structured JSON catalog of Be-Plus billing discounts (10,600+ stores)
+│   └── billing_stores.csv  # Excel-compatible billing discounts CSV
 ├── tests/
-│   ├── test_scraper.py  # Unit tests for scraper parsing, normalization & persistence
+│   ├── test_scraper.py        # Unit tests for Behatsdaa scraper
+│   ├── test_scrape_beplus.py   # Unit tests for Be-Plus scraper & data normalization
 │   ├── test_data_integrity.py # Schema & cross-linking integrity tests
-│   └── test_ui.js       # Headless UI & DOM integration tests (JSDOM)
+│   └── test_ui.js             # Headless UI & DOM integration tests (JSDOM)
 ├── .github/workflows/
 │   └── scrape.yml       # Automated weekly GitHub Actions scraper workflow
 └── README.md            # Documentation and usage guide
@@ -117,6 +128,25 @@ python scraper.py --deals-only --max-deals 10
 - When running `scraper.py` interactively, a browser window opens. Log in once with your credentials / SMS verification.
 - The scraper automatically saves session cookies and browser tokens into `./behatsdaa_profile`.
 - Subsequent runs reuse the persistent profile without requiring repeated logins.
+
+---
+
+### Method 3: Be-Plus Scraper for Statement Discounts (`scrape_beplus.py`) 💳
+
+A standalone, high-performance scraper for the **[Be-Plus](https://be-plus.co.il/)** network (10,600+ participating businesses giving direct statement discounts on Behatsdaa credit cards):
+
+```bash
+# Run the complete Be-Plus scraper across all 445 pages (10,600+ businesses):
+python scrape_beplus.py --output-dir data
+
+# Run a quick test on the first 3 pages:
+python scrape_beplus.py --max-pages 3
+```
+
+- **Direct REST API**: Queries Be-Plus CRM endpoints (`/index.php?option=com_crm&task=products.getItems`) with category tree mapping.
+- **High-Throughput Concurrency**: Utilizes multi-threaded workers with automatic backoff retry logic.
+- **Zero Browser Overhead**: Runs via lightweight HTTP requests without requiring Playwright or browser emulators.
+- **Complete Outputs**: Automatically outputs `data/billing_stores.json` and `data/billing_stores.csv`.
 
 ---
 

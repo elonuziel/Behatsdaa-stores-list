@@ -21,6 +21,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const htmlSource = fs.readFileSync(path.join(ROOT_DIR, 'index.html'), 'utf-8');
 const storesData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'stores.json'), 'utf-8'));
 const dealsData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'deals.json'), 'utf-8'));
+const billingData = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'data', 'billing_stores.json'), 'utf-8'));
 const appJsSource = fs.readFileSync(path.join(ROOT_DIR, 'app.js'), 'utf-8');
 
 async function runTests() {
@@ -51,8 +52,14 @@ async function runTests() {
     };
   };
 
-  // Mock fetch to serve data/stores.json and data/deals.json
+  // Mock fetch to serve data/stores.json, data/deals.json, and data/billing_stores.json
   window.fetch = async (url) => {
+    if (url.includes('billing_stores.json')) {
+      return {
+        ok: true,
+        json: async () => JSON.parse(JSON.stringify(billingData))
+      };
+    }
     if (url.includes('stores.json')) {
       return {
         ok: true,
@@ -280,13 +287,128 @@ async function runTests() {
   assert.strictEqual(document.documentElement.classList.contains('dark'), wasDark);
   console.log('  -> PASS (Theme toggle switches light/dark classes properly)');
 
-  // --- Test 11: Zero Console Errors ---
-  console.log('[Test 11] Checking for console errors...');
+  // --- Test 11: Switch to Statement Discounts (Billing) Tab ---
+  console.log('[Test 11] Switching to Statement Discounts (Billing) tab...');
+  const tabBillingBtn = document.getElementById('tab-billing-btn');
+  assert.ok(tabBillingBtn, 'Tab billing button should exist');
+  tabBillingBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+
+  const billingSection = document.getElementById('billing-tab-section');
+  assert.ok(!billingSection.classList.contains('hidden'), 'Billing section should be visible');
+  assert.ok(storesSection.classList.contains('hidden'), 'Stores section should be hidden');
+  assert.ok(dealsSection.classList.contains('hidden'), 'Deals section should be hidden');
+
+  let billingCards = document.querySelectorAll('#billing-grid .billing-card');
+  const initialBillingExpected = Math.min(billingData.stores.length, 60);
+  assert.strictEqual(billingCards.length, initialBillingExpected, `Expected initial batch of ${initialBillingExpected} billing stores`);
+
+  // Test Load More button
+  const billingLoadMoreBtn = document.getElementById('billing-load-more-btn');
+  if (billingData.stores.length > 60) {
+    assert.ok(billingLoadMoreBtn, 'Load more button for billing should exist');
+    billingLoadMoreBtn.click();
+    await new Promise(r => setTimeout(r, 50));
+    billingCards = document.querySelectorAll('#billing-grid .billing-card');
+    const secondBillingExpected = Math.min(billingData.stores.length, 120);
+    assert.strictEqual(billingCards.length, secondBillingExpected, `Billing count should expand to ${secondBillingExpected} after Load More`);
+  }
+  console.log('  -> PASS (Switched to Billing tab with progressive rendering validated)');
+
+  // --- Test 12: Billing Live Search Filter ---
+  console.log('[Test 12] Testing Billing live search filter...');
+  const billingSearchInput = document.getElementById('billing-search-input');
+  const sampleBillingSearch = 'פיצה';
+  billingSearchInput.value = sampleBillingSearch;
+  billingSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 100));
+
+  let filteredBilling = document.querySelectorAll('#billing-grid .billing-card');
+  assert.ok(filteredBilling.length > 0 && filteredBilling.length <= billingData.stores.length, 'Should filter billing stores by search');
+  assert.ok(filteredBilling[0].textContent.includes(sampleBillingSearch), 'Card content should include search term');
+
+  // Clear search
+  const clearBillingSearchBtn = document.getElementById('clear-billing-search-btn');
+  clearBillingSearchBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  filteredBilling = document.querySelectorAll('#billing-grid .billing-card');
+  const resetBillingExpected = Math.min(billingData.stores.length, 60);
+  assert.strictEqual(filteredBilling.length, resetBillingExpected, `Expected ${resetBillingExpected} billing stores restored after clear`);
+  console.log('  -> PASS (Billing live search filter works correctly)');
+
+  // --- Test 13: Billing City Dropdown Filter ---
+  console.log('[Test 13] Testing Billing city dropdown filter...');
+  const billingCitySelect = document.getElementById('billing-city-select');
+  assert.ok(billingCitySelect, 'Billing city select should exist');
+  assert.ok(billingCitySelect.options.length > 1, 'City options should be populated');
+
+  // Select the second option (e.g. online or top city)
+  const targetCityValue = billingCitySelect.options[1].value;
+  billingCitySelect.value = targetCityValue;
+  billingCitySelect.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 100));
+
+  const cityFilteredCards = document.querySelectorAll('#billing-grid .billing-card');
+  assert.ok(cityFilteredCards.length > 0, 'City filtered cards should be present');
+
+  // Reset city filter
+  billingCitySelect.value = 'all';
+  billingCitySelect.dispatchEvent(new window.Event('change', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 50));
+  console.log('  -> PASS (Billing city filter works correctly)');
+
+  // --- Test 14: Billing Details Modal ---
+  console.log('[Test 14] Testing Billing details modal...');
+  const firstBillingCard = document.querySelector('#billing-grid .billing-card');
+  firstBillingCard.click();
+  await new Promise(r => setTimeout(r, 50));
+
+  const billingModal = document.getElementById('billing-modal');
+  assert.ok(!billingModal.classList.contains('hidden'), 'Billing modal should be open');
+  const billingModalTitle = document.getElementById('billing-modal-title').textContent;
+  assert.ok(billingModalTitle.length > 0, 'Billing modal title should be populated');
+
+  const billingModalDiscount = document.getElementById('billing-modal-discount').textContent;
+  assert.ok(billingModalDiscount.includes('%'), 'Billing modal discount should include %');
+
+  // Close modal
+  const billingModalCloseBtn = document.getElementById('billing-modal-close-btn');
+  billingModalCloseBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+  assert.ok(billingModal.classList.contains('hidden'), 'Billing modal should be closed');
+  console.log('  -> PASS (Billing modal renders and closes correctly)');
+
+  // --- Test 15: Cross-Link Jump to Billing Tab from Store Card ---
+  console.log('[Test 15] Testing cross-link jump from Store card to Billing tab...');
+  tabStoresBtn.click();
+  const searchInputStoresEl = document.getElementById('search-input');
+  if (searchInputStoresEl) {
+    searchInputStoresEl.value = 'ריקושט';
+    searchInputStoresEl.dispatchEvent(new window.Event('input', { bubbles: true }));
+    await new Promise(r => setTimeout(r, 50));
+  }
+
+  // Find a store with linked billing badge
+  const storeWithBilling = Array.from(document.querySelectorAll('#cards-view .store-card')).find(c =>
+    c.querySelector('[data-action="view-linked-billing"]')
+  );
+  assert.ok(storeWithBilling, 'Found store card with linked billing badge');
+  const billingJumpBtn = storeWithBilling.querySelector('[data-action="view-linked-billing"]');
+  assert.ok(billingJumpBtn, 'Found billing jump button on store card');
+  billingJumpBtn.click();
+  await new Promise(r => setTimeout(r, 50));
+
+  assert.ok(!billingSection.classList.contains('hidden'), 'Should transition to Billing tab');
+  assert.ok(billingSearchInput.value.length > 0, 'Billing search should be pre-filled with store name');
+  console.log('  -> PASS (Store badge jump successfully navigates to pre-filtered Billing tab)');
+
+  // --- Test 16: Zero Console Errors ---
+  console.log('[Test 16] Checking for console errors...');
   assert.strictEqual(consoleErrors.length, 0, `Expected 0 console errors, but found: ${consoleErrors.join(', ')}`);
   console.log('  -> PASS (Zero errors during entire session)');
 
   console.log('\n====================================================');
-  console.log('   ALL 11 UI & DOM INTEGRATION TESTS PASSED!       ');
+  console.log('   ALL 16 UI & DOM INTEGRATION TESTS PASSED!       ');
   console.log('====================================================\n');
   process.exit(0);
 }

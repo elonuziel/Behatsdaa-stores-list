@@ -1,11 +1,11 @@
 /**
- * Behatsdaa Multi-Card Participating Stores & Deals Web Application
+ * Behatsdaa Multi-Card Participating Stores, Deals & Billing Discounts Web Application
  */
 
 (function () {
   'use strict';
 
-  // Application State - Stores
+  // Application State - Stores (Rechargeable Cards)
   let storeData = null;
   let allStores = [];
   let availableCards = [];
@@ -25,16 +25,39 @@
   let currentDealSort = 'discount-desc';
   let currentDealMaxPrice = 'all';
 
+  // Application State - Billing Discounts (Be-Plus)
+  let billingData = null;
+  let allBillingStores = [];
+  let availableBillingCities = [];
+  let availableBillingCategories = [];
+  let currentBillingCity = 'all';
+  let currentBillingCategory = 'all';
+  let billingSearchQuery = '';
+  let currentBillingSort = 'discount-desc';
+
   // Navigation State
-  let currentTab = window.location.hash === '#deals' ? 'deals' : 'stores';
+  let currentTab = 'stores';
+  if (window.location.hash === '#deals') currentTab = 'deals';
+  else if (window.location.hash === '#billing') currentTab = 'billing';
+
+  // Progressive Rendering Page Sizes
+  const STORES_PAGE_SIZE = 60;
+  let storesVisibleCount = STORES_PAGE_SIZE;
+  const DEALS_PAGE_SIZE = 60;
+  let dealsVisibleCount = DEALS_PAGE_SIZE;
+  const BILLING_PAGE_SIZE = 60;
+  let billingVisibleCount = BILLING_PAGE_SIZE;
 
   // DOM Elements - Navigation Tabs
   const tabStoresBtn = document.getElementById('tab-stores-btn');
   const tabDealsBtn = document.getElementById('tab-deals-btn');
+  const tabBillingBtn = document.getElementById('tab-billing-btn');
   const tabStoresCount = document.getElementById('tab-stores-count');
   const tabDealsCount = document.getElementById('tab-deals-count');
+  const tabBillingCount = document.getElementById('tab-billing-count');
   const storesTabSection = document.getElementById('stores-tab-section');
   const dealsTabSection = document.getElementById('deals-tab-section');
+  const billingTabSection = document.getElementById('billing-tab-section');
   const viewModeToggleWrapper = document.getElementById('view-mode-toggle-wrapper');
 
   // DOM Elements - Stores
@@ -59,17 +82,8 @@
   const viewGridBtn = document.getElementById('view-grid-btn');
   const viewTableBtn = document.getElementById('view-table-btn');
   const themeToggleBtn = document.getElementById('theme-toggle-btn');
-
-  // Progressive Rendering (Page size of 60 items for instant 60fps responsiveness)
-  const STORES_PAGE_SIZE = 60;
-  let storesVisibleCount = STORES_PAGE_SIZE;
-  const DEALS_PAGE_SIZE = 60;
-  let dealsVisibleCount = DEALS_PAGE_SIZE;
-
   const storesLoadMoreContainer = document.getElementById('stores-load-more-container');
   const storesLoadMoreBtn = document.getElementById('stores-load-more-btn');
-  const dealsLoadMoreContainer = document.getElementById('deals-load-more-container');
-  const dealsLoadMoreBtn = document.getElementById('deals-load-more-btn');
 
   // DOM Elements - Store Modal
   const storeModal = document.getElementById('store-modal');
@@ -83,6 +97,9 @@
   const modalConditions = document.getElementById('modal-conditions');
   const modalLinkedDealBanner = document.getElementById('modal-linked-deal-banner');
   const modalViewDealBtn = document.getElementById('modal-view-deal-btn');
+  const modalLinkedBillingBanner = document.getElementById('modal-linked-billing-banner');
+  const modalLinkedBillingTitle = document.getElementById('modal-linked-billing-title');
+  const modalViewBillingBtn = document.getElementById('modal-view-billing-btn');
 
   // DOM Elements - Deals
   const dealsSearchInput = document.getElementById('deals-search-input');
@@ -100,6 +117,8 @@
   const dealsGrid = document.getElementById('deals-grid');
   const noDealsResults = document.getElementById('no-deals-results');
   const clearDealsFiltersBtn = document.getElementById('clear-deals-filters-btn');
+  const dealsLoadMoreContainer = document.getElementById('deals-load-more-container');
+  const dealsLoadMoreBtn = document.getElementById('deals-load-more-btn');
 
   // DOM Elements - Deal Modal
   const dealModal = document.getElementById('deal-modal');
@@ -127,8 +146,50 @@
   const dealModalLinkedStoreBanner = document.getElementById('deal-modal-linked-store-banner');
   const dealModalLinkedStoreTitle = document.getElementById('deal-modal-linked-store-title');
   const dealModalViewStoreBtn = document.getElementById('deal-modal-view-store-btn');
+  const dealModalLinkedBillingBanner = document.getElementById('deal-modal-linked-billing-banner');
+  const dealModalLinkedBillingTitle = document.getElementById('deal-modal-linked-billing-title');
+  const dealModalViewBillingBtn = document.getElementById('deal-modal-view-billing-btn');
+
+  // DOM Elements - Billing Discounts
+  const billingSearchInput = document.getElementById('billing-search-input');
+  const clearBillingSearchBtn = document.getElementById('clear-billing-search-btn');
+  const billingCitySelect = document.getElementById('billing-city-select');
+  const billingSortSelect = document.getElementById('billing-sort-select');
+  const billingCategoryChipsContainer = document.getElementById('billing-category-chips-container');
+  const matchingBillingCountEl = document.getElementById('matching-billing-count');
+  const totalBillingCountEl = document.getElementById('total-billing-count');
+  const activeBillingFilterBadge = document.getElementById('active-billing-filter-badge');
+  const activeBillingFilterText = document.getElementById('active-billing-filter-text');
+  const resetBillingFiltersBtn = document.getElementById('reset-billing-filters-btn');
+  const billingLastUpdatedDateEl = document.getElementById('billing-last-updated-date');
+  const billingGrid = document.getElementById('billing-grid');
+  const noBillingResults = document.getElementById('no-billing-results');
+  const clearBillingFiltersBtn = document.getElementById('clear-billing-filters-btn');
+  const billingLoadMoreContainer = document.getElementById('billing-load-more-container');
+  const billingLoadMoreBtn = document.getElementById('billing-load-more-btn');
+
+  // DOM Elements - Billing Modal
+  const billingModal = document.getElementById('billing-modal');
+  const billingModalCloseBtn = document.getElementById('billing-modal-close-btn');
+  const billingModalDismissBtn = document.getElementById('billing-modal-dismiss-btn');
+  const billingModalLogo = document.getElementById('billing-modal-logo');
+  const billingModalCategory = document.getElementById('billing-modal-category');
+  const billingModalCityBadge = document.getElementById('billing-modal-city-badge');
+  const billingModalTitle = document.getElementById('billing-modal-title');
+  const billingModalAddress = document.getElementById('billing-modal-address');
+  const billingModalAddressWrapper = document.getElementById('billing-modal-address-wrapper');
+  const billingModalDiscount = document.getElementById('billing-modal-discount');
+  const billingModalLinkedStoreBanner = document.getElementById('billing-modal-linked-store-banner');
+  const billingModalLinkedStoreTitle = document.getElementById('billing-modal-linked-store-title');
+  const billingModalViewStoreBtn = document.getElementById('billing-modal-view-store-btn');
+  const billingModalLinkedDealBanner = document.getElementById('billing-modal-linked-deal-banner');
+  const billingModalLinkedDealTitle = document.getElementById('billing-modal-linked-deal-title');
+  const billingModalViewDealBtn = document.getElementById('billing-modal-view-deal-btn');
+  const billingModalDescription = document.getElementById('billing-modal-description');
+  const billingModalOfficialLink = document.getElementById('billing-modal-official-link');
 
   let activeModalStore = null;
+  let activeModalBillingStore = null;
 
   // Initialize theme
   function initTheme() {
@@ -171,47 +232,131 @@
   // Switch Main Tabs
   function switchTab(tab) {
     currentTab = tab;
-    window.location.hash = tab === 'deals' ? 'deals' : 'stores';
+    window.location.hash = tab === 'deals' ? 'deals' : (tab === 'billing' ? 'billing' : 'stores');
+
+    // Default classes for inactive buttons
+    const inactiveClass = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+    tabStoresBtn.className = inactiveClass;
+    tabDealsBtn.className = inactiveClass;
+    if (tabBillingBtn) tabBillingBtn.className = inactiveClass;
+
+    storesTabSection.classList.add('hidden');
+    dealsTabSection.classList.add('hidden');
+    if (billingTabSection) billingTabSection.classList.add('hidden');
+    viewModeToggleWrapper.classList.add('hidden');
 
     if (tab === 'deals') {
-      tabStoresBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
       tabDealsBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white';
-      storesTabSection.classList.add('hidden');
       dealsTabSection.classList.remove('hidden');
-      viewModeToggleWrapper.classList.add('hidden');
       renderDeals();
+    } else if (tab === 'billing') {
+      if (tabBillingBtn) {
+        tabBillingBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-purple-600 text-white dark:bg-purple-600 dark:text-white';
+      }
+      if (billingTabSection) billingTabSection.classList.remove('hidden');
+      renderBillingStores();
     } else {
       tabStoresBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-blue-600 text-white dark:bg-blue-600 dark:text-white';
-      tabDealsBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
       storesTabSection.classList.remove('hidden');
-      dealsTabSection.classList.add('hidden');
       viewModeToggleWrapper.classList.remove('hidden');
       renderStores();
     }
   }
 
-  // Cross-link Stores with Deals
-  function linkStoresWithDeals() {
-    if (!allStores.length || !allDeals.length) return;
+  // Cross-link Stores, Deals, and Billing Discounts
+  function crossLinkAllDatasets() {
+    if (!allStores.length && !allDeals.length && !allBillingStores.length) return;
 
+    const cleanKey = (str) => (str || '').toLowerCase().replace(/[^א-תa-z0-9]/g, '');
+
+    // Map: normalized billing name -> array of billing stores
+    const billingByName = new Map();
+    allBillingStores.forEach(b => {
+      const k = cleanKey(b.name);
+      if (!k) return;
+      if (!billingByName.has(k)) billingByName.set(k, []);
+      billingByName.get(k).push(b);
+    });
+
+    // Helper: find best billing match for a given brand name
+    function findBestBillingMatch(name) {
+      if (!name) return null;
+      const k = cleanKey(name);
+      if (billingByName.has(k)) {
+        const matches = billingByName.get(k);
+        return matches.reduce((best, cur) => (cur.discount > best.discount ? cur : best), matches[0]);
+      }
+      if (k.length >= 4) {
+        for (const [bk, bList] of billingByName.entries()) {
+          if (bk.length >= 4 && (bk.includes(k) || k.includes(bk))) {
+            const minLen = Math.min(bk.length, k.length);
+            const maxLen = Math.max(bk.length, k.length);
+            if ((minLen / maxLen) >= 0.5) {
+              return bList.reduce((best, cur) => (cur.discount > best.discount ? cur : best), bList[0]);
+            }
+          }
+        }
+      }
+      return null;
+    }
+
+    // 1. Cross-link Stores (Tab 1)
     allStores.forEach(store => {
-      // Strip non-alnum characters for fuzzy comparison (mirrors Python normalisation)
-      const sNorm = store.name.toLowerCase().replace(/[^א-תa-z0-9]/g, '');
+      const sNorm = cleanKey(store.name);
+      // Link Deals
       store.linkedDeals = allDeals.filter(d => {
         if (d.matched_store_id && d.matched_store_id === store.id) return true;
         if (d.matched_store_name && d.matched_store_name === store.name) return true;
-        // Fuzzy fallback: require ≥4 chars AND length-coverage ratio ≥0.4 (mirrors scraper.py)
-        const suppNorm = d.supplier ? d.supplier.toLowerCase().replace(/[^א-תa-z0-9]/g, '') : '';
+        const suppNorm = cleanKey(d.supplier);
         if (!suppNorm || suppNorm.length < 4) return false;
         if (!sNorm.includes(suppNorm) && !suppNorm.includes(sNorm)) return false;
         const minLen = Math.min(suppNorm.length, sNorm.length);
         const maxLen = Math.max(suppNorm.length, sNorm.length);
         return (minLen / maxLen) >= 0.4;
       });
+
+      // Link Billing
+      store.linkedBillingStore = findBestBillingMatch(store.name);
+    });
+
+    // 2. Cross-link Deals (Tab 2)
+    allDeals.forEach(deal => {
+      // Link Store
+      deal.linkedStore = allStores.find(s => 
+        (deal.matched_store_id && s.id === deal.matched_store_id) || 
+        (deal.matched_store_name && s.name === deal.matched_store_name) || 
+        normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
+      );
+
+      // Link Billing
+      deal.linkedBillingStore = findBestBillingMatch(deal.supplier);
+    });
+
+    // Map stores and deals by normalized keys for O(1) matching
+    const storeByNorm = new Map();
+    allStores.forEach(s => {
+      const k = cleanKey(s.name);
+      if (k) storeByNorm.set(k, s);
+    });
+
+    const dealsBySuppNorm = new Map();
+    allDeals.forEach(d => {
+      const k = cleanKey(d.supplier);
+      if (k) {
+        if (!dealsBySuppNorm.has(k)) dealsBySuppNorm.set(k, []);
+        dealsBySuppNorm.get(k).push(d);
+      }
+    });
+
+    // 3. Cross-link Billing Stores (Tab 3)
+    allBillingStores.forEach(b => {
+      const bNorm = cleanKey(b.name);
+      b.linkedStore = storeByNorm.get(bNorm) || null;
+      b.linkedDeals = dealsBySuppNorm.get(bNorm) || [];
     });
   }
 
-  // Load both Stores & Deals data
+  // Load All Datasets (Stores, Deals, Billing Discounts)
   async function loadAllData() {
     // 1. Fetch Stores
     try {
@@ -253,14 +398,38 @@
       dealsLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
     }
 
-    // Cross-link
-    linkStoresWithDeals();
+    // 3. Fetch Billing Discounts
+    try {
+      const bResponse = await fetch(`data/billing_stores.json?t=${Date.now()}`, { cache: 'no-store' });
+      if (!bResponse.ok) throw new Error('Failed to load billing_stores.json');
+      billingData = await bResponse.json();
+    } catch (err) {
+      console.warn('Billing fallback:', err);
+      billingData = { metadata: { total_stores: 0 }, stores: [] };
+    }
+
+    allBillingStores = billingData.stores || [];
+    allBillingStores.forEach(s => {
+      s._searchStr = normalizeHebrew(`${s.name} ${s.city || ''} ${s.address || ''} ${s.category || ''} ${s.subcategory || ''} ${s.description || ''}`);
+    });
+    if (totalBillingCountEl) totalBillingCountEl.textContent = allBillingStores.length.toLocaleString('he-IL');
+    if (tabBillingCount) tabBillingCount.textContent = allBillingStores.length.toLocaleString('he-IL');
+
+    if (billingData.metadata?.scraped_at && billingLastUpdatedDateEl) {
+      const d = new Date(billingData.metadata.scraped_at);
+      billingLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
+    }
+
+    // Cross-link all datasets
+    crossLinkAllDatasets();
 
     // Populate Filters
     populateCardsFilter();
     updateCategoryChips();
     populateDealsTagsFilter();
     updateDealsCategoryChips();
+    if (billingCitySelect) populateBillingCitiesFilter();
+    if (billingCategoryChipsContainer) updateBillingCategoryChips();
 
     applyViewMode(currentView);
 
@@ -273,70 +442,87 @@
   // ==========================================
 
   function populateCardsFilter() {
-    cardFilterSelect.innerHTML = '<option value="all">כל הכרטיסים (הכל)</option>';
-    availableCards.forEach(card => {
-      const option = document.createElement('option');
-      option.value = card.id || card.name;
-      option.textContent = card.name + (card.discount_default ? ` (${card.discount_default})` : '');
-      cardFilterSelect.appendChild(option);
+    cardFilterSelect.innerHTML = '<option value="all">כל הכרטיסים הנטענים</option>';
+    availableCards.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.card_name;
+      opt.textContent = `${c.card_name} (${c.store_count})`;
+      cardFilterSelect.appendChild(opt);
     });
   }
 
   function updateCategoryChips() {
     const catCounts = {};
-    const relevantStores = currentCard === 'all' 
-      ? allStores 
-      : allStores.filter(s => s.cards?.some(c => (c.card_id === currentCard || c.card_name === currentCard)));
+    let filteredForChips = allStores;
+    if (currentCard !== 'all') {
+      filteredForChips = filteredForChips.filter(s => 
+        s.cards && s.cards.some(c => c.card_name === currentCard)
+      );
+    }
 
-    relevantStores.forEach(s => {
-      const cat = s.category || 'אחר';
+    filteredForChips.forEach(s => {
+      const cat = s.category || 'כללי';
       catCounts[cat] = (catCounts[cat] || 0) + 1;
     });
 
     const categories = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]);
 
     categoryChipsContainer.innerHTML = '';
-    const allBtn = document.createElement('button');
-    const isAllActive = currentCategory === 'all';
-    allBtn.className = `category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
-      isAllActive ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+
+    const allChip = document.createElement('button');
+    const isAll = currentCategory === 'all';
+    allChip.className = `category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+      isAll 
+        ? 'bg-blue-600 text-white shadow-xs' 
+        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
     }`;
-    allBtn.dataset.category = 'all';
-    allBtn.innerHTML = `<span>הכל</span><span class="category-count ${isAllActive ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">${relevantStores.length}</span>`;
-    categoryChipsContainer.appendChild(allBtn);
+    allChip.dataset.category = 'all';
+    allChip.innerHTML = `
+      <span>הכל</span>
+      <span class="category-count ${isAll ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+        ${filteredForChips.length}
+      </span>
+    `;
+    categoryChipsContainer.appendChild(allChip);
 
     categories.forEach(cat => {
-      const count = catCounts[cat];
-      const isActive = currentCategory === cat;
-      const btn = document.createElement('button');
-      btn.className = `category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
-        isActive ? 'bg-blue-600 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+      const isSelected = currentCategory === cat;
+      const chip = document.createElement('button');
+      chip.className = `category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+        isSelected 
+          ? 'bg-blue-600 text-white shadow-xs' 
+          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
       }`;
-      btn.dataset.category = cat;
-      btn.innerHTML = `<span>${cat}</span><span class="category-count ${isActive ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">${count}</span>`;
-      categoryChipsContainer.appendChild(btn);
+      chip.dataset.category = cat;
+      chip.innerHTML = `
+        <span>${cat}</span>
+        <span class="category-count ${isSelected ? 'bg-blue-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+          ${catCounts[cat]}
+        </span>
+      `;
+      categoryChipsContainer.appendChild(chip);
     });
   }
 
-  function filterAndSortStores() {
-    let result = [...allStores];
+  function getFilteredStores() {
+    let result = allStores;
 
     if (currentCard !== 'all') {
-      result = result.filter(store => 
-        store.cards && store.cards.some(c => (c.card_id === currentCard || c.card_name === currentCard))
+      result = result.filter(s => 
+        s.cards && s.cards.some(c => c.card_name === currentCard)
       );
     }
 
     if (currentCategory !== 'all') {
-      result = result.filter(store => store.category === currentCategory);
+      result = result.filter(s => (s.category || 'כללי') === currentCategory);
     }
 
     if (searchQuery) {
       const queryNorm = normalizeHebrew(searchQuery);
       result = result.filter(store => {
         const nameNorm = normalizeHebrew(store.name);
-        const catNorm = normalizeHebrew(store.category);
-        const condNorm = normalizeHebrew(store.conditions);
+        const catNorm = normalizeHebrew(store.category || '');
+        const condNorm = normalizeHebrew(store.conditions || '');
         const cardsMatch = store.cards && store.cards.some(c => 
           normalizeHebrew(c.card_name).includes(queryNorm) || 
           normalizeHebrew(c.discount).includes(queryNorm)
@@ -383,12 +569,23 @@
 
     const hasLinkedDeals = store.linkedDeals && store.linkedDeals.length > 0;
     const dealsBadgeHtml = hasLinkedDeals ? `
-      <div class="mt-2.5 pt-2 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(store.name)}">
+      <div class="mt-2 pt-2 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(store.name)}">
         <span class="flex items-center gap-1 font-semibold">
           <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600"></i>
           <span>שובר/מבצע פעיל (${store.linkedDeals.length})</span>
         </span>
         <span class="text-[11px] underline">הצג</span>
+      </div>
+    ` : '';
+
+    const linkedBilling = store.linkedBillingStore;
+    const billingBadgeHtml = linkedBilling ? `
+      <div class="mt-1.5 pt-1.5 border-t border-purple-100 dark:border-purple-900/50 flex items-center justify-between text-xs text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1.5 rounded-xl hover:bg-purple-100 transition-colors" data-action="view-linked-billing" data-store-name="${encodeURIComponent(store.name)}">
+        <span class="flex items-center gap-1 font-semibold truncate">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-purple-600 flex-shrink-0"></i>
+          <span class="truncate">הנחה במעמד החיוב (${linkedBilling.discount}% באשראי)</span>
+        </span>
+        <span class="text-[11px] underline flex-shrink-0 mr-1">הצג</span>
       </div>
     ` : '';
 
@@ -419,6 +616,7 @@
 
       <div>
         ${dealsBadgeHtml}
+        ${billingBadgeHtml}
         <div class="mt-3 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-700/60">
           <span class="flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium">
             <span>לפרטים מלאים</span>
@@ -429,108 +627,125 @@
       </div>
     `;
 
-    card.addEventListener('click', (e) => {
-      const dealAction = e.target.closest('[data-action="view-linked-deal"]');
-      if (dealAction) {
-        e.stopPropagation();
-        const storeName = decodeURIComponent(dealAction.dataset.storeName);
-        dealsSearchInput.value = storeName;
-        dealsSearchQuery = storeName;
-        clearDealsSearchBtn.classList.remove('hidden');
-        switchTab('deals');
-        return;
-      }
-      openStoreModal(store);
-    });
-
     return card;
   }
 
-  function renderStores() {
-    const filteredStores = filterAndSortStores();
-    matchingCountEl.textContent = filteredStores.length;
+  function createStoreTableRow(store) {
+    const tr = document.createElement('tr');
+    tr.className = 'hover:bg-slate-50 dark:hover:bg-slate-700/40 transition cursor-pointer';
+    tr.dataset.storeId = store.id;
 
-    if (currentCard !== 'all' || currentCategory !== 'all' || searchQuery) {
-      activeFilterBadge.classList.remove('hidden');
+    const maxDisc = store.max_discount || 0;
+    const badgeBg = maxDisc >= 25 ? 'bg-amber-100 text-amber-900 dark:bg-amber-950 dark:text-amber-200' : 'bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-200';
+
+    const cardPills = (store.cards || []).map(c => `
+      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300">
+        ${c.card_name}: <strong>${c.discount}</strong>
+      </span>
+    `).join(' ');
+
+    const hasLinkedDeals = store.linkedDeals && store.linkedDeals.length > 0;
+    const dealPill = hasLinkedDeals ? `
+      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-200">
+        <i data-lucide="tag" class="w-3 h-3"></i>
+        ${store.linkedDeals.length} מבצעים
+      </span>
+    ` : '';
+
+    const linkedBilling = store.linkedBillingStore;
+    const billingPill = linkedBilling ? `
+      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-200">
+        <i data-lucide="credit-card" class="w-3 h-3"></i>
+        ${linkedBilling.discount}% באשראי
+      </span>
+    ` : '';
+
+    tr.innerHTML = `
+      <td class="py-3 px-4 flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-slate-50 dark:bg-slate-700 p-1 border border-slate-200 dark:border-slate-600 flex items-center justify-center flex-shrink-0">
+          ${store.logo ? `<img src="${store.logo}" alt="" class="max-h-full max-w-full object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛍️</text></svg>'"/>` : `<i data-lucide="shopping-bag" class="w-4 h-4 text-slate-400"></i>`}
+        </div>
+        <div class="font-bold text-slate-900 dark:text-white">${store.name}</div>
+      </td>
+      <td class="py-3 px-4 text-slate-600 dark:text-slate-300 text-xs">${store.category || 'כללי'}</td>
+      <td class="py-3 px-4 text-center">
+        <span class="inline-block px-2.5 py-1 rounded-xl text-xs font-bold ${badgeBg}">
+          עד ${maxDisc}%
+        </span>
+      </td>
+      <td class="py-3 px-4">
+        <div class="flex flex-wrap gap-1 items-center">
+          ${cardPills}
+          ${dealPill}
+          ${billingPill}
+        </div>
+      </td>
+      <td class="py-3 px-4 text-center">
+        <button class="text-blue-600 dark:text-blue-400 hover:text-blue-800 text-xs font-medium inline-flex items-center gap-1">
+          <span>פרטים</span>
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+        </button>
+      </td>
+    `;
+
+    return tr;
+  }
+
+  function renderStores() {
+    const filtered = getFilteredStores();
+    matchingCountEl.textContent = filtered.length;
+
+    // Filter badge state
+    const hasFilter = searchQuery || currentCard !== 'all' || currentCategory !== 'all';
+    activeFilterBadge.classList.toggle('hidden', !hasFilter);
+
+    if (hasFilter) {
       const parts = [];
-      if (currentCard !== 'all') {
-        const cardObj = availableCards.find(c => c.id === currentCard || c.name === currentCard);
-        parts.push(cardObj ? cardObj.name : currentCard);
-      }
-      if (currentCategory !== 'all') parts.push(currentCategory);
       if (searchQuery) parts.push(`"${searchQuery}"`);
-      activeFilterText.textContent = parts.join(' | ');
-    } else {
-      activeFilterBadge.classList.add('hidden');
+      if (currentCard !== 'all') parts.push(currentCard);
+      if (currentCategory !== 'all') parts.push(currentCategory);
+      activeFilterText.textContent = parts.join(' • ');
     }
 
-    if (filteredStores.length === 0) {
-      cardsView.classList.add('hidden');
-      tableView.classList.add('hidden');
+    if (filtered.length === 0) {
+      cardsView.innerHTML = '';
+      tableTbody.innerHTML = '';
       noResultsEl.classList.remove('hidden');
+      if (storesLoadMoreContainer) storesLoadMoreContainer.classList.add('hidden');
       return;
     }
 
     noResultsEl.classList.add('hidden');
 
-    const storesToRender = filteredStores.slice(0, storesVisibleCount);
+    const visibleStores = filtered.slice(0, storesVisibleCount);
 
     if (currentView === 'grid') {
+      cardsView.innerHTML = '';
+      visibleStores.forEach(s => cardsView.appendChild(createStoreCardElement(s)));
       cardsView.classList.remove('hidden');
       tableView.classList.add('hidden');
-      cardsView.innerHTML = '';
-      const fragment = document.createDocumentFragment();
-      storesToRender.forEach(s => fragment.appendChild(createStoreCardElement(s)));
-      cardsView.appendChild(fragment);
     } else {
-      cardsView.classList.add('hidden');
-      tableView.classList.remove('hidden');
       tableTbody.innerHTML = '';
-      const fragment = document.createDocumentFragment();
-
-      storesToRender.forEach(s => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-slate-50/80 dark:hover:bg-slate-750 transition cursor-pointer';
-
-        const cardsText = (s.cards || []).map(c => `${c.card_name} (${c.discount})`).join(', ');
-        const hasDeals = s.linkedDeals && s.linkedDeals.length > 0;
-        const dealBadge = hasDeals ? `<span class="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">קיים שובר/מבצע (${s.linkedDeals.length})</span>` : '';
-
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-semibold text-slate-900 dark:text-white">${s.name}</td>
-          <td class="py-3 px-4 text-slate-500 dark:text-slate-400 text-xs">${s.category || 'כללי'}</td>
-          <td class="py-3 px-4 text-center font-bold text-amber-600 dark:text-amber-400">${s.max_discount}%</td>
-          <td class="py-3 px-4 text-xs text-slate-600 dark:text-slate-300">
-            <div>${cardsText}</div>
-            ${dealBadge}
-          </td>
-          <td class="py-3 px-4 text-center">
-            <button class="px-2.5 py-1 text-xs rounded-lg bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-300 hover:bg-blue-100 font-medium">פרטים</button>
-          </td>
-        `;
-        tr.addEventListener('click', () => openStoreModal(s));
-        fragment.appendChild(tr);
-      });
-      tableTbody.appendChild(fragment);
+      visibleStores.forEach(s => tableTbody.appendChild(createStoreTableRow(s)));
+      tableView.classList.remove('hidden');
+      cardsView.classList.add('hidden');
     }
 
     if (storesLoadMoreContainer) {
-      if (storesVisibleCount < filteredStores.length) {
-        storesLoadMoreContainer.classList.remove('hidden');
-      } else {
-        storesLoadMoreContainer.classList.add('hidden');
-      }
+      storesLoadMoreContainer.classList.toggle('hidden', storesVisibleCount >= filtered.length);
     }
 
     if (window.lucide) lucide.createIcons();
   }
 
   function openStoreModal(store) {
+    if (!store) return;
     activeModalStore = store;
-    modalLogo.src = store.logo || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🛍️</text></svg>';
-    modalLogo.alt = store.name;
-    modalCategory.textContent = store.category || 'כללי';
+
     modalTitle.textContent = store.name;
+    modalCategory.textContent = store.category || 'כללי';
+    modalLogo.src = store.logo || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">🛍️</text></svg>';
+    modalLogo.onerror = () => { modalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">🛍️</text></svg>'; };
 
     if (store.website) {
       modalWebsiteLink.href = store.website;
@@ -551,6 +766,28 @@
       };
     } else {
       modalLinkedDealBanner.classList.add('hidden');
+    }
+
+    // Linked billing banner in modal
+    if (store.linkedBillingStore && modalLinkedBillingBanner) {
+      modalLinkedBillingBanner.classList.remove('hidden');
+      if (modalLinkedBillingTitle) {
+        modalLinkedBillingTitle.textContent = `לרשת זו קיימת גם הנחה של ${store.linkedBillingStore.discount}% במעמד החיוב!`;
+      }
+      if (modalViewBillingBtn) {
+        modalViewBillingBtn.onclick = () => {
+          closeStoreModal();
+          billingSearchInput.value = store.name;
+          billingSearchQuery = store.name;
+          clearBillingSearchBtn.classList.remove('hidden');
+          currentBillingCity = 'all';
+          currentBillingCategory = 'all';
+          if (billingCitySelect) billingCitySelect.value = 'all';
+          switchTab('billing');
+        };
+      }
+    } else if (modalLinkedBillingBanner) {
+      modalLinkedBillingBanner.classList.add('hidden');
     }
 
     modalCardsList.innerHTML = (store.cards || []).map(c => `
@@ -603,68 +840,82 @@
   function updateDealsCategoryChips() {
     const catCounts = {};
     allDeals.forEach(d => {
-      const c = d.category || 'כללי';
-      catCounts[c] = (catCounts[c] || 0) + 1;
+      const cat = d.category || 'כללי';
+      catCounts[cat] = (catCounts[cat] || 0) + 1;
     });
 
     const categories = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]);
 
     dealsCategoryChipsContainer.innerHTML = '';
-    const allBtn = document.createElement('button');
-    const isAllActive = currentDealCategory === 'all';
-    allBtn.className = `deal-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
-      isAllActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+
+    const allChip = document.createElement('button');
+    const isAll = currentDealCategory === 'all';
+    allChip.className = `deal-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+      isAll 
+        ? 'bg-emerald-600 text-white shadow-xs' 
+        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
     }`;
-    allBtn.dataset.category = 'all';
-    allBtn.innerHTML = `<span>הכל</span><span class="deal-category-count ${isAllActive ? 'bg-emerald-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">${allDeals.length}</span>`;
-    dealsCategoryChipsContainer.appendChild(allBtn);
+    allChip.dataset.category = 'all';
+    allChip.innerHTML = `
+      <span>הכל</span>
+      <span class="deal-category-count ${isAll ? 'bg-emerald-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+        ${allDeals.length}
+      </span>
+    `;
+    dealsCategoryChipsContainer.appendChild(allChip);
 
     categories.forEach(cat => {
-      const count = catCounts[cat];
-      const isActive = currentDealCategory === cat;
-      const btn = document.createElement('button');
-      btn.className = `deal-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
-        isActive ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 dark:bg-slate-700/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+      const isSelected = currentDealCategory === cat;
+      const chip = document.createElement('button');
+      chip.className = `deal-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+        isSelected 
+          ? 'bg-emerald-600 text-white shadow-xs' 
+          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
       }`;
-      btn.dataset.category = cat;
-      btn.innerHTML = `<span>${cat}</span><span class="deal-category-count ${isActive ? 'bg-emerald-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">${count}</span>`;
-      dealsCategoryChipsContainer.appendChild(btn);
+      chip.dataset.category = cat;
+      chip.innerHTML = `
+        <span>${cat}</span>
+        <span class="deal-category-count ${isSelected ? 'bg-emerald-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+          ${catCounts[cat]}
+        </span>
+      `;
+      dealsCategoryChipsContainer.appendChild(chip);
     });
   }
 
-  function filterAndSortDeals() {
-    let result = [...allDeals];
+  function getFilteredDeals() {
+    let result = allDeals;
 
     if (currentDealTag !== 'all') {
       result = result.filter(d => d.tags && d.tags.includes(currentDealTag));
     }
 
     if (currentDealCategory !== 'all') {
-      result = result.filter(d => d.category === currentDealCategory);
+      result = result.filter(d => (d.category || 'כללי') === currentDealCategory);
     }
 
     if (currentDealMaxPrice !== 'all') {
       if (currentDealMaxPrice === 'over-500') {
         result = result.filter(d => (d.price || 0) > 500);
       } else {
-        const maxVal = Number(currentDealMaxPrice);
+        const maxVal = parseFloat(currentDealMaxPrice);
         result = result.filter(d => (d.price || 0) <= maxVal);
       }
     }
 
     if (dealsSearchQuery) {
-      const qNorm = normalizeHebrew(dealsSearchQuery);
+      const queryNorm = normalizeHebrew(dealsSearchQuery);
       result = result.filter(d => {
         const titleNorm = normalizeHebrew(d.title);
-        const suppNorm = normalizeHebrew(d.supplier);
-        const catNorm = normalizeHebrew(d.category);
-        const descNorm = normalizeHebrew(d.description);
-        const termsNorm = normalizeHebrew(d.terms_of_use);
-        return titleNorm.includes(qNorm) || 
-               suppNorm.includes(qNorm) || 
-               catNorm.includes(qNorm) || 
-               descNorm.includes(qNorm) || 
-               termsNorm.includes(qNorm);
+        const suppNorm = normalizeHebrew(d.supplier || '');
+        const catNorm = normalizeHebrew(d.category || '');
+        const descNorm = normalizeHebrew(d.description || '');
+        const termsNorm = normalizeHebrew(d.terms_of_use || '');
+        return titleNorm.includes(queryNorm) || 
+               suppNorm.includes(queryNorm) || 
+               catNorm.includes(queryNorm) || 
+               descNorm.includes(queryNorm) || 
+               termsNorm.includes(queryNorm);
       });
     }
 
@@ -708,7 +959,7 @@
       <span class="text-xs line-through text-slate-400 dark:text-slate-500">${formatILS(deal.original_price)}</span>
     ` : '';
 
-    const matchedStore = allStores.find(s => 
+    const matchedStore = deal.linkedStore || allStores.find(s => 
       (deal.matched_store_id && s.id === deal.matched_store_id) || 
       (deal.matched_store_name && s.name === deal.matched_store_name) || 
       normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
@@ -717,16 +968,26 @@
     const storeLinkBadge = matchedStore ? `
       <div class="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-xl hover:bg-blue-100 transition-colors mb-2.5" data-action="view-linked-store" data-store-name="${encodeURIComponent(matchedStore.name)}">
         <span class="flex items-center gap-1 font-semibold truncate">
-          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
+          <i data-lucide="store" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
           <span class="truncate">מכבד כרטיסים (עד ${matchedStore.max_discount}% הנחה)</span>
         </span>
         <span class="text-[11px] underline flex-shrink-0 mr-1">לרשת</span>
       </div>
     ` : '';
 
+    const matchedBilling = deal.linkedBillingStore;
+    const billingLinkBadge = matchedBilling ? `
+      <div class="mt-1.5 pt-1.5 border-t border-purple-100 dark:border-purple-900/50 flex items-center justify-between text-xs text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/40 px-2.5 py-1.5 rounded-xl hover:bg-purple-100 transition-colors mb-2.5" data-action="view-linked-billing" data-store-name="${encodeURIComponent(deal.supplier || deal.title)}">
+        <span class="flex items-center gap-1 font-semibold truncate">
+          <i data-lucide="credit-card" class="w-3.5 h-3.5 text-purple-600 flex-shrink-0"></i>
+          <span class="truncate">הנחה במעמד החיוב (${matchedBilling.discount}% באשראי)</span>
+        </span>
+        <span class="text-[11px] underline flex-shrink-0 mr-1">הצג</span>
+      </div>
+    ` : '';
+
     card.innerHTML = `
       <div>
-        <!-- Deal Image Container -->
         <div class="w-full h-44 rounded-xl bg-slate-50 dark:bg-slate-900/60 p-2 mb-3 flex items-center justify-center overflow-hidden border border-slate-100 dark:border-slate-700/50 relative">
           <img 
             src="${deal.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎁</text></svg>'}" 
@@ -740,112 +1001,91 @@
           </div>
         </div>
 
-        <!-- Supplier & Category -->
         <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
           <span class="font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[150px]">${deal.supplier || 'בהצדעה'}</span>
           <span class="text-[11px]">${deal.category || 'כללי'}</span>
         </div>
 
-        <!-- Title -->
         <h3 class="font-bold text-sm text-slate-900 dark:text-white leading-snug mb-2 line-clamp-2" title="${deal.title}">
           ${deal.title}
         </h3>
       </div>
 
       <div>
-        <!-- Price section -->
         <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60 flex items-baseline justify-between mb-2.5">
           <div class="flex items-baseline gap-1.5">
             ${deal.is_external ? `
               <span class="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-900/50 px-2 py-0.5 rounded-lg">
                 <i data-lucide="external-link" class="w-3 h-3"></i>
-                הטבה באתר השותף
-              </span>
-            ` : (deal.deal_type === 'free_benefit' || deal.price === 0 ? `
-              <span class="text-sm font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-900/50 px-2 py-0.5 rounded-lg">
-                חינם (0 ₪)
+                <span>הטבת שותף</span>
               </span>
             ` : `
-              <span class="text-lg font-black text-emerald-600 dark:text-emerald-400">${formatILS(deal.price)}</span>
+              <span class="text-xl font-black text-emerald-700 dark:text-emerald-400">${formatILS(deal.price)}</span>
               ${origPriceHtml}
-            `)}
+            `}
           </div>
-          <span class="text-[11px] text-slate-500 dark:text-slate-400">${deal.shipping_included ? 'כולל משלוח' : (deal.locations || 'מגוון סניפים')}</span>
+          ${deal.shipping_included ? `
+            <span class="text-[11px] text-teal-600 dark:text-teal-400 font-medium">כולל משלוח</span>
+          ` : ''}
         </div>
 
-        <!-- Linked Store on Rechargeable Cards (if matched) -->
         ${storeLinkBadge}
+        ${billingLinkBadge}
 
-        <!-- Action Button -->
-        <button class="w-full py-2 rounded-xl ${deal.is_external ? 'bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 text-blue-700 dark:text-blue-300' : 'bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300'} text-xs font-semibold transition flex items-center justify-center gap-1.5">
-          <span>${deal.is_external ? 'למעבר להטבה באתר השותף' : 'פרטים ואפשרויות רכישה'}</span>
-          <i data-lucide="${deal.is_external ? 'external-link' : 'arrow-left'}" class="w-3.5 h-3.5"></i>
-        </button>
+        <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+          <span class="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+            <span>לפרטים ורכישה</span>
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          </span>
+          <span class="text-[11px] text-slate-400 truncate max-w-[110px]">${deal.locations || 'לכל הארץ'}</span>
+        </div>
       </div>
     `;
 
-    card.addEventListener('click', (e) => {
-      const storeAction = e.target.closest('[data-action="view-linked-store"]');
-      if (storeAction) {
-        e.stopPropagation();
-        const storeName = decodeURIComponent(storeAction.dataset.storeName);
-        searchInput.value = storeName;
-        searchQuery = storeName;
-        clearSearchBtn.classList.remove('hidden');
-        switchTab('stores');
-        const st = allStores.find(s => s.name === storeName);
-        if (st) setTimeout(() => openStoreModal(st), 100);
-        return;
-      }
-      openDealModal(deal);
-    });
     return card;
   }
 
   function renderDeals() {
-    const filteredDeals = filterAndSortDeals();
-    matchingDealsCountEl.textContent = filteredDeals.length;
+    const filtered = getFilteredDeals();
+    matchingDealsCountEl.textContent = filtered.length;
 
-    if (currentDealTag !== 'all' || currentDealCategory !== 'all' || currentDealMaxPrice !== 'all' || dealsSearchQuery) {
-      activeDealsFilterBadge.classList.remove('hidden');
+    const hasFilter = dealsSearchQuery || currentDealTag !== 'all' || currentDealCategory !== 'all' || currentDealMaxPrice !== 'all';
+    activeDealsFilterBadge.classList.toggle('hidden', !hasFilter);
+
+    if (hasFilter) {
       const parts = [];
+      if (dealsSearchQuery) parts.push(`"${dealsSearchQuery}"`);
       if (currentDealTag !== 'all') parts.push(currentDealTag);
       if (currentDealCategory !== 'all') parts.push(currentDealCategory);
       if (currentDealMaxPrice !== 'all') parts.push(currentDealMaxPrice === 'over-500' ? 'מעל 500 ₪' : `עד ${currentDealMaxPrice} ₪`);
-      if (dealsSearchQuery) parts.push(`"${dealsSearchQuery}"`);
-      activeDealsFilterText.textContent = parts.join(' | ');
-    } else {
-      activeDealsFilterBadge.classList.add('hidden');
+      activeDealsFilterText.textContent = parts.join(' • ');
     }
 
-    if (filteredDeals.length === 0) {
-      dealsGrid.classList.add('hidden');
+    if (filtered.length === 0) {
+      dealsGrid.innerHTML = '';
       noDealsResults.classList.remove('hidden');
+      if (dealsLoadMoreContainer) dealsLoadMoreContainer.classList.add('hidden');
       return;
     }
 
     noDealsResults.classList.add('hidden');
-    dealsGrid.classList.remove('hidden');
+
+    const visibleDeals = filtered.slice(0, dealsVisibleCount);
     dealsGrid.innerHTML = '';
-    const fragment = document.createDocumentFragment();
-    const dealsToRender = filteredDeals.slice(0, dealsVisibleCount);
-    dealsToRender.forEach(d => fragment.appendChild(createDealCardElement(d)));
-    dealsGrid.appendChild(fragment);
+    visibleDeals.forEach(d => dealsGrid.appendChild(createDealCardElement(d)));
 
     if (dealsLoadMoreContainer) {
-      if (dealsVisibleCount < filteredDeals.length) {
-        dealsLoadMoreContainer.classList.remove('hidden');
-      } else {
-        dealsLoadMoreContainer.classList.add('hidden');
-      }
+      dealsLoadMoreContainer.classList.toggle('hidden', dealsVisibleCount >= filtered.length);
     }
 
     if (window.lucide) lucide.createIcons();
   }
 
   function openDealModal(deal) {
-    dealModalImg.src = deal.image || 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎁</text></svg>';
-    dealModalImg.alt = deal.title;
+    if (!deal) return;
+
+    dealModalTitle.textContent = deal.title;
+    dealModalSupplier.textContent = deal.supplier || 'בהצדעה';
     dealModalCategory.textContent = deal.category || 'כללי';
 
     if (deal.tags && deal.tags.length > 0) {
@@ -855,66 +1095,29 @@
       dealModalTag.classList.add('hidden');
     }
 
-    dealModalTitle.textContent = deal.title;
-    dealModalSupplier.textContent = deal.supplier || 'בהצדעה';
+    dealModalImg.src = deal.image || 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">🎁</text></svg>';
+    dealModalImg.onerror = () => { dealModalImg.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">🎁</text></svg>'; };
 
-    const isExternal = Boolean(deal.is_external || deal.deal_type === 'external_partner');
-    const isFree = Boolean(deal.deal_type === 'free_benefit' || (deal.price === 0 && !isExternal));
-
-    if (isExternal) {
-      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'הטבת מועדון בהצדעה:';
-      dealModalPrice.textContent = 'הנחה בלעדית באתר השותף';
-      dealModalPrice.className = 'text-lg font-bold text-blue-700 dark:text-blue-300';
-      dealModalOrigPrice.classList.add('hidden');
-      dealModalSavingsBadge.classList.remove('hidden');
-      dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-xs flex items-center gap-1';
-      dealModalSavingsText.textContent = 'הזמנה ישירה ↗';
-      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
-      dealModalBuyLink.innerHTML = `
-        <span>מעבר להזמנה והנחת מועדון באתר השותף</span>
-        <i data-lucide="external-link" class="w-4 h-4"></i>
-      `;
-    } else if (isFree) {
-      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'מחיר מועדון בהצדעה:';
-      dealModalPrice.textContent = 'חינם (0 ₪)';
-      dealModalPrice.className = 'text-2xl font-black text-emerald-700 dark:text-emerald-400';
-      dealModalOrigPrice.classList.add('hidden');
-      dealModalSavingsBadge.classList.remove('hidden');
-      dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-xs flex items-center gap-1';
-      dealModalSavingsText.textContent = 'הטבה ללא עלות';
-      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
-      dealModalBuyLink.innerHTML = `
-        <span>מימוש הטבה באתר בהצדעה</span>
-        <i data-lucide="arrow-left" class="w-4 h-4"></i>
-      `;
+    if (deal.is_external) {
+      dealModalPriceLabel.textContent = 'מבצע שותף בהצדעה:';
+      dealModalPrice.textContent = 'הנחה באתר השותף';
+      dealModalOrigPrice.textContent = '';
+      dealModalSavingsBadge.classList.add('hidden');
     } else {
-      if (dealModalPriceLabel) dealModalPriceLabel.textContent = 'מחיר מועדון בהצדעה:';
+      dealModalPriceLabel.textContent = 'מחיר מועדון בהצדעה:';
       dealModalPrice.textContent = formatILS(deal.price);
-      dealModalPrice.className = 'text-2xl font-black text-emerald-700 dark:text-emerald-400';
       if (deal.original_price && deal.original_price > deal.price) {
         dealModalOrigPrice.textContent = formatILS(deal.original_price);
-        dealModalOrigPrice.classList.remove('hidden');
-      } else {
-        dealModalOrigPrice.classList.add('hidden');
-      }
-
-      if (deal.discount_percent > 0) {
         dealModalSavingsBadge.classList.remove('hidden');
-        dealModalSavingsBadge.className = 'px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-sm shadow-xs flex items-center gap-1';
-        dealModalSavingsText.textContent = `חיסכון של ${deal.discount_percent}%`;
+        dealModalSavingsText.textContent = `${deal.discount_percent}% חיסכון`;
       } else {
+        dealModalOrigPrice.textContent = '';
         dealModalSavingsBadge.classList.add('hidden');
       }
-
-      dealModalBuyLink.className = 'flex-1 text-center px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition flex items-center justify-center gap-2 shadow-sm';
-      dealModalBuyLink.innerHTML = `
-        <span>מעבר לרכישה באתר בהצדעה</span>
-        <i data-lucide="external-link" class="w-4 h-4"></i>
-      `;
     }
 
-    // Linked Store on Cards Banner
-    const matchedStore = allStores.find(s => 
+    // Cross-link to store on cards
+    const matchedStore = deal.linkedStore || allStores.find(s => 
       (deal.matched_store_id && s.id === deal.matched_store_id) || 
       (deal.matched_store_name && s.name === deal.matched_store_name) || 
       normalizeHebrew(s.name) === normalizeHebrew(deal.supplier)
@@ -933,6 +1136,28 @@
       };
     } else {
       dealModalLinkedStoreBanner.classList.add('hidden');
+    }
+
+    // Cross-link to billing discount
+    if (deal.linkedBillingStore && dealModalLinkedBillingBanner) {
+      dealModalLinkedBillingBanner.classList.remove('hidden');
+      if (dealModalLinkedBillingTitle) {
+        dealModalLinkedBillingTitle.textContent = `לספק "${deal.supplier}" קיימת גם הנחה של ${deal.linkedBillingStore.discount}% במעמד החיוב!`;
+      }
+      if (dealModalViewBillingBtn) {
+        dealModalViewBillingBtn.onclick = () => {
+          closeDealModal();
+          billingSearchInput.value = deal.supplier;
+          billingSearchQuery = deal.supplier;
+          clearBillingSearchBtn.classList.remove('hidden');
+          currentBillingCity = 'all';
+          currentBillingCategory = 'all';
+          if (billingCitySelect) billingCitySelect.value = 'all';
+          switchTab('billing');
+        };
+      }
+    } else if (dealModalLinkedBillingBanner) {
+      dealModalLinkedBillingBanner.classList.add('hidden');
     }
 
     // Variants List
@@ -973,16 +1198,315 @@
   }
 
   // ==========================================
+  // BILLING DISCOUNTS (BE-PLUS) LOGIC & RENDERING
+  // ==========================================
+
+  function populateBillingCitiesFilter() {
+    if (!billingCitySelect) return;
+    const cityCounts = {};
+    allBillingStores.forEach(s => {
+      const c = s.city || 'online';
+      cityCounts[c] = (cityCounts[c] || 0) + 1;
+    });
+
+    const sortedCities = Object.keys(cityCounts).sort((a, b) => {
+      if (a === 'online') return -1;
+      if (b === 'online') return 1;
+      return cityCounts[b] - cityCounts[a] || a.localeCompare(b, 'he');
+    });
+
+    billingCitySelect.innerHTML = '<option value="all">כל הערים והמיקומים</option>';
+    sortedCities.forEach(city => {
+      const opt = document.createElement('option');
+      opt.value = city;
+      const label = city === 'online' ? 'Online / אונליין' : city;
+      opt.textContent = `${label} (${cityCounts[city]})`;
+      billingCitySelect.appendChild(opt);
+    });
+  }
+
+  function updateBillingCategoryChips() {
+    if (!billingCategoryChipsContainer) return;
+    const catCounts = {};
+    let filteredForChips = allBillingStores;
+    if (currentBillingCity !== 'all') {
+      filteredForChips = filteredForChips.filter(s => s.city === currentBillingCity);
+    }
+
+    filteredForChips.forEach(s => {
+      const cat = s.category || 'כללי';
+      catCounts[cat] = (catCounts[cat] || 0) + 1;
+    });
+
+    const categories = Object.keys(catCounts).sort((a, b) => catCounts[b] - catCounts[a]);
+
+    billingCategoryChipsContainer.innerHTML = '';
+
+    const allChip = document.createElement('button');
+    const isAll = currentBillingCategory === 'all';
+    allChip.className = `billing-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+      isAll 
+        ? 'bg-purple-600 text-white shadow-xs' 
+        : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
+    }`;
+    allChip.dataset.category = 'all';
+    allChip.innerHTML = `
+      <span>הכל</span>
+      <span class="billing-category-count ${isAll ? 'bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+        ${filteredForChips.length}
+      </span>
+    `;
+    billingCategoryChipsContainer.appendChild(allChip);
+
+    categories.forEach(cat => {
+      const isSelected = currentBillingCategory === cat;
+      const chip = document.createElement('button');
+      chip.className = `billing-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap ${
+        isSelected 
+          ? 'bg-purple-600 text-white shadow-xs' 
+          : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300'
+      }`;
+      chip.dataset.category = cat;
+      chip.innerHTML = `
+        <span>${cat}</span>
+        <span class="billing-category-count ${isSelected ? 'bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-300'} text-[10px] px-1.5 py-0.2 rounded-full">
+          ${catCounts[cat]}
+        </span>
+      `;
+      billingCategoryChipsContainer.appendChild(chip);
+    });
+  }
+
+  function getFilteredBillingStores() {
+    let result = allBillingStores.slice();
+
+    if (currentBillingCity !== 'all') {
+      result = result.filter(s => s.city === currentBillingCity);
+    }
+
+    if (currentBillingCategory !== 'all') {
+      result = result.filter(s => (s.category || 'כללי') === currentBillingCategory);
+    }
+
+    if (billingSearchQuery) {
+      const queryNorm = normalizeHebrew(billingSearchQuery);
+      result = result.filter(s => s._searchStr && s._searchStr.includes(queryNorm));
+    }
+
+    switch (currentBillingSort) {
+      case 'discount-desc':
+        result.sort((a, b) => b.discount - a.discount || a.name.localeCompare(b.name, 'he'));
+        break;
+      case 'discount-asc':
+        result.sort((a, b) => a.discount - b.discount || a.name.localeCompare(b.name, 'he'));
+        break;
+      case 'name-asc':
+        result.sort((a, b) => a.name.localeCompare(b.name, 'he'));
+        break;
+      case 'city-asc':
+        result.sort((a, b) => (a.city || '').localeCompare(b.city || '', 'he') || a.name.localeCompare(b.name, 'he'));
+        break;
+    }
+
+    return result;
+  }
+
+  function createBillingCardElement(store) {
+    const card = document.createElement('div');
+    card.className = 'billing-card bg-white dark:bg-slate-800 rounded-2xl p-4 border border-slate-200/90 dark:border-slate-700/80 shadow-xs flex flex-col justify-between hover:border-purple-400 dark:hover:border-purple-500 cursor-pointer relative';
+    card.dataset.billingId = store.id;
+
+    const discountBadge = `
+      <span class="badge-savings-purple text-white px-2.5 py-1 rounded-xl text-xs font-black shadow-xs">
+        ${store.discount}% הנחה
+      </span>
+    `;
+
+    const cityLabel = store.city === 'online' ? 'Online / אונליין' : store.city;
+
+    // Cross-link badges if exists in Tab 1 (stores) or Tab 2 (deals)
+    const linkedStore = store.linkedStore;
+    const storeLinkBadge = linkedStore ? `
+      <div class="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-xl hover:bg-blue-100 transition-colors" data-action="view-linked-store" data-store-name="${encodeURIComponent(linkedStore.name)}">
+        <span class="flex items-center gap-1 font-semibold truncate">
+          <i data-lucide="store" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
+          <span class="truncate">כרטיסים נטענים (עד ${linkedStore.max_discount}% הנחה)</span>
+        </span>
+        <span class="text-[11px] underline flex-shrink-0 mr-1">לרשת</span>
+      </div>
+    ` : '';
+
+    const hasLinkedDeals = store.linkedDeals && store.linkedDeals.length > 0;
+    const dealsBadgeHtml = hasLinkedDeals ? `
+      <div class="mt-1.5 pt-1.5 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(store.name)}">
+        <span class="flex items-center gap-1 font-semibold truncate">
+          <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+          <span class="truncate">שובר/מבצע פעיל (${store.linkedDeals.length})</span>
+        </span>
+        <span class="text-[11px] underline flex-shrink-0 mr-1">הצג</span>
+      </div>
+    ` : '';
+
+    card.innerHTML = `
+      <div>
+        <div class="flex items-start justify-between gap-3 mb-3">
+          <div class="w-12 h-12 rounded-xl bg-purple-50 dark:bg-slate-700 p-1.5 border border-purple-100 dark:border-slate-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            ${store.logo ? `<img src="${store.logo}" alt="${store.name}" class="max-h-full max-w-full object-contain" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>💳</text></svg>'"/>` : `<i data-lucide="credit-card" class="w-6 h-6 text-purple-400"></i>`}
+          </div>
+          <div class="flex flex-col items-end gap-1">
+            ${discountBadge}
+            <span class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">${store.category || 'כללי'}</span>
+          </div>
+        </div>
+
+        <h3 class="font-bold text-base text-slate-900 dark:text-white leading-tight mb-1 truncate" title="${store.name}">
+          ${store.name}
+        </h3>
+
+        <div class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mb-2 truncate">
+          <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+          <span class="truncate font-medium">${cityLabel}</span>
+          ${store.address ? `<span class="truncate text-slate-400 dark:text-slate-500">• ${store.address}</span>` : ''}
+        </div>
+
+        ${store.description ? `
+          <p class="text-xs text-slate-600 dark:text-slate-300 line-clamp-2 leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50 mb-2">
+            ${store.description}
+          </p>
+        ` : ''}
+      </div>
+
+      <div>
+        ${storeLinkBadge}
+        ${dealsBadgeHtml}
+        <div class="mt-2.5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-700/60">
+          <span class="flex items-center gap-1 text-purple-600 dark:text-purple-400 font-medium">
+            <span>לפרטים מלאים</span>
+            <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          </span>
+          <span class="text-[11px] text-slate-400">מעמד החיוב (Max)</span>
+        </div>
+      </div>
+    `;
+
+    return card;
+  }
+
+  function renderBillingStores() {
+    if (!billingGrid) return;
+    const filtered = getFilteredBillingStores();
+    if (matchingBillingCountEl) matchingBillingCountEl.textContent = filtered.length.toLocaleString('he-IL');
+
+    const hasFilter = billingSearchQuery || currentBillingCity !== 'all' || currentBillingCategory !== 'all';
+    if (activeBillingFilterBadge) activeBillingFilterBadge.classList.toggle('hidden', !hasFilter);
+
+    if (hasFilter && activeBillingFilterText) {
+      const parts = [];
+      if (billingSearchQuery) parts.push(`"${billingSearchQuery}"`);
+      if (currentBillingCity !== 'all') parts.push(currentBillingCity === 'online' ? 'Online' : currentBillingCity);
+      if (currentBillingCategory !== 'all') parts.push(currentBillingCategory);
+      activeBillingFilterText.textContent = parts.join(' • ');
+    }
+
+    if (filtered.length === 0) {
+      billingGrid.innerHTML = '';
+      if (noBillingResults) noBillingResults.classList.remove('hidden');
+      if (billingLoadMoreContainer) billingLoadMoreContainer.classList.add('hidden');
+      return;
+    }
+
+    if (noBillingResults) noBillingResults.classList.add('hidden');
+
+    const visibleStores = filtered.slice(0, billingVisibleCount);
+    billingGrid.innerHTML = '';
+    visibleStores.forEach(s => billingGrid.appendChild(createBillingCardElement(s)));
+
+    if (billingLoadMoreContainer) {
+      billingLoadMoreContainer.classList.toggle('hidden', billingVisibleCount >= filtered.length);
+    }
+
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function openBillingModal(store) {
+    if (!store || !billingModal) return;
+    activeModalBillingStore = store;
+
+    billingModalTitle.textContent = store.name;
+    billingModalCategory.textContent = store.category || 'כללי';
+    billingModalCityBadge.textContent = store.city === 'online' ? 'Online / אונליין' : (store.city || 'סניפים');
+    
+    if (store.address) {
+      billingModalAddressWrapper.classList.remove('hidden');
+      billingModalAddress.textContent = store.address;
+    } else {
+      billingModalAddressWrapper.classList.add('hidden');
+    }
+
+    billingModalDiscount.textContent = `${store.discount}%`;
+    billingModalDescription.textContent = store.description || 'בית עסק המעניק הנחה קבועה במעמד החיוב למחזיקי כרטיס אשראי מועדון בהצדעה (Max).';
+    billingModalOfficialLink.href = store.detail_url || `https://be-plus.co.il/component/crm/product/${store.id}`;
+
+    if (store.logo) {
+      billingModalLogo.src = store.logo;
+      billingModalLogo.onerror = () => { billingModalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">💳</text></svg>'; };
+    } else {
+      billingModalLogo.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="80">💳</text></svg>';
+    }
+
+    // Cross-links in Billing Modal
+    if (store.linkedStore) {
+      billingModalLinkedStoreBanner.classList.remove('hidden');
+      billingModalLinkedStoreTitle.textContent = `רשת "${store.linkedStore.name}" מכבדת גם כרטיסים נטענים (עד ${store.linkedStore.max_discount}% הנחה)!`;
+      billingModalViewStoreBtn.onclick = () => {
+        closeBillingModal();
+        searchInput.value = store.linkedStore.name;
+        searchQuery = store.linkedStore.name;
+        clearSearchBtn.classList.remove('hidden');
+        switchTab('stores');
+        setTimeout(() => openStoreModal(store.linkedStore), 100);
+      };
+    } else {
+      billingModalLinkedStoreBanner.classList.add('hidden');
+    }
+
+    if (store.linkedDeals && store.linkedDeals.length > 0) {
+      billingModalLinkedDealBanner.classList.remove('hidden');
+      billingModalLinkedDealTitle.textContent = `לרשת זו קיים שובר/מבצע ייעודי פעיל (${store.linkedDeals.length})!`;
+      billingModalViewDealBtn.onclick = () => {
+        closeBillingModal();
+        dealsSearchInput.value = store.name;
+        dealsSearchQuery = store.name;
+        clearDealsSearchBtn.classList.remove('hidden');
+        switchTab('deals');
+      };
+    } else {
+      billingModalLinkedDealBanner.classList.add('hidden');
+    }
+
+    billingModal.classList.remove('hidden');
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function closeBillingModal() {
+    if (billingModal) billingModal.classList.add('hidden');
+    activeModalBillingStore = null;
+  }
+
+  // ==========================================
   // EVENT LISTENERS
   // ==========================================
 
   // Tab Switching
   tabStoresBtn.addEventListener('click', () => switchTab('stores'));
   tabDealsBtn.addEventListener('click', () => switchTab('deals'));
+  if (tabBillingBtn) tabBillingBtn.addEventListener('click', () => switchTab('billing'));
 
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash;
-    switchTab(hash === '#deals' ? 'deals' : 'stores');
+    if (hash === '#deals') switchTab('deals');
+    else if (hash === '#billing') switchTab('billing');
+    else switchTab('stores');
   });
 
   // Stores Search & Filter Listeners
@@ -1136,6 +1660,91 @@
     if (e.target === dealModal) closeDealModal();
   });
 
+  // Billing Search & Filter Listeners
+  if (billingSearchInput) {
+    billingSearchInput.addEventListener('input', (e) => {
+      billingSearchQuery = e.target.value.trim();
+      if (clearBillingSearchBtn) clearBillingSearchBtn.classList.toggle('hidden', !billingSearchQuery);
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      renderBillingStores();
+    });
+  }
+
+  if (clearBillingSearchBtn) {
+    clearBillingSearchBtn.addEventListener('click', () => {
+      billingSearchInput.value = '';
+      billingSearchQuery = '';
+      clearBillingSearchBtn.classList.add('hidden');
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      renderBillingStores();
+    });
+  }
+
+  if (billingCitySelect) {
+    billingCitySelect.addEventListener('change', (e) => {
+      currentBillingCity = e.target.value;
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      updateBillingCategoryChips();
+      renderBillingStores();
+    });
+  }
+
+  if (billingSortSelect) {
+    billingSortSelect.addEventListener('change', (e) => {
+      currentBillingSort = e.target.value;
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      renderBillingStores();
+    });
+  }
+
+  if (billingCategoryChipsContainer) {
+    billingCategoryChipsContainer.addEventListener('click', (e) => {
+      const chip = e.target.closest('.billing-category-chip');
+      if (!chip) return;
+      currentBillingCategory = chip.dataset.category;
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      updateBillingCategoryChips();
+      renderBillingStores();
+    });
+  }
+
+  if (resetBillingFiltersBtn) {
+    resetBillingFiltersBtn.addEventListener('click', () => {
+      billingSearchInput.value = '';
+      billingSearchQuery = '';
+      currentBillingCity = 'all';
+      if (billingCitySelect) billingCitySelect.value = 'all';
+      currentBillingCategory = 'all';
+      if (clearBillingSearchBtn) clearBillingSearchBtn.classList.add('hidden');
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      updateBillingCategoryChips();
+      renderBillingStores();
+    });
+  }
+
+  if (clearBillingFiltersBtn) {
+    clearBillingFiltersBtn.addEventListener('click', () => {
+      billingSearchInput.value = '';
+      billingSearchQuery = '';
+      currentBillingCity = 'all';
+      if (billingCitySelect) billingCitySelect.value = 'all';
+      currentBillingCategory = 'all';
+      if (clearBillingSearchBtn) clearBillingSearchBtn.classList.add('hidden');
+      billingVisibleCount = BILLING_PAGE_SIZE;
+      updateBillingCategoryChips();
+      renderBillingStores();
+    });
+  }
+
+  // Billing Modal Listeners
+  if (billingModalCloseBtn) billingModalCloseBtn.addEventListener('click', closeBillingModal);
+  if (billingModalDismissBtn) billingModalDismissBtn.addEventListener('click', closeBillingModal);
+  if (billingModal) {
+    billingModal.addEventListener('click', (e) => {
+      if (e.target === billingModal) closeBillingModal();
+    });
+  }
+
   // Progressive Rendering - Load More Buttons
   if (storesLoadMoreBtn) {
     storesLoadMoreBtn.addEventListener('click', () => {
@@ -1151,10 +1760,106 @@
     });
   }
 
+  if (billingLoadMoreBtn) {
+    billingLoadMoreBtn.addEventListener('click', () => {
+      billingVisibleCount += BILLING_PAGE_SIZE;
+      renderBillingStores();
+    });
+  }
+
+  // Global Event Delegation for Cards & Cross-Linking Badges
+  document.addEventListener('click', (e) => {
+    // 1. Cross-link to Deal
+    const dealBadge = e.target.closest('[data-action="view-linked-deal"]');
+    if (dealBadge) {
+      e.stopPropagation();
+      const storeName = decodeURIComponent(dealBadge.dataset.storeName || '');
+      if (storeName) {
+        dealsSearchInput.value = storeName;
+        dealsSearchQuery = storeName;
+        clearDealsSearchBtn.classList.remove('hidden');
+        currentDealTag = 'all';
+        dealsTagSelect.value = 'all';
+        currentDealCategory = 'all';
+        currentDealMaxPrice = 'all';
+        dealsPriceFilterSelect.value = 'all';
+        updateDealsCategoryChips();
+        switchTab('deals');
+      }
+      return;
+    }
+
+    // 2. Cross-link to Store Cards
+    const storeBadge = e.target.closest('[data-action="view-linked-store"]');
+    if (storeBadge) {
+      e.stopPropagation();
+      const storeName = decodeURIComponent(storeBadge.dataset.storeName || '');
+      if (storeName) {
+        searchInput.value = storeName;
+        searchQuery = storeName;
+        clearSearchBtn.classList.remove('hidden');
+        currentCard = 'all';
+        cardFilterSelect.value = 'all';
+        currentCategory = 'all';
+        updateCategoryChips();
+        switchTab('stores');
+      }
+      return;
+    }
+
+    // 3. Cross-link to Billing Discounts
+    const billingBadge = e.target.closest('[data-action="view-linked-billing"]');
+    if (billingBadge) {
+      e.stopPropagation();
+      const storeName = decodeURIComponent(billingBadge.dataset.storeName || '');
+      if (storeName) {
+        if (billingSearchInput) {
+          billingSearchInput.value = storeName;
+          billingSearchQuery = storeName;
+          if (clearBillingSearchBtn) clearBillingSearchBtn.classList.remove('hidden');
+        }
+        currentBillingCity = 'all';
+        if (billingCitySelect) billingCitySelect.value = 'all';
+        currentBillingCategory = 'all';
+        if (billingCategoryChipsContainer) updateBillingCategoryChips();
+        switchTab('billing');
+      }
+      return;
+    }
+
+    // 4. Click on Store Card -> Open Store Modal
+    const storeCard = e.target.closest('.store-card, #table-tbody tr');
+    if (storeCard) {
+      const storeId = storeCard.dataset.storeId;
+      const store = allStores.find(s => s.id === storeId);
+      if (store) openStoreModal(store);
+      return;
+    }
+
+    // 5. Click on Deal Card -> Open Deal Modal
+    const dealCard = e.target.closest('.deal-card');
+    if (dealCard) {
+      const dealId = dealCard.dataset.dealId;
+      const deal = allDeals.find(d => String(d.id) === String(dealId));
+      if (deal) openDealModal(deal);
+      return;
+    }
+
+    // 6. Click on Billing Card -> Open Billing Modal
+    const billingCard = e.target.closest('.billing-card');
+    if (billingCard) {
+      const billingId = billingCard.dataset.billingId;
+      const billingStore = allBillingStores.find(b => String(b.id) === String(billingId));
+      if (billingStore) openBillingModal(billingStore);
+      return;
+    }
+  });
+
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeStoreModal();
       closeDealModal();
+      closeBillingModal();
     }
   });
 

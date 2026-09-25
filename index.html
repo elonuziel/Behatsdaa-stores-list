@@ -97,8 +97,8 @@
   <!-- Main Content Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- Top-Level Tab Navigation: Stores & Cards vs Deals & Vouchers -->
-    <div class="flex items-center justify-start gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+    <!-- Top-Level Tab Navigation: Stores & Cards vs Deals & Vouchers vs Billing Discounts -->
+    <div class="flex items-center justify-start gap-2 border-b border-slate-200 dark:border-slate-800 pb-3 flex-wrap">
       <button id="tab-stores-btn" class="main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-blue-600 text-white dark:bg-blue-600 dark:text-white">
         <i data-lucide="store" class="w-4 h-4"></i>
         <span>רשתות וכרטיסים נטענים</span>
@@ -110,6 +110,13 @@
         <span>מבצעים ושוברים ייעודיים</span>
         <span id="tab-deals-count" class="text-xs px-2 py-0.5 rounded-full bg-emerald-600 text-white font-semibold">0</span>
         <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-amber-400 text-amber-950 uppercase tracking-wider">מתחלף</span>
+      </button>
+
+      <button id="tab-billing-btn" class="main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <i data-lucide="credit-card" class="w-4 h-4"></i>
+        <span>הנחות במעמד החיוב</span>
+        <span id="tab-billing-count" class="text-xs px-2 py-0.5 rounded-full bg-purple-600 text-white font-semibold">0</span>
+        <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 uppercase tracking-wider">10,000+ עסקים</span>
       </button>
     </div>
 
@@ -390,6 +397,131 @@
 
     </div>
 
+    <!-- ========================================== -->
+    <!-- SECTION 3: BILLING / STATEMENT DISCOUNTS   -->
+    <!-- ========================================== -->
+    <div id="billing-tab-section" class="hidden space-y-6">
+
+      <!-- Billing Search & Filter Controls -->
+      <section class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm border border-slate-200/80 dark:border-slate-700/80 space-y-4">
+        
+        <!-- Row 1: Search bar + City Filter + Sort -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+          
+          <!-- Live Billing Search Input (MD: 6 cols) -->
+          <div class="relative md:col-span-6">
+            <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none text-slate-400">
+              <i data-lucide="search" class="w-5 h-5"></i>
+            </div>
+            <input 
+              type="text" 
+              id="billing-search-input" 
+              placeholder="חפש לפי שם בית עסק, תחום, כתובת או עיר..." 
+              class="w-full pr-10 pl-10 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-sm transition"
+            />
+            <button id="clear-billing-search-btn" class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hidden">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- City / Location Filter (MD: 3 cols) -->
+          <div class="md:col-span-3">
+            <div class="relative">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="map-pin" class="w-4 h-4"></i>
+              </div>
+              <select id="billing-city-select" class="w-full pr-9 pl-8 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none cursor-pointer">
+                <option value="all">כל הערים והמיקומים</option>
+                <option value="online">Online / אונליין</option>
+              </select>
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sort Select (MD: 3 cols) -->
+          <div class="md:col-span-3">
+            <div class="relative">
+              <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="arrow-up-down" class="w-4 h-4"></i>
+              </div>
+              <select id="billing-sort-select" class="w-full pr-9 pl-8 py-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none cursor-pointer">
+                <option value="discount-desc">הנחה: מהגבוהה לנמוכה</option>
+                <option value="discount-asc">הנחה: מהנמוכה לגבוהה</option>
+                <option value="name-asc">שם עסק: א - ת</option>
+                <option value="city-asc">עיר: א - ת</option>
+              </select>
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                <i data-lucide="chevron-down" class="w-4 h-4"></i>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 2: Billing Category Chips -->
+        <div class="pt-2 border-t border-slate-100 dark:border-slate-700/60">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar text-sm" id="billing-category-chips-container">
+            <button class="billing-category-chip px-3.5 py-1.5 rounded-full font-medium transition text-xs flex items-center gap-1.5 whitespace-nowrap bg-purple-600 text-white shadow-xs" data-category="all">
+              <span>הכל</span>
+              <span class="billing-category-count bg-purple-700 text-white text-[10px] px-1.5 py-0.2 rounded-full">0</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Row 3: Status Summary -->
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-500 dark:text-slate-400 pt-1 gap-2">
+          <div class="flex items-center gap-3">
+            <span>נמצאו <strong id="matching-billing-count" class="text-purple-600 dark:text-purple-400 font-semibold">0</strong> עסקים מתוך <span id="total-billing-count">0</span></span>
+            <span id="active-billing-filter-badge" class="hidden inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+              <span id="active-billing-filter-text"></span>
+              <button id="reset-billing-filters-btn" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 mr-1" title="נקה סינון">
+                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+              </button>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span>עודכן לאחרונה: <span id="billing-last-updated-date" class="font-medium text-slate-700 dark:text-slate-300">בטעינה...</span></span>
+            <div class="flex items-center gap-1 border-r border-slate-200 dark:border-slate-700 pr-3">
+              <a href="data/billing_stores.csv" download="billing_stores.csv" class="hover:text-purple-600 dark:hover:text-purple-400 transition" title="הורד CSV של הנחות במעמד החיוב">CSV</a>
+              <span>•</span>
+              <a href="data/billing_stores.json" download="billing_stores.json" class="hover:text-purple-600 dark:hover:text-purple-400 transition" title="הורד JSON של הנחות במעמד החיוב">JSON</a>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Billing Stores Grid -->
+      <div id="billing-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Progressive Rendering: Load More Button -->
+      <div id="billing-load-more-container" class="hidden text-center pt-2 pb-6">
+        <button id="billing-load-more-btn" class="px-6 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-sm font-semibold transition shadow-xs inline-flex items-center gap-2">
+          <span>הצג עוד עסקים</span>
+          <i data-lucide="chevron-down" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- No Results Placeholder -->
+      <div id="no-billing-results" class="hidden text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 p-8 space-y-3">
+        <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center mx-auto text-slate-400">
+          <i data-lucide="search-x" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-base font-semibold text-slate-800 dark:text-slate-200">לא נמצאו עסקים תואמים</h3>
+        <p class="text-sm text-slate-500 dark:text-slate-400">נסה לשנות את מונחי החיפוש, לבחור עיר אחרת או לאפס את הסינונים.</p>
+        <button id="clear-billing-filters-btn" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-sm font-medium transition mt-2">
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          אפס את כל החיפושים והסינונים
+        </button>
+      </div>
+
+    </div>
+
   </main>
 
   <!-- Store Details Modal (Existing) -->
@@ -425,6 +557,19 @@
         <p class="text-emerald-700 dark:text-emerald-400">ניתן למצוא שובר במחיר מיוחד תחת טאב "מבצעים ושוברים ייעודיים".</p>
         <button id="modal-view-deal-btn" class="mt-1 text-emerald-800 dark:text-emerald-200 font-medium underline flex items-center gap-1">
           <span>עבור למבצע של רשת זו</span>
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Linked Billing Discount Badge (if store has billing discount) -->
+      <div id="modal-linked-billing-banner" class="hidden p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs space-y-1">
+        <div class="font-semibold text-purple-800 dark:text-purple-300 flex items-center gap-1.5">
+          <i data-lucide="credit-card" class="w-4 h-4 text-purple-600"></i>
+          <span id="modal-linked-billing-title">לרשת זו קיימת גם הנחה אוטומטית במעמד החיוב!</span>
+        </div>
+        <p class="text-purple-700 dark:text-purple-400">תשלום בכרטיס האשראי של בהצדעה (Max) מעניק הנחה נוספת ישירות בדף החשבון.</p>
+        <button id="modal-view-billing-btn" class="mt-1 text-purple-800 dark:text-purple-200 font-bold underline flex items-center gap-1">
+          <span>מעבר לפרטי הנחה במעמד החיוב</span>
           <i data-lucide="arrow-left" class="w-3 h-3"></i>
         </button>
       </div>
@@ -489,12 +634,25 @@
       <!-- Linked Store Banner (if deal belongs to a store on cards) -->
       <div id="deal-modal-linked-store-banner" class="hidden p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs space-y-1">
         <div class="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
-          <i data-lucide="credit-card" class="w-4 h-4 text-blue-600"></i>
+          <i data-lucide="store" class="w-4 h-4 text-blue-600"></i>
           <span id="deal-modal-linked-store-title">רשת זו מכבדת גם כרטיסים נטענים!</span>
         </div>
         <p class="text-blue-700 dark:text-blue-400">ניתן לשלם בסניפי הרשת גם באמצעות כרטיסי מועדון בהצדעה בהנחה קבועה.</p>
         <button id="deal-modal-view-store-btn" class="mt-1 text-blue-800 dark:text-blue-200 font-bold underline flex items-center gap-1">
           <span>מעבר לפרטי הרשת ורשימת הכרטיסים הנטענים</span>
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Linked Billing Discount Banner (if deal supplier has billing discount) -->
+      <div id="deal-modal-linked-billing-banner" class="hidden p-3 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs space-y-1">
+        <div class="font-semibold text-purple-800 dark:text-purple-300 flex items-center gap-1.5">
+          <i data-lucide="credit-card" class="w-4 h-4 text-purple-600"></i>
+          <span id="deal-modal-linked-billing-title">לספק זה קיימת גם הנחה אוטומטית במעמד החיוב!</span>
+        </div>
+        <p class="text-purple-700 dark:text-purple-400">תשלום בכרטיס האשראי של בהצדעה מעניק הנחה נוספת ישירות בדף החשבון.</p>
+        <button id="deal-modal-view-billing-btn" class="mt-1 text-purple-800 dark:text-purple-200 font-bold underline flex items-center gap-1">
+          <span>מעבר לפרטי הנחה במעמד החיוב</span>
           <i data-lucide="arrow-left" class="w-3 h-3"></i>
         </button>
       </div>
@@ -570,11 +728,100 @@
     </div>
   </div>
 
+  <!-- Billing Business Details Modal -->
+  <div id="billing-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs hidden transition-opacity">
+    <div class="modal-content bg-white dark:bg-slate-800 rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-700 space-y-5 text-right relative max-h-[90vh] overflow-y-auto">
+      
+      <!-- Close button -->
+      <button id="billing-modal-close-btn" class="absolute top-4 left-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <!-- Modal Header -->
+      <div class="flex items-start gap-4 pr-1">
+        <div id="billing-modal-logo-wrapper" class="w-14 h-14 rounded-xl bg-purple-50 dark:bg-slate-700 p-2 border border-purple-100 dark:border-slate-600 flex items-center justify-center flex-shrink-0">
+          <img id="billing-modal-logo" src="" alt="" class="max-h-full max-w-full object-contain" />
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5 mb-1 flex-wrap">
+            <span id="billing-modal-category" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-50 text-purple-700 dark:bg-purple-950 dark:text-purple-300"></span>
+            <span id="billing-modal-city-badge" class="inline-block px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"></span>
+          </div>
+          <h2 id="billing-modal-title" class="text-xl font-bold text-slate-900 dark:text-white"></h2>
+          <div id="billing-modal-address-wrapper" class="flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 mt-1">
+            <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400 flex-shrink-0"></i>
+            <span id="billing-modal-address"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Discount Banner -->
+      <div class="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-950/40 dark:to-indigo-950/40 border border-purple-200 dark:border-purple-800/80 flex items-center justify-between">
+        <div>
+          <div class="text-xs text-purple-800 dark:text-purple-300 font-medium">הנחה אוטומטית במעמד החיוב:</div>
+          <div class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">בתשלום בכרטיס אשראי בהצדעה (Max)</div>
+        </div>
+        <div class="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-black text-lg shadow-xs">
+          <span id="billing-modal-discount"></span> הנחה
+        </div>
+      </div>
+
+      <!-- Cross-Link to Store Cards (if exists in Tab 1) -->
+      <div id="billing-modal-linked-store-banner" class="hidden p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs space-y-1">
+        <div class="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
+          <i data-lucide="store" class="w-4 h-4 text-blue-600"></i>
+          <span id="billing-modal-linked-store-title">רשת זו מכבדת גם כרטיסים נטענים!</span>
+        </div>
+        <p class="text-blue-700 dark:text-blue-400">ניתן להטעין כרטיסי מועדון מראש בהנחה נוספת ברשת זו.</p>
+        <button id="billing-modal-view-store-btn" class="mt-1 text-blue-800 dark:text-blue-200 font-bold underline flex items-center gap-1">
+          <span>מעבר לרשת בטאב כרטיסים נטענים</span>
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Cross-Link to Deals (if exists in Tab 2) -->
+      <div id="billing-modal-linked-deal-banner" class="hidden p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-1">
+        <div class="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+          <i data-lucide="tag" class="w-4 h-4 text-emerald-600"></i>
+          <span id="billing-modal-linked-deal-title">לרשת זו קיים שובר/מבצע ייעודי פעיל!</span>
+        </div>
+        <p class="text-emerald-700 dark:text-emerald-400">ניתן לרכוש שוברים ומבצעים ישירות באתר בהצדעה.</p>
+        <button id="billing-modal-view-deal-btn" class="mt-1 text-emerald-800 dark:text-emerald-200 font-bold underline flex items-center gap-1">
+          <span>מעבר למבצעים ושוברים</span>
+          <i data-lucide="arrow-left" class="w-3 h-3"></i>
+        </button>
+      </div>
+
+      <!-- Description Section -->
+      <div id="billing-modal-desc-section" class="space-y-1 border-t border-slate-100 dark:border-slate-700 pt-4">
+        <h4 class="text-sm font-semibold text-slate-800 dark:text-slate-200">פרטים והטבות העסק:</h4>
+        <p id="billing-modal-description" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed"></p>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-2 flex items-center justify-between gap-3 border-t border-slate-100 dark:border-slate-700">
+        <a id="billing-modal-official-link" href="#" target="_blank" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold shadow-xs transition">
+          <span>עמוד העסק ב-Be-Plus</span>
+          <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        </a>
+        <button id="billing-modal-dismiss-btn" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs font-medium transition">
+          סגור
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Footer -->
   <footer class="mt-12 border-t border-slate-200 dark:border-slate-800 py-6 text-center text-xs text-slate-500 dark:text-slate-400 space-y-3">
     <div class="flex flex-wrap items-center justify-center gap-3">
       <a href="https://www.behatsdaa.org.il/" target="_blank" class="hover:text-blue-600 dark:hover:text-blue-400 inline-flex items-center gap-1">
         <span>אתר בהצדעה הרשמי</span>
+        <i data-lucide="external-link" class="w-3 h-3"></i>
+      </a>
+      <span>•</span>
+      <a href="https://be-plus.co.il/" target="_blank" class="hover:text-purple-600 dark:hover:text-purple-400 inline-flex items-center gap-1">
+        <span>פורטל Be-Plus (מעמד החיוב)</span>
         <i data-lucide="external-link" class="w-3 h-3"></i>
       </a>
       <span>•</span>
@@ -597,8 +844,18 @@
         <i data-lucide="file-code" class="w-3 h-3"></i>
         <span>מבצעים ושוברים (JSON)</span>
       </a>
+      <span>•</span>
+      <a href="data/billing_stores.csv" download class="hover:text-purple-600 dark:hover:text-purple-400 inline-flex items-center gap-1 font-medium">
+        <i data-lucide="download" class="w-3 h-3"></i>
+        <span>מעמד החיוב (CSV)</span>
+      </a>
+      <span>•</span>
+      <a href="data/billing_stores.json" target="_blank" class="hover:text-purple-600 dark:hover:text-purple-400 inline-flex items-center gap-1 font-medium">
+        <i data-lucide="file-code" class="w-3 h-3"></i>
+        <span>מעמד החיוב (JSON)</span>
+      </a>
     </div>
-    <p>אתר זה נועד לסייע למשרתי מילואים וזכאי בהצדעה באיתור מהיר של חנויות, כרטיסים נטענים ומבצעים שווים.</p>
+    <p>אתר זה נועד לסייע למשרתי מילואים וזכאי בהצדעה באיתור מהיר של חנויות, כרטיסים נטענים, מבצעים שווים והנחות במעמד החיוב.</p>
   </footer>
 
   <!-- App Script -->
