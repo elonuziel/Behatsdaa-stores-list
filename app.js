@@ -1445,7 +1445,8 @@
 
     billingModalDiscount.textContent = `${store.discount}%`;
     billingModalDescription.textContent = store.description || 'בית עסק המעניק הנחה קבועה במעמד החיוב למחזיקי כרטיס אשראי מועדון בהצדעה (Max).';
-    billingModalOfficialLink.href = store.detail_url || `https://be-plus.co.il/component/crm/product/${store.id}`;
+    const rawUrl = store.detail_url || `https://be-plus.co.il/product/${store.id}`;
+    billingModalOfficialLink.href = rawUrl.replace('/component/crm/product/', '/product/');
 
     if (store.logo) {
       billingModalLogo.src = store.logo;

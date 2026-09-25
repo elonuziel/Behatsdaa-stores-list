@@ -160,7 +160,7 @@ def parse_business_item(item: dict, cat_lookup: dict[int, dict]) -> dict:
         "color": color,
         "description": description,
         "logo": logo_url,
-        "detail_url": f"{BASE_URL}/component/crm/product/{item_id}" if item_id else ""
+        "detail_url": f"{BASE_URL}/product/{item_id}" if item_id else ""
     }
 
 

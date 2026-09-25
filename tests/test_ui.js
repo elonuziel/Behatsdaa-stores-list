@@ -371,6 +371,10 @@ async function runTests() {
   const billingModalDiscount = document.getElementById('billing-modal-discount').textContent;
   assert.ok(billingModalDiscount.includes('%'), 'Billing modal discount should include %');
 
+  const officialLink = document.getElementById('billing-modal-official-link').href;
+  assert.ok(officialLink.includes('be-plus.co.il/product/'), 'Official link should use valid /product/{id} routing');
+  assert.ok(!officialLink.includes('/component/crm/'), 'Official link must not contain broken /component/crm/ route');
+
   // Close modal
   const billingModalCloseBtn = document.getElementById('billing-modal-close-btn');
   billingModalCloseBtn.click();
