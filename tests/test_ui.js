@@ -86,8 +86,8 @@ async function runTests() {
   // Execute app.js in window context
   window.eval(appJsSource);
 
-  // Wait for data load and DOM render
-  await new Promise(r => setTimeout(r, 200));
+  // Wait for initial store render and background datasets
+  await new Promise(r => setTimeout(r, 250));
 
   // --- Test 1: Page Title and Initial Tab State ---
   console.log('[Test 1] Verifying page title and initial tab state...');
@@ -115,7 +115,7 @@ async function runTests() {
   const searchInput = document.getElementById('search-input');
   searchInput.value = targetStoreName;
   searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 180));
 
   const storeCardsAfterSearch = document.querySelectorAll('#cards-view .store-card');
   const storeWithDeal = Array.from(storeCardsAfterSearch).find(card => 
@@ -134,7 +134,7 @@ async function runTests() {
     searchInput.value = '';
     searchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
   }
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 180));
 
   // --- Test 4: Switching to Deals Tab & Progressive Rendering ---
   console.log('[Test 4] Switching to Deals & Vouchers tab...');
@@ -169,7 +169,7 @@ async function runTests() {
   const sampleSearchTerm = dealsData.deals[0].title.split(' ')[0] || 'סושי';
   dealsSearchInput.value = sampleSearchTerm;
   dealsSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 180));
 
   let filteredDeals = document.querySelectorAll('#deals-grid .deal-card');
   assert.ok(filteredDeals.length > 0 && filteredDeals.length <= dealsData.deals.length, 'Should filter deals by search term');
@@ -228,7 +228,7 @@ async function runTests() {
   if (dealWithStoreData) {
     dealsSearchInput.value = dealWithStoreData.title;
     dealsSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 180));
   }
   const dealWithStore = Array.from(document.querySelectorAll('#deals-grid .deal-card')).find(c => 
     c.querySelector('[data-action="view-linked-store"]')
@@ -261,7 +261,7 @@ async function runTests() {
     searchInputStores.value = targetStoreName;
     searchInputStores.dispatchEvent(new window.Event('input', { bubbles: true }));
   }
-  await new Promise(r => setTimeout(r, 50));
+  await new Promise(r => setTimeout(r, 180));
 
   const storeWithBadge = Array.from(document.querySelectorAll('#cards-view .store-card')).find(c => 
     c.querySelector('[data-action="view-linked-deal"]')
@@ -321,7 +321,7 @@ async function runTests() {
   const sampleBillingSearch = 'פיצה';
   billingSearchInput.value = sampleBillingSearch;
   billingSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
-  await new Promise(r => setTimeout(r, 100));
+  await new Promise(r => setTimeout(r, 180));
 
   let filteredBilling = document.querySelectorAll('#billing-grid .billing-card');
   assert.ok(filteredBilling.length > 0 && filteredBilling.length <= billingData.stores.length, 'Should filter billing stores by search');
@@ -400,7 +400,7 @@ async function runTests() {
   if (searchInputStoresEl) {
     searchInputStoresEl.value = 'ריקושט';
     searchInputStoresEl.dispatchEvent(new window.Event('input', { bubbles: true }));
-    await new Promise(r => setTimeout(r, 50));
+    await new Promise(r => setTimeout(r, 180));
   }
 
   // Find a store with linked billing badge

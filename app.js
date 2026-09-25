@@ -115,6 +115,7 @@
   const resetDealsFiltersBtn = document.getElementById('reset-deals-filters-btn');
   const dealsLastUpdatedDateEl = document.getElementById('deals-last-updated-date');
   const dealsGrid = document.getElementById('deals-grid');
+  const dealsTabSpinner = document.getElementById('deals-tab-spinner');
   const noDealsResults = document.getElementById('no-deals-results');
   const clearDealsFiltersBtn = document.getElementById('clear-deals-filters-btn');
   const dealsLoadMoreContainer = document.getElementById('deals-load-more-container');
@@ -163,6 +164,7 @@
   const resetBillingFiltersBtn = document.getElementById('reset-billing-filters-btn');
   const billingLastUpdatedDateEl = document.getElementById('billing-last-updated-date');
   const billingGrid = document.getElementById('billing-grid');
+  const billingTabSpinner = document.getElementById('billing-tab-spinner');
   const noBillingResults = document.getElementById('no-billing-results');
   const clearBillingFiltersBtn = document.getElementById('clear-billing-filters-btn');
   const billingLoadMoreContainer = document.getElementById('billing-load-more-container');
@@ -190,6 +192,20 @@
 
   let activeModalStore = null;
   let activeModalBillingStore = null;
+
+  // Progressive loading flags
+  let storesLoaded = false;
+  let dealsLoaded = false;
+  let billingLoaded = false;
+
+  // Lightweight Debounce Utility
+  function debounce(fn, delay = 120) {
+    let timer = null;
+    return function(...args) {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
 
   // Initialize theme
   function initTheme() {
@@ -248,24 +264,44 @@
     if (tab === 'deals') {
       tabDealsBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-emerald-600 text-white dark:bg-emerald-600 dark:text-white';
       dealsTabSection.classList.remove('hidden');
-      renderDeals();
+      if (!dealsLoaded) {
+        if (dealsTabSpinner) dealsTabSpinner.classList.remove('hidden');
+        if (dealsGrid) dealsGrid.classList.add('hidden');
+        if (noDealsResults) noDealsResults.classList.add('hidden');
+        if (dealsLoadMoreContainer) dealsLoadMoreContainer.classList.add('hidden');
+      } else {
+        if (dealsTabSpinner) dealsTabSpinner.classList.add('hidden');
+        if (dealsGrid) dealsGrid.classList.remove('hidden');
+        renderDeals();
+      }
     } else if (tab === 'billing') {
       if (tabBillingBtn) {
         tabBillingBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-purple-600 text-white dark:bg-purple-600 dark:text-white';
       }
       if (billingTabSection) billingTabSection.classList.remove('hidden');
-      renderBillingStores();
+      if (!billingLoaded) {
+        if (billingTabSpinner) billingTabSpinner.classList.remove('hidden');
+        if (billingGrid) billingGrid.classList.add('hidden');
+        if (noBillingResults) noBillingResults.classList.add('hidden');
+        if (billingLoadMoreContainer) billingLoadMoreContainer.classList.add('hidden');
+      } else {
+        if (billingTabSpinner) billingTabSpinner.classList.add('hidden');
+        if (billingGrid) billingGrid.classList.remove('hidden');
+        renderBillingStores();
+      }
     } else {
       tabStoresBtn.className = 'main-tab-btn flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm transition-all shadow-xs bg-blue-600 text-white dark:bg-blue-600 dark:text-white';
       storesTabSection.classList.remove('hidden');
       viewModeToggleWrapper.classList.remove('hidden');
-      renderStores();
+      if (storesLoaded) {
+        renderStores();
+      }
     }
   }
 
   // Cross-link Stores, Deals, and Billing Discounts
   function crossLinkAllDatasets() {
-    if (!allStores.length && !allDeals.length && !allBillingStores.length) return;
+    if (!allStores.length) return;
 
     const cleanKey = (str) => (str || '').toLowerCase().replace(/[^א-תa-z0-9]/g, '');
 
@@ -356,11 +392,10 @@
     });
   }
 
-  // Load All Datasets (Stores, Deals, Billing Discounts)
-  async function loadAllData() {
-    // 1. Fetch Stores
+  // 1. Load Stores (Tab 1 - Primary Dataset, loads immediately)
+  async function loadStores() {
     try {
-      const response = await fetch(`data/stores.json?t=${Date.now()}`, { cache: 'no-store' });
+      const response = await fetch('data/stores.json');
       if (!response.ok) throw new Error('Failed to load stores.json');
       storeData = await response.json();
     } catch (err) {
@@ -378,9 +413,20 @@
       lastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
     }
 
-    // 2. Fetch Deals
+    storesLoaded = true;
+    populateCardsFilter();
+    updateCategoryChips();
+    applyViewMode(currentView);
+
+    if (currentTab === 'stores') {
+      renderStores();
+    }
+  }
+
+  // 2. Load Deals (Tab 2 - Secondary Dataset, background streaming)
+  async function loadDeals() {
     try {
-      const dResponse = await fetch(`data/deals.json?t=${Date.now()}`, { cache: 'no-store' });
+      const dResponse = await fetch('data/deals.json');
       if (!dResponse.ok) throw new Error('Failed to load deals.json');
       dealsData = await dResponse.json();
     } catch (err) {
@@ -398,9 +444,24 @@
       dealsLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
     }
 
-    // 3. Fetch Billing Discounts
+    dealsLoaded = true;
+    populateDealsTagsFilter();
+    updateDealsCategoryChips();
+
+    if (dealsTabSpinner) dealsTabSpinner.classList.add('hidden');
+    if (dealsGrid) dealsGrid.classList.remove('hidden');
+
+    if (currentTab === 'deals') {
+      renderDeals();
+    }
+
+    onDatasetsLoaded();
+  }
+
+  // 3. Load Billing Discounts (Tab 3 - Large Dataset ~6MB, background streaming)
+  async function loadBilling() {
     try {
-      const bResponse = await fetch(`data/billing_stores.json?t=${Date.now()}`, { cache: 'no-store' });
+      const bResponse = await fetch('data/billing_stores.json');
       if (!bResponse.ok) throw new Error('Failed to load billing_stores.json');
       billingData = await bResponse.json();
     } catch (err) {
@@ -412,6 +473,7 @@
     allBillingStores.forEach(s => {
       s._searchStr = normalizeHebrew(`${s.name} ${s.city || ''} ${s.address || ''} ${s.category || ''} ${s.subcategory || ''} ${s.description || ''}`);
     });
+
     if (totalBillingCountEl) totalBillingCountEl.textContent = allBillingStores.length.toLocaleString('he-IL');
     if (tabBillingCount) tabBillingCount.textContent = allBillingStores.length.toLocaleString('he-IL');
 
@@ -420,21 +482,49 @@
       billingLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
     }
 
-    // Cross-link all datasets
-    crossLinkAllDatasets();
-
-    // Populate Filters
-    populateCardsFilter();
-    updateCategoryChips();
-    populateDealsTagsFilter();
-    updateDealsCategoryChips();
+    billingLoaded = true;
     if (billingCitySelect) populateBillingCitiesFilter();
     if (billingCategoryChipsContainer) updateBillingCategoryChips();
 
-    applyViewMode(currentView);
+    if (billingTabSpinner) billingTabSpinner.classList.add('hidden');
+    if (billingGrid) billingGrid.classList.remove('hidden');
 
-    // Initial Tab Render
-    switchTab(currentTab);
+    if (currentTab === 'billing') {
+      renderBillingStores();
+    }
+
+    onDatasetsLoaded();
+  }
+
+  // Dataset updates handler (updates cross-linking badges smoothly)
+  function onDatasetsLoaded() {
+    crossLinkAllDatasets();
+    if (currentTab === 'stores') {
+      renderStores();
+    } else if (currentTab === 'deals' && dealsLoaded) {
+      renderDeals();
+    } else if (currentTab === 'billing' && billingLoaded) {
+      renderBillingStores();
+    }
+  }
+
+  // Decoupled Progressive Load Entrypoint
+  async function loadAllData() {
+    // Show subtle animated spinners in background tab counts
+    if (tabDealsCount) {
+      tabDealsCount.innerHTML = '<span class="inline-block w-2.5 h-2.5 border-2 border-slate-300 dark:border-slate-600 border-t-emerald-500 rounded-full animate-spin align-middle"></span>';
+    }
+    if (tabBillingCount) {
+      tabBillingCount.innerHTML = '<span class="inline-block w-2.5 h-2.5 border-2 border-slate-300 dark:border-slate-600 border-t-purple-500 rounded-full animate-spin align-middle"></span>';
+    }
+
+    // 1. Immediately load and render Tab 1 (stores)
+    await loadStores();
+
+    // 2. Concurrently load Tab 2 (deals) and Tab 3 (billing) in background
+    Promise.all([loadDeals(), loadBilling()]).catch(err => {
+      console.warn('Background data load error:', err);
+    });
   }
 
   // ==========================================
@@ -1550,11 +1640,15 @@
   });
 
   // Stores Search & Filter Listeners
+  const debouncedRenderStores = debounce(() => {
+    storesVisibleCount = STORES_PAGE_SIZE;
+    renderStores();
+  }, 120);
+
   searchInput.addEventListener('input', (e) => {
     searchQuery = e.target.value.trim();
     clearSearchBtn.classList.toggle('hidden', !searchQuery);
-    storesVisibleCount = STORES_PAGE_SIZE;
-    renderStores();
+    debouncedRenderStores();
   });
 
   clearSearchBtn.addEventListener('click', () => {
@@ -1623,11 +1717,15 @@
   });
 
   // Deals Search & Filter Listeners
+  const debouncedRenderDeals = debounce(() => {
+    dealsVisibleCount = DEALS_PAGE_SIZE;
+    renderDeals();
+  }, 120);
+
   dealsSearchInput.addEventListener('input', (e) => {
     dealsSearchQuery = e.target.value.trim();
     clearDealsSearchBtn.classList.toggle('hidden', !dealsSearchQuery);
-    dealsVisibleCount = DEALS_PAGE_SIZE;
-    renderDeals();
+    debouncedRenderDeals();
   });
 
   clearDealsSearchBtn.addEventListener('click', () => {
@@ -1701,12 +1799,16 @@
   });
 
   // Billing Search & Filter Listeners
+  const debouncedRenderBilling = debounce(() => {
+    billingVisibleCount = BILLING_PAGE_SIZE;
+    renderBillingStores();
+  }, 120);
+
   if (billingSearchInput) {
     billingSearchInput.addEventListener('input', (e) => {
       billingSearchQuery = e.target.value.trim();
       if (clearBillingSearchBtn) clearBillingSearchBtn.classList.toggle('hidden', !billingSearchQuery);
-      billingVisibleCount = BILLING_PAGE_SIZE;
-      renderBillingStores();
+      debouncedRenderBilling();
     });
   }
 
