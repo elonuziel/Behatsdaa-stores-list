@@ -25,7 +25,7 @@ Explore the catalog live at: **[https://elonuziel.github.io/stores-list/](https:
 - 🏙️ **City & Location Filters**: Filter billing merchants by specific cities across Israel (Tel Aviv, Jerusalem, Haifa, Rishon LeZion, etc.) or nationwide online websites.
 - 🎯 **Comprehensive Deal & Category Filters**: Filter by campaign tags ("מבצעי חג", "הכי משתלם"), product category chips, maximum price presets (עד 100 ₪, עד 300 ₪, הכל), and sort by discount %, price, or title.
 - 🔍 **Rich Details Modals**: Inspect full specifications, multi-variant price options, purchase limits per member, addresses, and official redemption links.
-- 📊 **Dual Views & Progressive Rendering**: Seamless toggle between responsive Grid Cards and compact Table View, with smooth 60-item progressive pagination.
+-  **Independent "Last Scraped" Timestamps**: Every tab displays its own distinct "עודכן לאחרונה" timestamp banner pulled directly from its respective JSON metadata, providing complete transparency on when each dataset was last refreshed.
 - 🌙 **Dark & Light Themes**: Full dark mode support with automatic system preference detection and local persistence.
 - 📥 **Export Ready**: Download the complete datasets anytime:
   - Stores: [stores.csv](data/stores.csv) & [stores.json](data/stores.json)
@@ -58,8 +58,6 @@ stores-list/
 │   ├── test_scrape_beplus.py   # Unit tests for Be-Plus scraper & data normalization
 │   ├── test_data_integrity.py # Schema & cross-linking integrity tests
 │   └── test_ui.js             # Headless UI & DOM integration tests (JSDOM)
-├── .github/workflows/
-│   └── scrape.yml       # Automated weekly GitHub Actions scraper workflow
 └── README.md            # Documentation and usage guide
 ```
 
@@ -67,7 +65,13 @@ stores-list/
 
 ## 🛠️ Scraper Usage & Data Extraction
 
-Two extraction workflows are supported:
+> [!NOTE]
+> **Why Scraping is Executed Locally / Manually**:
+> - **Behatsdaa WAF**: Behatsdaa's backend is protected by Imperva Incapsula bot mitigation, which blocks datacenter IP ranges (including GitHub Actions runners) and requires SMS / authenticated session verification.
+> - **On-Demand Updates**: Store catalogs and Be-Plus billing discounts do not change with every git commit, so running scrapers locally on demand prevents wasted runs and guarantees 100% data integrity.
+> - **Freshness Transparency**: Each tab on the live website independently displays the exact date it was last scraped.
+
+Three extraction workflows are supported:
 
 ---
 
@@ -179,8 +183,8 @@ Then open [http://localhost:8000](http://localhost:8000) in your browser.
 ## 🌐 Automated Deployment (GitHub Pages)
 
 The repository deploys automatically to GitHub Pages:
-1. Pushing changes to the `main` branch immediately publishes to `https://elonuziel.github.io/stores-list/`.
-2. A scheduled GitHub Action (`.github/workflows/scrape.yml`) runs weekly to keep both stores and deals catalogs fresh.
+1. Pushing changes to the `main` branch immediately publishes the live site to `https://elonuziel.github.io/stores-list/`.
+2. Scrapers are run locally on demand (bypassing Imperva WAF / Cloudflare bot protections), and refreshed datasets are committed directly to `data/`.
 
 ---
 
