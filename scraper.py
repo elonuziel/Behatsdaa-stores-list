@@ -337,12 +337,26 @@ def parse_deal(raw_deal, stores_catalog=None):
         elif isinstance(first_img, str):
             image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
 
-    # Category name
-    cat_name = (raw_deal.get("category") or raw_deal.get("parentCategoryName") or raw_deal.get("categoryName") or "כללי").strip()
-    if cat_name in ["", "כללי"] and raw_deal.get("breadcrumbs"):
-        crumbs = raw_deal.get("breadcrumbs")
-        if isinstance(crumbs, list) and crumbs:
-            cat_name = crumbs[0].get("name", "כללי")
+    # Category name — prefer structured API fields; never let category equal the full deal title
+    _SUPER_CATS = {'צרכנות', 'אטרקציות', 'קולינריה', 'בילוי ופנאי', 'מופעים והצגות', 'תיירות ונופש', 'כושר וספורט', 'מבצעי רכב', 'ביטוח ושירותים'}
+    raw_cat = raw_deal.get("category") or ""
+    # Only use the "category" field if it's a proper super-category, not if it accidentally equals the title
+    if raw_cat and raw_cat != title and (raw_cat in _SUPER_CATS or len(raw_cat) <= 30):
+        cat_name = raw_cat.strip()
+    else:
+        # Try parent/breadcrumb fields
+        cat_name = (raw_deal.get("parentCategoryName") or "").strip()
+        if not cat_name and raw_deal.get("breadcrumbs"):
+            crumbs = raw_deal.get("breadcrumbs")
+            if isinstance(crumbs, list) and crumbs:
+                cat_name = crumbs[0].get("name", "")
+        # Derive from sourceTags if available
+        if not cat_name:
+            tags_list = raw_deal.get("sourceTags") or []
+            if tags_list:
+                cat_name = tags_list[0]
+        if not cat_name:
+            cat_name = "כללי"
 
     # Determine deal type
     is_external = bool(category_url and not prices and not parsed_variants)
