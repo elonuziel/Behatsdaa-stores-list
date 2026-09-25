@@ -803,12 +803,15 @@
       </div>
 
       <!-- Cross-Link to Store Cards (if exists in Tab 1) -->
-      <div id="billing-modal-linked-store-banner" class="hidden p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs space-y-1">
-        <div class="font-semibold text-blue-800 dark:text-blue-300 flex items-center gap-1.5">
-          <i data-lucide="store" class="w-4 h-4 text-blue-600"></i>
-          <span id="billing-modal-linked-store-title">רשת זו מכבדת גם כרטיסים נטענים!</span>
+      <div id="billing-modal-linked-store-banner" class="hidden p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs space-y-2">
+        <div class="font-semibold text-blue-800 dark:text-blue-300 flex items-center justify-between">
+          <div class="flex items-center gap-1.5">
+            <i data-lucide="store" class="w-4 h-4 text-blue-600"></i>
+            <span id="billing-modal-linked-store-title">רשת זו מכבדת גם כרטיסים נטענים!</span>
+          </div>
+          <span id="billing-modal-linked-store-max-disc" class="font-black text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/60 px-2 py-0.5 rounded-lg text-xs"></span>
         </div>
-        <p class="text-blue-700 dark:text-blue-400">ניתן להטעין כרטיסי מועדון מראש בהנחה נוספת ברשת זו.</p>
+        <div id="billing-modal-cards-list" class="space-y-1.5 pt-1"></div>
         <button id="billing-modal-view-store-btn" class="mt-1 text-blue-800 dark:text-blue-200 font-bold underline flex items-center gap-1">
           <span>מעבר לרשת בטאב כרטיסים נטענים</span>
           <i data-lucide="arrow-left" class="w-3 h-3"></i>
@@ -816,12 +819,12 @@
       </div>
 
       <!-- Cross-Link to Deals (if exists in Tab 2) -->
-      <div id="billing-modal-linked-deal-banner" class="hidden p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-1">
+      <div id="billing-modal-linked-deal-banner" class="hidden p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs space-y-2">
         <div class="font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
           <i data-lucide="tag" class="w-4 h-4 text-emerald-600"></i>
           <span id="billing-modal-linked-deal-title">לרשת זו קיים שובר/מבצע ייעודי פעיל!</span>
         </div>
-        <p class="text-emerald-700 dark:text-emerald-400">ניתן לרכוש שוברים ומבצעים ישירות באתר בהצדעה.</p>
+        <div id="billing-modal-deals-list" class="space-y-1.5 pt-1"></div>
         <button id="billing-modal-view-deal-btn" class="mt-1 text-emerald-800 dark:text-emerald-200 font-bold underline flex items-center gap-1">
           <span>מעבר למבצעים ושוברים</span>
           <i data-lucide="arrow-left" class="w-3 h-3"></i>

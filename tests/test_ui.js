@@ -495,13 +495,41 @@ async function runTests() {
 
   console.log('  -> PASS (Special option to search in description validated across all 3 tabs)');
 
+  // --- Test 18: Tab 3 Compatible Store Cards Preview and Deals List in Modal ---
+  console.log('[Test 18] Testing Tab 3 compatible store cards preview and deals list in modal...');
+  tabBillingBtn.click();
+  billingSearchInput.value = 'בורגרים';
+  billingSearchInput.dispatchEvent(new window.Event('input', { bubbles: true }));
+  await new Promise(r => setTimeout(r, 200));
+
+  const burgerimCard = document.querySelector('#billing-grid .billing-card');
+  assert.ok(burgerimCard, 'Found billing card for בורגרים');
+  const storeLinkBadge = burgerimCard.querySelector('[data-action="view-linked-store"]');
+  assert.ok(storeLinkBadge, 'Billing card should have linked store badge for compatible store');
+  assert.ok(storeLinkBadge.textContent.includes('מכבד כרטיסים'), 'Should display rechargeable cards info');
+
+  // Open billing modal for this card
+  burgerimCard.click();
+  await new Promise(r => setTimeout(r, 50));
+
+  const billingModalLinkedStoreBanner = document.getElementById('billing-modal-linked-store-banner');
+  assert.ok(!billingModalLinkedStoreBanner.classList.contains('hidden'), 'Billing modal should show linked store banner');
+  const billingModalCardsList = document.getElementById('billing-modal-cards-list');
+  assert.ok(billingModalCardsList, 'Billing modal cards list should exist');
+  assert.ok(billingModalCardsList.children.length > 0, 'Billing modal cards list should be populated with cards');
+  
+  // Close billing modal
+  document.getElementById('billing-modal-close-btn').click();
+  await new Promise(r => setTimeout(r, 50));
+  console.log('  -> PASS (Tab 3 displays compatible cards & deals on cards and in modal)');
+
   // --- Test 17: Zero Console Errors ---
   console.log('[Test 17] Checking for console errors...');
   assert.strictEqual(consoleErrors.length, 0, `Expected 0 console errors, but found: ${consoleErrors.join(', ')}`);
   console.log('  -> PASS (Zero errors during entire session)');
 
   console.log('\n====================================================');
-  console.log('   ALL 17 UI & DOM INTEGRATION TESTS PASSED!       ');
+  console.log('   ALL 18 UI & DOM INTEGRATION TESTS PASSED!       ');
   console.log('====================================================\n');
   process.exit(0);
 }

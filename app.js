@@ -187,11 +187,14 @@
   const billingModalAddress = document.getElementById('billing-modal-address');
   const billingModalAddressWrapper = document.getElementById('billing-modal-address-wrapper');
   const billingModalDiscount = document.getElementById('billing-modal-discount');
-  const billingModalLinkedStoreBanner = document.getElementById('billing-modal-linked-store-banner');
+   const billingModalLinkedStoreBanner = document.getElementById('billing-modal-linked-store-banner');
   const billingModalLinkedStoreTitle = document.getElementById('billing-modal-linked-store-title');
+  const billingModalLinkedStoreMaxDisc = document.getElementById('billing-modal-linked-store-max-disc');
+  const billingModalCardsList = document.getElementById('billing-modal-cards-list');
   const billingModalViewStoreBtn = document.getElementById('billing-modal-view-store-btn');
   const billingModalLinkedDealBanner = document.getElementById('billing-modal-linked-deal-banner');
   const billingModalLinkedDealTitle = document.getElementById('billing-modal-linked-deal-title');
+  const billingModalDealsList = document.getElementById('billing-modal-deals-list');
   const billingModalViewDealBtn = document.getElementById('billing-modal-view-deal-btn');
   const billingModalDescription = document.getElementById('billing-modal-description');
   const billingModalOfficialLink = document.getElementById('billing-modal-official-link');
@@ -362,7 +365,66 @@
       });
     });
 
-    // 1. Cross-link Stores (Tab 1)
+    // Helper: find compatible store for a billing store (exact core match or verified branch/hyphen match)
+    function findCompatibleStore(b) {
+      if (!b || !b.name) return null;
+      const bCore = getCoreBrand(b.name);
+      if (bCore && storeByCore.has(bCore)) return storeByCore.get(bCore);
+
+      // Check hyphen / en-dash split: "Brand - Location/Subtitle"
+      if (b.name.includes(' - ') || b.name.includes(' – ')) {
+        const parts = b.name.split(/[–\-]/);
+        const leftCore = getCoreBrand(parts[0]);
+        if (leftCore && storeByCore.has(leftCore)) {
+          return storeByCore.get(leftCore);
+        }
+      }
+
+      // Check branch patterns: starts with store name followed by branch indicator or matching city or brackets
+      const bName = b.name.trim().toLowerCase();
+      const bCityClean = cleanKey(b.city);
+      for (const [score, s] of storeByCore.entries()) {
+        if (score.length < 3) continue;
+        const sName = s.name.trim().toLowerCase();
+        if (bName.startsWith(sName)) {
+          const rest = bName.slice(sName.length).trim().replace(/^[ \-_–/\\|,.]+/, '').trim();
+          const restCore = cleanKey(rest);
+          const isBranchWord = /^(סניף|סניפי|קניון|מרכז|מתחם)/.test(rest);
+          const isCityMatch = Boolean(bCityClean && bCityClean !== 'online' && (restCore === bCityClean || restCore.startsWith(bCityClean)));
+          const isBracketed = /^(\[|\().+(\]|\))$/.test(bName.slice(sName.length).trim());
+          if (isBranchWord || isCityMatch || isBracketed) {
+            return s;
+          }
+        }
+      }
+
+      return null;
+    }
+
+    // 1. Cross-link Billing Stores (Tab 3) first to map branch connections
+    const storeToBillingMatches = new Map();
+    allBillingStores.forEach(b => {
+      const bCore = getCoreBrand(b.name);
+      b.linkedStore = findCompatibleStore(b);
+
+      if (b.linkedStore) {
+        if (!storeToBillingMatches.has(b.linkedStore.id)) {
+          storeToBillingMatches.set(b.linkedStore.id, []);
+        }
+        storeToBillingMatches.get(b.linkedStore.id).push(b);
+      }
+
+      // Inherit deals matching b directly or via linkedStore
+      const deals = [];
+      const d1 = dealsByCore.get(bCore) || [];
+      d1.forEach(d => { if (!deals.includes(d)) deals.push(d); });
+      if (b.linkedStore && b.linkedStore.linkedDeals) {
+        b.linkedStore.linkedDeals.forEach(d => { if (!deals.includes(d)) deals.push(d); });
+      }
+      b.linkedDeals = deals;
+    });
+
+    // 2. Cross-link Stores (Tab 1)
     allStores.forEach(store => {
       const sCore = getCoreBrand(store.name);
       // Link Deals: matched_store_id or exact store_name or exact core brand
@@ -373,11 +435,28 @@
         return Boolean(suppCore && sCore && suppCore === sCore);
       });
 
-      // Link Billing: exact core brand match
-      store.linkedBillingStore = findBestBillingMatch(store.name);
+      // Link Billing: exact core brand match OR best discount among branch matches
+      let bestBilling = findBestBillingMatch(store.name);
+      const branchBillings = storeToBillingMatches.get(store.id);
+      if (branchBillings && branchBillings.length > 0) {
+        const bestBranch = branchBillings.reduce((best, cur) => (cur.discount > best.discount ? cur : best), branchBillings[0]);
+        if (!bestBilling || bestBranch.discount > bestBilling.discount) {
+          bestBilling = bestBranch;
+        }
+      }
+      store.linkedBillingStore = bestBilling;
+
+      // Update linkedDeals for billing stores that linked to this store
+      if (branchBillings && branchBillings.length > 0 && store.linkedDeals.length > 0) {
+        branchBillings.forEach(b => {
+          store.linkedDeals.forEach(d => {
+            if (!b.linkedDeals.includes(d)) b.linkedDeals.push(d);
+          });
+        });
+      }
     });
 
-    // 2. Cross-link Deals (Tab 2)
+    // 3. Cross-link Deals (Tab 2)
     allDeals.forEach(deal => {
       // Link Store: matched_store_id, matched_store_name, or exact core brand
       const suppCore = getCoreBrand(deal.supplier);
@@ -387,15 +466,12 @@
         (suppCore && getCoreBrand(s.name) === suppCore)
       ) || null;
 
-      // Link Billing: exact core brand match
-      deal.linkedBillingStore = findBestBillingMatch(deal.supplier);
-    });
-
-    // 3. Cross-link Billing Stores (Tab 3)
-    allBillingStores.forEach(b => {
-      const bCore = getCoreBrand(b.name);
-      b.linkedStore = storeByCore.get(bCore) || null;
-      b.linkedDeals = dealsByCore.get(bCore) || [];
+      // Link Billing: exact core brand match or inherit from deal.linkedStore
+      let bestBilling = findBestBillingMatch(deal.supplier);
+      if (!bestBilling && deal.linkedStore && deal.linkedStore.linkedBillingStore) {
+        bestBilling = deal.linkedStore.linkedBillingStore;
+      }
+      deal.linkedBillingStore = bestBilling;
     });
   }
 
@@ -1522,27 +1598,53 @@
 
     // Cross-link badges if exists in Tab 1 (stores) or Tab 2 (deals)
     const linkedStore = store.linkedStore;
-    const storeLinkBadge = linkedStore ? `
-      <div class="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 rounded-xl hover:bg-blue-100 transition-colors" data-action="view-linked-store" data-store-name="${encodeURIComponent(linkedStore.name)}">
-        <span class="flex items-center gap-1 font-semibold truncate">
-          <i data-lucide="store" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
-          <span class="truncate">כרטיסים נטענים (עד ${linkedStore.max_discount}% הנחה)</span>
+    let storeLinkBadge = '';
+    if (linkedStore) {
+      const topCards = (linkedStore.cards || []).slice(0, 2).map(c => `
+        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-200 text-[10px] font-medium">
+          <span>${c.card_name}:</span>
+          <span class="font-bold">${c.discount}</span>
         </span>
-        <span class="text-[11px] underline flex-shrink-0 mr-1">לרשת</span>
-      </div>
-    ` : '';
+      `).join('');
+      const extraCards = (linkedStore.cards || []).length > 2 ? `+${linkedStore.cards.length - 2}` : '';
+
+      storeLinkBadge = `
+        <div class="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900/50 flex flex-col gap-1 text-xs text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/40 p-2 rounded-xl hover:bg-blue-100/80 transition-colors" data-action="view-linked-store" data-store-name="${encodeURIComponent(linkedStore.name)}">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-1 font-semibold truncate">
+              <i data-lucide="store" class="w-3.5 h-3.5 text-blue-600 flex-shrink-0"></i>
+              <span class="truncate">מכבד כרטיסים (עד ${linkedStore.max_discount}% הנחה)</span>
+            </span>
+            <span class="text-[11px] underline flex-shrink-0 mr-1 font-bold">לרשת</span>
+          </div>
+          <div class="flex flex-wrap items-center gap-1 mt-0.5">
+            ${topCards}
+            ${extraCards ? `<span class="text-[10px] text-blue-600 dark:text-blue-400 font-medium">${extraCards} עוד</span>` : ''}
+          </div>
+        </div>
+      `;
+    }
 
     const hasLinkedDeals = store.linkedDeals && store.linkedDeals.length > 0;
-    const dealSearchQuery = hasLinkedDeals ? (store.linkedDeals[0].supplier || store.name) : store.name;
-    const dealsBadgeHtml = hasLinkedDeals ? `
-      <div class="mt-1.5 pt-1.5 border-t border-emerald-100 dark:border-emerald-900/50 flex items-center justify-between text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(dealSearchQuery)}">
-        <span class="flex items-center gap-1 font-semibold truncate">
-          <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
-          <span class="truncate">שובר/מבצע פעיל (${store.linkedDeals.length})</span>
-        </span>
-        <span class="text-[11px] underline flex-shrink-0 mr-1">הצג</span>
-      </div>
-    ` : '';
+    let dealsBadgeHtml = '';
+    if (hasLinkedDeals) {
+      const topDeal = store.linkedDeals[0];
+      const dealTitle = topDeal.title ? (topDeal.title.length > 30 ? topDeal.title.slice(0, 30) + '...' : topDeal.title) : '';
+      const dealPriceText = topDeal.price ? formatILS(topDeal.price) : '';
+      const dealSearchQuery = topDeal.supplier || store.name;
+      dealsBadgeHtml = `
+        <div class="mt-1.5 pt-1.5 border-t border-emerald-100 dark:border-emerald-900/50 flex flex-col gap-1 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-xl hover:bg-emerald-100/80 transition-colors" data-action="view-linked-deal" data-store-name="${encodeURIComponent(dealSearchQuery)}">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-1 font-semibold truncate">
+              <i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0"></i>
+              <span class="truncate">שובר/מבצע פעיל (${store.linkedDeals.length})</span>
+            </span>
+            <span class="text-[11px] underline flex-shrink-0 mr-1 font-bold">${dealPriceText || 'הצג'}</span>
+          </div>
+          ${dealTitle ? `<div class="text-[11px] text-emerald-800 dark:text-emerald-200 truncate">${dealTitle}</div>` : ''}
+        </div>
+      `;
+    }
 
     const catIcon = getBillingCategoryIcon(store.category);
     const logoHtml = store.logo ? `
@@ -1675,7 +1777,18 @@
     // Cross-links in Billing Modal
     if (store.linkedStore) {
       billingModalLinkedStoreBanner.classList.remove('hidden');
-      billingModalLinkedStoreTitle.textContent = `רשת "${store.linkedStore.name}" מכבדת גם כרטיסים נטענים (עד ${store.linkedStore.max_discount}% הנחה)!`;
+      billingModalLinkedStoreTitle.textContent = `רשת "${store.linkedStore.name}" מכבדת גם כרטיסים נטענים!`;
+      if (billingModalLinkedStoreMaxDisc) {
+        billingModalLinkedStoreMaxDisc.textContent = `עד ${store.linkedStore.max_discount}% הנחה`;
+      }
+      if (billingModalCardsList) {
+        billingModalCardsList.innerHTML = (store.linkedStore.cards || []).map(c => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-blue-100 dark:border-blue-900/60 shadow-xs">
+            <span class="font-medium text-slate-800 dark:text-slate-200">${c.card_name}${c.notes ? ` <span class="text-[11px] text-slate-400 font-normal">(${c.notes})</span>` : ''}</span>
+            <span class="font-bold text-blue-700 dark:text-blue-300 text-sm">${c.discount}</span>
+          </div>
+        `).join('');
+      }
       billingModalViewStoreBtn.onclick = () => {
         closeBillingModal();
         searchInput.value = store.linkedStore.name;
@@ -1691,6 +1804,21 @@
     if (store.linkedDeals && store.linkedDeals.length > 0) {
       billingModalLinkedDealBanner.classList.remove('hidden');
       billingModalLinkedDealTitle.textContent = `לרשת זו קיים שובר/מבצע ייעודי פעיל (${store.linkedDeals.length})!`;
+      if (billingModalDealsList) {
+        const topDeals = store.linkedDeals.slice(0, 3);
+        const moreDealsCount = store.linkedDeals.length > 3 ? store.linkedDeals.length - 3 : 0;
+        billingModalDealsList.innerHTML = topDeals.map(d => `
+          <div class="flex items-center justify-between p-2 rounded-lg bg-white dark:bg-slate-800 border border-emerald-100 dark:border-emerald-900/60 shadow-xs text-xs">
+            <span class="font-medium text-slate-800 dark:text-slate-200 truncate max-w-[200px]" title="${d.title}">${d.title}</span>
+            <div class="flex items-center gap-1.5 flex-shrink-0 mr-1">
+              ${d.discount_percent > 0 ? `<span class="badge-savings-emerald text-white px-1.5 py-0.5 rounded text-[10px] font-bold">${d.discount_percent}% הנחה</span>` : ''}
+              <span class="font-bold text-emerald-700 dark:text-emerald-300">${formatILS(d.price)}</span>
+            </div>
+          </div>
+        `).join('') + (moreDealsCount > 0 ? `
+          <div class="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium text-left mt-0.5">+ עוד ${moreDealsCount} שוברים ומבצעים באתר בהצדעה</div>
+        ` : '');
+      }
       const dealQuery = (store.linkedDeals[0] && store.linkedDeals[0].supplier) || store.name;
       billingModalViewDealBtn.onclick = () => {
         closeBillingModal();
