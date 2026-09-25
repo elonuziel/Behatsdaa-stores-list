@@ -230,48 +230,10 @@ def safe_float(val, default=0.0):
 
 def parse_deal(raw_deal, stores_catalog=None):
     """Normalize a raw deal/category/variant JSON object from Behatsdaa into a clean deal dict."""
-    # Skip intermediate category folder nodes that contain no products/prices
-    if raw_deal.get("isLeaf") is False and not raw_deal.get("prices") and not raw_deal.get("variants"):
-        return None
-
     category_id = str(raw_deal.get("categoryId") or raw_deal.get("id") or "")
     title = (raw_deal.get("title") or raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
     if not title:
         return None
-
-    supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
-
-    # Extract supplier from title if missing
-    if not supplier:
-        supplier_match = re.search(r'[-–]\s*([א-תA-Za-z0-9\s]+)$', title)
-        if supplier_match:
-            supplier = supplier_match.group(1).strip()
-        else:
-            supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]+)[\'"]?', title)
-            if supplier_match2:
-                supplier = supplier_match2.group(1).strip()
-
-    # Fallback to category if supplier still empty
-    if not supplier:
-        supplier = (raw_deal.get("category") or "בהצדעה").strip()
-
-    # Image extraction (including CDN prefix for Behatsdaa media)
-    image = raw_deal.get("image") or ""
-    if not image and raw_deal.get("images") and isinstance(raw_deal["images"], list) and raw_deal["images"]:
-        first_img = raw_deal["images"][0]
-        if isinstance(first_img, dict):
-            fpath = first_img.get("file") or first_img.get("externalUrl") or ""
-            if fpath:
-                image = fpath if fpath.startswith("http") else f"https://pics.k4a.co.il/share/{fpath}"
-        elif isinstance(first_img, str):
-            image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
-
-    # Category name
-    cat_name = (raw_deal.get("category") or raw_deal.get("parentCategoryName") or raw_deal.get("categoryName") or "כללי").strip()
-    if cat_name in ["", "כללי"] and raw_deal.get("breadcrumbs"):
-        crumbs = raw_deal.get("breadcrumbs")
-        if isinstance(crumbs, list) and crumbs:
-            cat_name = crumbs[0].get("name", "כללי")
 
     # Variants & Pricing
     variants_raw = raw_deal.get("variants") or []
@@ -311,14 +273,75 @@ def parse_deal(raw_deal, stores_catalog=None):
             if num_p > 0:
                 prices.append(num_p)
 
-    main_price = min(prices) if prices else safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
-    if "חינם" in title:
-        main_price = 0.0
+    category_url = (raw_deal.get("categoryUrl") or "").strip()
+    is_free = "חינם" in title or "מוזיאון" in title
 
-    main_orig = max(original_prices) if original_prices else safe_float(raw_deal.get("original_price") or raw_deal.get("discount") or main_price)
-    if main_orig < main_price:
-        main_orig = main_price
-    discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
+    # Filter out category folders or empty ghost shells that have no prices, no variants, no external url, and are not free
+    if not prices and not parsed_variants and not category_url and not is_free:
+        return None
+
+    # Skip intermediate category folder nodes that contain no products/prices
+    if raw_deal.get("isLeaf") is False and not prices and not parsed_variants and not category_url:
+        return None
+
+    supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
+
+    # Extract supplier from title if missing
+    if not supplier:
+        supplier_match = re.search(r'[-–]\s*([א-תA-Za-z0-9\s]+)$', title)
+        if supplier_match:
+            supplier = supplier_match.group(1).strip()
+        else:
+            supplier_match2 = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]+)[\'"]?', title)
+            if supplier_match2:
+                supplier = supplier_match2.group(1).strip()
+
+    # Fallback to category if supplier still empty
+    if not supplier:
+        supplier = (raw_deal.get("category") or "בהצדעה").strip()
+
+    # Image extraction (including CDN prefix for Behatsdaa media)
+    image = raw_deal.get("image") or ""
+    if not image and raw_deal.get("images") and isinstance(raw_deal["images"], list) and raw_deal["images"]:
+        first_img = raw_deal["images"][0]
+        if isinstance(first_img, dict):
+            fpath = first_img.get("file") or first_img.get("externalUrl") or ""
+            if fpath:
+                image = fpath if fpath.startswith("http") else f"https://pics.k4a.co.il/share/{fpath}"
+        elif isinstance(first_img, str):
+            image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
+
+    # Category name
+    cat_name = (raw_deal.get("category") or raw_deal.get("parentCategoryName") or raw_deal.get("categoryName") or "כללי").strip()
+    if cat_name in ["", "כללי"] and raw_deal.get("breadcrumbs"):
+        crumbs = raw_deal.get("breadcrumbs")
+        if isinstance(crumbs, list) and crumbs:
+            cat_name = crumbs[0].get("name", "כללי")
+
+    # Determine deal type
+    is_external = bool(category_url and not prices and not parsed_variants)
+    if is_external:
+        deal_type = "external_partner"
+        deal_url = category_url
+        main_price = 0.0
+        main_orig = 0.0
+        discount_pct = 0
+    elif is_free and not prices:
+        deal_type = "free_benefit"
+        deal_url = f"https://www.behatsdaa.org.il/category/productPage/{category_id}"
+        main_price = 0.0
+        main_orig = 0.0
+        discount_pct = 100
+    else:
+        deal_type = "voucher"
+        deal_url = f"https://www.behatsdaa.org.il/category/productPage/{category_id}"
+        main_price = min(prices) if prices else safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
+        if is_free:
+            main_price = 0.0
+        main_orig = max(original_prices) if original_prices else safe_float(raw_deal.get("original_price") or raw_deal.get("discount") or main_price)
+        if main_orig < main_price:
+            main_orig = main_price
+        discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
 
     # Locations & Shipping (support business.address or locations list)
     locs = raw_deal.get("locations") or []
@@ -367,10 +390,12 @@ def parse_deal(raw_deal, stores_catalog=None):
         "category": cat_name,
         "tags": tags,
         "image": image,
-        "url": f"https://www.behatsdaa.org.il/category/productPage/{category_id}",
+        "url": deal_url,
         "price": main_price,
         "original_price": main_orig,
         "discount_percent": discount_pct,
+        "deal_type": deal_type,
+        "is_external": is_external,
         "locations": loc_str,
         "shipping_included": shipping_included,
         "expiration_date": raw_deal.get("expireDate") or raw_deal.get("eventDate") or "",
