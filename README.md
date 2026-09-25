@@ -1,6 +1,6 @@
 # Behatsdaa Participating Stores Multi-Card Catalog 💳
 
-> **Live Web Application:** [https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)
+> **Live Web Application:** [https://elonuziel.github.io/Behatsdaa-stores-list/](https://elonuziel.github.io/Behatsdaa-stores-list/)
 
 A fast, interactive web catalog and automated scraper for all stores, restaurants, fashion brands, and attractions participating in **[Behatsdaa](https://www.behatsdaa.org.il/card/chargingCard)** recharge cards (Club Cards, Fighter Card, Restaurants, Carrefour, Online Grocery, and Special Promotions).
 
@@ -8,7 +8,7 @@ A fast, interactive web catalog and automated scraper for all stores, restaurant
 
 ## 🚀 Live Demo & Features
 
-Explore the catalog live at: **[https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)**
+Explore the catalog live at: **[https://elonuziel.github.io/Behatsdaa-stores-list/](https://elonuziel.github.io/Behatsdaa-stores-list/)**
 
 - ⚡ **Ultra-Fast Search**: Real-time Hebrew search with diacritics and final-letter normalization (`ך/כ`, `ם/מ`, `ן/נ`, `ף/פ`, `ץ/צ`).
 - 💳 **8 Distinct Cards & Wallets**: Filter by specific cards or view all participating stores across every card.
