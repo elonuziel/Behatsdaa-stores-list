@@ -85,40 +85,57 @@ export function getFilteredStores() {
 
   if (state.searchQuery) {
     const queryNorm = normalizeHebrew(state.searchQuery);
-    result = result.filter(store => {
-      const baseMatch = store._searchStr ? store._searchStr.includes(queryNorm) : (
-        normalizeHebrew(store.name).includes(queryNorm) ||
-        normalizeHebrew(store.category || '').includes(queryNorm) ||
-        (store.cards && store.cards.some(c =>
-          normalizeHebrew(c.card_name).includes(queryNorm) ||
-          normalizeHebrew(c.discount).includes(queryNorm)
-        ))
-      );
-      if (baseMatch) return true;
-      if (state.storesSearchInDesc) {
-        if (store._searchWithDescStr && store._searchWithDescStr.includes(queryNorm)) return true;
-        if (store.linkedBillingStore && store.linkedBillingStore._descNorm && store.linkedBillingStore._descNorm.includes(queryNorm)) return true;
-        if (store.linkedDeals && store.linkedDeals.some(d => (d._descNorm && d._descNorm.includes(queryNorm)) || (d._termsNorm && d._termsNorm.includes(queryNorm)))) return true;
-      }
-      return false;
-    });
+    const queryTerms = queryNorm.split(' ').filter(Boolean);
 
-    result.sort((a, b) => {
-      const aName = a._nameNorm || normalizeHebrew(a.name);
-      const bName = b._nameNorm || normalizeHebrew(b.name);
-      const aScore = aName === queryNorm ? 3 : (aName.startsWith(queryNorm) ? 2 : (aName.includes(queryNorm) ? 1 : 0));
-      const bScore = bName === queryNorm ? 3 : (bName.startsWith(queryNorm) ? 2 : (bName.includes(queryNorm) ? 1 : 0));
-      if (aScore !== bScore) return bScore - aScore;
-      return 0;
-    });
+    if (queryTerms.length > 0) {
+      const matches = [];
+      const isSingle = queryTerms.length === 1;
+
+      for (let i = 0; i < result.length; i++) {
+        const store = result[i];
+        const searchStr = store._searchStr || '';
+        let isMatch = isSingle
+          ? searchStr.includes(queryNorm)
+          : queryTerms.every(term => searchStr.includes(term));
+
+        if (!isMatch && state.storesSearchInDesc) {
+          const descStr = store._searchWithDescStr || '';
+          if (isSingle ? descStr.includes(queryNorm) : queryTerms.every(term => descStr.includes(term))) {
+            isMatch = true;
+          } else if (store.linkedBillingStore && store.linkedBillingStore._descNorm) {
+            const bDesc = store.linkedBillingStore._descNorm;
+            if (isSingle ? bDesc.includes(queryNorm) : queryTerms.every(term => bDesc.includes(term))) {
+              isMatch = true;
+            }
+          } else if (store.linkedDeals && store.linkedDeals.length > 0) {
+            isMatch = store.linkedDeals.some(d => {
+              const dDesc = d._descNorm || '';
+              const dTerms = d._termsNorm || '';
+              return isSingle
+                ? (dDesc.includes(queryNorm) || dTerms.includes(queryNorm))
+                : (queryTerms.every(term => dDesc.includes(term)) || queryTerms.every(term => dTerms.includes(term)));
+            });
+          }
+        }
+
+        if (isMatch) {
+          const sName = store._nameNorm || '';
+          store._score = sName === queryNorm ? 3 : (sName.startsWith(queryNorm) ? 2 : (sName.includes(queryNorm) ? 1 : 0));
+          matches.push(store);
+        }
+      }
+
+      result = matches;
+      result.sort((a, b) => b._score - a._score);
+    }
   }
 
   switch (state.currentSort) {
     case 'discount-desc':
-      result.sort((a, b) => (b.max_discount || 0) - (a.max_discount || 0) || a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => (b.max_discount || 0) - (a.max_discount || 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
     case 'name-asc':
-      result.sort((a, b) => a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
     case 'cards-desc':
       result.sort((a, b) => ((b.cards && b.cards.length) || 0) - ((a.cards && a.cards.length) || 0) || (b.max_discount || 0) - (a.max_discount || 0));

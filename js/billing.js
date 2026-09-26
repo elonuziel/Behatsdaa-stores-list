@@ -16,7 +16,7 @@ export function populateBillingCitiesFilter(billingCitySelect) {
   const sortedCities = Object.keys(cityCounts).sort((a, b) => {
     if (a === 'online') return -1;
     if (b === 'online') return 1;
-    return cityCounts[b] - cityCounts[a] || a.localeCompare(b, 'he');
+    return cityCounts[b] - cityCounts[a] || (a > b ? 1 : a < b ? -1 : 0);
   });
 
   billingCitySelect.innerHTML = '<option value="all">כל הערים והמיקומים</option>';
@@ -82,7 +82,7 @@ export function updateBillingCategoryChips(billingCategoryChipsContainer) {
 }
 
 export function getFilteredBillingStores() {
-  let result = state.allBillingStores.slice();
+  let result = state.allBillingStores;
 
   if (state.currentBillingCity !== 'all') {
     result = result.filter(s => s.city === state.currentBillingCity);
@@ -94,44 +94,58 @@ export function getFilteredBillingStores() {
 
   if (state.billingSearchQuery) {
     const queryNorm = normalizeHebrew(state.billingSearchQuery);
-    result = result.filter(s => {
-      const baseMatch = s._searchStr && s._searchStr.includes(queryNorm);
-      if (baseMatch) return true;
-      if (state.billingSearchInDesc) {
-        return Boolean(s._descNorm && s._descNorm.includes(queryNorm));
+    const queryTerms = queryNorm.split(' ').filter(Boolean);
+
+    if (queryTerms.length > 0) {
+      const matches = [];
+      const isSingle = queryTerms.length === 1;
+      const inDesc = state.billingSearchInDesc;
+
+      for (let i = 0; i < result.length; i++) {
+        const s = result[i];
+        const searchStr = inDesc ? (s._searchWithDescStr || '') : (s._searchStr || '');
+        const isMatch = isSingle
+          ? searchStr.includes(queryNorm)
+          : queryTerms.every(term => searchStr.includes(term));
+
+        if (isMatch) {
+          const sName = s._nameNorm || '';
+          s._score = sName === queryNorm ? 3 : (sName.startsWith(queryNorm) ? 2 : (sName.includes(queryNorm) ? 1 : 0));
+          matches.push(s);
+        }
       }
-      return false;
-    });
 
-    result.sort((a, b) => {
-      const aName = a._nameNorm || '';
-      const bName = b._nameNorm || '';
-      const aScore = aName === queryNorm ? 3 : (aName.startsWith(queryNorm) ? 2 : (aName.includes(queryNorm) ? 1 : 0));
-      const bScore = bName === queryNorm ? 3 : (bName.startsWith(queryNorm) ? 2 : (bName.includes(queryNorm) ? 1 : 0));
-      if (aScore !== bScore) return bScore - aScore;
+      result = matches;
 
-      if (state.currentBillingSort === 'discount-desc') return b.discount - a.discount || a.name.localeCompare(b.name, 'he');
-      if (state.currentBillingSort === 'discount-asc') return a.discount - b.discount || a.name.localeCompare(b.name, 'he');
-      if (state.currentBillingSort === 'name-asc') return a.name.localeCompare(b.name, 'he');
-      if (state.currentBillingSort === 'city-asc') return (a.city || '').localeCompare(b.city || '', 'he') || a.name.localeCompare(b.name, 'he');
-      return b.discount - a.discount || a.name.localeCompare(b.name, 'he');
-    });
+      const sortMode = state.currentBillingSort;
+      if (sortMode === 'discount-desc') {
+        result.sort((a, b) => (b._score - a._score) || (b.discount - a.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+      } else if (sortMode === 'discount-asc') {
+        result.sort((a, b) => (b._score - a._score) || (a.discount - b.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+      } else if (sortMode === 'name-asc') {
+        result.sort((a, b) => (b._score - a._score) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+      } else if (sortMode === 'city-asc') {
+        result.sort((a, b) => (b._score - a._score) || ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+      } else {
+        result.sort((a, b) => (b._score - a._score) || (b.discount - a.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+      }
 
-    return result;
+      return result;
+    }
   }
 
   switch (state.currentBillingSort) {
     case 'discount-desc':
-      result.sort((a, b) => b.discount - a.discount || a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => b.discount - a.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
     case 'discount-asc':
-      result.sort((a, b) => a.discount - b.discount || a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => a.discount - b.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
     case 'name-asc':
-      result.sort((a, b) => a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
     case 'city-asc':
-      result.sort((a, b) => (a.city || '').localeCompare(b.city || '', 'he') || a.name.localeCompare(b.name, 'he'));
+      result.sort((a, b) => ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
       break;
   }
 
