@@ -138,6 +138,30 @@ class TestScraperLogic(unittest.TestCase):
                 self.assertEqual(len(rows), 2)  # Header + 1 row
                 self.assertIn("שובר אצה 150 ₪", rows[1])
 
+    def test_fetch_wallets_via_evaluate(self):
+        from unittest.mock import MagicMock
+        from scraper import fetch_wallets_via_evaluate
+
+        mock_page = MagicMock()
+        mock_page.evaluate.return_value = {
+            "ok": True,
+            "results": [
+                {
+                    "wallet": {"walletID": "101", "walletName": "Test Wallet"},
+                    "categories": [{"tagName": "כללי", "walletChainData": []}]
+                }
+            ]
+        }
+
+        res = fetch_wallets_via_evaluate(mock_page)
+
+        mock_page.evaluate.assert_called_once()
+        js_code = mock_page.evaluate.call_args[0][0]
+        self.assertIn("Promise.all", js_code)
+        self.assertIn("GetWalletChain", js_code)
+        self.assertTrue(res["ok"])
+        self.assertEqual(len(res["results"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()
