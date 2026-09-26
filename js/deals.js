@@ -85,34 +85,37 @@ export function getFilteredDeals() {
 
   if (state.dealsSearchQuery) {
     const queryNorm = normalizeHebrew(state.dealsSearchQuery);
-    result = result.filter(d => {
-      const titleNorm = d._titleNorm || normalizeHebrew(d.title);
-      const suppNorm = d._suppNorm || normalizeHebrew(d.supplier || '');
-      const catNorm = d._catNorm || normalizeHebrew(d.category || '');
-      const tagsNorm = d._tagsNorm || normalizeHebrew((d.tags || []).join(' '));
-      const baseMatch = titleNorm.includes(queryNorm) ||
-                        suppNorm.includes(queryNorm) ||
-                        catNorm.includes(queryNorm) ||
-                        tagsNorm.includes(queryNorm);
-      if (baseMatch) return true;
-      if (state.dealsSearchInDesc) {
-        const descNorm = d._descNorm || normalizeHebrew(d.description || '');
-        const termsNorm = d._termsNorm || normalizeHebrew(d.terms_of_use || '');
-        return descNorm.includes(queryNorm) || termsNorm.includes(queryNorm);
-      }
-      return false;
-    });
+    const queryTerms = queryNorm.split(' ').filter(Boolean);
 
-    result.sort((a, b) => {
-      const aTitle = a._titleNorm || normalizeHebrew(a.title);
-      const bTitle = b._titleNorm || normalizeHebrew(b.title);
-      const aSupp = a._suppNorm || normalizeHebrew(a.supplier || '');
-      const bSupp = b._suppNorm || normalizeHebrew(b.supplier || '');
-      const aScore = aTitle.includes(queryNorm) ? 2 : (aSupp.includes(queryNorm) ? 1 : 0);
-      const bScore = bTitle.includes(queryNorm) ? 2 : (bSupp.includes(queryNorm) ? 1 : 0);
-      if (aScore !== bScore) return bScore - aScore;
-      return 0;
-    });
+    if (queryTerms.length > 0) {
+      result = result.filter(d => {
+        const searchStr = d._searchStr || '';
+        const baseMatch = queryTerms.length === 1
+          ? searchStr.includes(queryNorm)
+          : queryTerms.every(term => searchStr.includes(term));
+
+        if (baseMatch) return true;
+
+        if (state.dealsSearchInDesc) {
+          const descStr = d._searchWithDescStr || '';
+          return queryTerms.length === 1
+            ? descStr.includes(queryNorm)
+            : queryTerms.every(term => descStr.includes(term));
+        }
+        return false;
+      });
+
+      result.sort((a, b) => {
+        const aTitle = a._titleNorm || '';
+        const bTitle = b._titleNorm || '';
+        const aSupp = a._suppNorm || '';
+        const bSupp = b._suppNorm || '';
+
+        const aScore = aTitle.includes(queryNorm) ? 2 : (aSupp.includes(queryNorm) ? 1 : 0);
+        const bScore = bTitle.includes(queryNorm) ? 2 : (bSupp.includes(queryNorm) ? 1 : 0);
+        return bScore - aScore;
+      });
+    }
   }
 
   switch (state.currentDealSort) {
@@ -126,7 +129,7 @@ export function getFilteredDeals() {
       result.sort((a, b) => (b.price || 0) - (a.price || 0));
       break;
     case 'title-asc':
-      result.sort((a, b) => a.title.localeCompare(b.title, 'he'));
+      result.sort((a, b) => (a.title > b.title ? 1 : a.title < b.title ? -1 : 0));
       break;
   }
 
