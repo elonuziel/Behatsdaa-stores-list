@@ -568,28 +568,29 @@ def fetch_wallets_via_evaluate(page):
                 return { error: 'No wallets returned from GetCardGeneralInfo' };
             }
 
-            // 2. Fetch all stores for each wallet
-            const results = [];
-            for (const w of wallets) {
-                const wid = w.walletID;
-                try {
-                    const chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
-                        headers,
-                        credentials: "include"
-                    });
-                    const chainJson = await chainRes.json();
-                    results.push({
-                        wallet: w,
-                        categories: chainJson?.data || []
-                    });
-                } catch (err) {
-                    results.push({
-                        wallet: w,
-                        error: err.toString(),
-                        categories: []
-                    });
-                }
-            }
+            // 2. Fetch all stores for each wallet in parallel
+            const results = await Promise.all(
+                wallets.map(async (w) => {
+                    const wid = w.walletID;
+                    try {
+                        const chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
+                            headers,
+                            credentials: "include"
+                        });
+                        const chainJson = await chainRes.json();
+                        return {
+                            wallet: w,
+                            categories: chainJson?.data || []
+                        };
+                    } catch (err) {
+                        return {
+                            wallet: w,
+                            error: err.toString(),
+                            categories: []
+                        };
+                    }
+                })
+            );
             return { ok: true, results };
         }
     """)
