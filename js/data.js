@@ -5,26 +5,31 @@
 import { state } from './state.js';
 import { normalizeHebrew } from './utils.js';
 
+export function getCoreBrand(name) {
+  if (!name) return '';
+  let s = (name || '').toLowerCase();
+  s = s.replace(/\b(אונליין|online|רשת|אתר|סניף|סניפי|בע"מ|בעמ|בע'מ|ltd|ישראל|israel|shop|store)\b/gi, ' ');
+  s = s.replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ץ/g, 'צ').replace(/ף/g, 'פ').replace(/ך/g, 'כ');
+  return (s || '').toLowerCase().replace(/[^א-תa-z0-9]/g, '');
+}
+
 export function crossLinkAllDatasets() {
   if (!state.allStores.length) return;
 
   const cleanKey = (str) => (str || '').toLowerCase().replace(/[^א-תa-z0-9]/g, '');
 
-  function getCoreBrand(name) {
-    if (!name) return '';
-    let s = (name || '').toLowerCase();
-    s = s.replace(/\b(אונליין|online|רשת|אתר|סניף|סניפי|בע"מ|בעמ|בע'מ|ltd|ישראל|israel|shop|store)\b/gi, ' ');
-    s = s.replace(/ם/g, 'מ').replace(/ן/g, 'נ').replace(/ץ/g, 'צ').replace(/ף/g, 'פ').replace(/ך/g, 'כ');
-    return cleanKey(s);
-  }
-
   // 1. Map: core brand -> array of billing stores
   const billingByCore = new Map();
   state.allBillingStores.forEach(b => {
-    const core = getCoreBrand(b.name);
+    const core = b._coreBrand || getCoreBrand(b.name);
+    b._coreBrand = core;
     if (!core) return;
-    if (!billingByCore.has(core)) billingByCore.set(core, []);
-    billingByCore.get(core).push(b);
+    let list = billingByCore.get(core);
+    if (!list) {
+      list = [];
+      billingByCore.set(core, list);
+    }
+    list.push(b);
   });
 
   function findBestBillingMatch(name) {
@@ -33,35 +38,47 @@ export function crossLinkAllDatasets() {
     if (!core) return null;
     const matches = billingByCore.get(core);
     if (matches && matches.length > 0) {
-      return matches.reduce((best, cur) => (cur.discount > best.discount ? cur : best), matches[0]);
+      let best = matches[0];
+      for (let i = 1; i < matches.length; i++) {
+        if (matches[i].discount > best.discount) best = matches[i];
+      }
+      return best;
     }
     return null;
   }
 
   // 2. Map: core brand -> store (Tab 1)
   const storeByCore = new Map();
+  const storeByNormalizedName = new Map();
   state.allStores.forEach(s => {
-    const core = getCoreBrand(s.name);
+    const core = s._coreBrand || getCoreBrand(s.name);
+    s._coreBrand = core;
     if (core && !storeByCore.has(core)) storeByCore.set(core, s);
+    if (s._nameNorm) storeByNormalizedName.set(s._nameNorm, s);
   });
 
   // 3. Map: core brand -> deals (Tab 2)
   const dealsByCore = new Map();
   state.allDeals.forEach(d => {
-    const keys = new Set();
-    const k1 = getCoreBrand(d.supplier);
-    if (k1) keys.add(k1);
-    const k2 = getCoreBrand(d.matched_store_name);
-    if (k2) keys.add(k2);
-    keys.forEach(k => {
-      if (!dealsByCore.has(k)) dealsByCore.set(k, []);
-      if (!dealsByCore.get(k).includes(d)) dealsByCore.get(k).push(d);
-    });
+    const k1 = d._suppCore || getCoreBrand(d.supplier);
+    d._suppCore = k1;
+    const k2 = d.matched_store_name ? getCoreBrand(d.matched_store_name) : null;
+
+    if (k1) {
+      let list = dealsByCore.get(k1);
+      if (!list) { list = []; dealsByCore.set(k1, list); }
+      list.push(d);
+    }
+    if (k2 && k2 !== k1) {
+      let list = dealsByCore.get(k2);
+      if (!list) { list = []; dealsByCore.set(k2, list); }
+      if (!list.includes(d)) list.push(d);
+    }
   });
 
   function findCompatibleStore(b) {
     if (!b || !b.name) return null;
-    const bCore = getCoreBrand(b.name);
+    const bCore = b._coreBrand;
     if (bCore && storeByCore.has(bCore)) return storeByCore.get(bCore);
 
     if (b.name.includes(' - ') || b.name.includes(' – ')) {
@@ -95,39 +112,56 @@ export function crossLinkAllDatasets() {
   // Cross-link Billing Stores (Tab 3)
   const storeToBillingMatches = new Map();
   state.allBillingStores.forEach(b => {
-    const bCore = getCoreBrand(b.name);
+    const bCore = b._coreBrand;
     b.linkedStore = findCompatibleStore(b);
 
     if (b.linkedStore) {
-      if (!storeToBillingMatches.has(b.linkedStore.id)) {
-        storeToBillingMatches.set(b.linkedStore.id, []);
+      let list = storeToBillingMatches.get(b.linkedStore.id);
+      if (!list) {
+        list = [];
+        storeToBillingMatches.set(b.linkedStore.id, list);
       }
-      storeToBillingMatches.get(b.linkedStore.id).push(b);
+      list.push(b);
     }
 
     const deals = [];
-    const d1 = dealsByCore.get(bCore) || [];
-    d1.forEach(d => { if (!deals.includes(d)) deals.push(d); });
+    const d1 = dealsByCore.get(bCore);
+    if (d1) {
+      for (let i = 0; i < d1.length; i++) deals.push(d1[i]);
+    }
     if (b.linkedStore && b.linkedStore.linkedDeals) {
-      b.linkedStore.linkedDeals.forEach(d => { if (!deals.includes(d)) deals.push(d); });
+      for (let i = 0; i < b.linkedStore.linkedDeals.length; i++) {
+        const d = b.linkedStore.linkedDeals[i];
+        if (!deals.includes(d)) deals.push(d);
+      }
     }
     b.linkedDeals = deals;
   });
 
   // Cross-link Stores (Tab 1)
   state.allStores.forEach(store => {
-    const sCore = getCoreBrand(store.name);
-    store.linkedDeals = state.allDeals.filter(d => {
-      if (d.matched_store_id && d.matched_store_id === store.id) return true;
-      if (d.matched_store_name && d.matched_store_name === store.name) return true;
-      const suppCore = getCoreBrand(d.supplier);
-      return Boolean(suppCore && sCore && suppCore === sCore);
+    const sCore = store._coreBrand;
+    const storeDeals = dealsByCore.get(sCore) || [];
+    const extraDeals = [];
+
+    state.allDeals.forEach(d => {
+      if ((d.matched_store_id && d.matched_store_id === store.id) ||
+          (d.matched_store_name && d.matched_store_name === store.name)) {
+        if (!storeDeals.includes(d) && !extraDeals.includes(d)) {
+          extraDeals.push(d);
+        }
+      }
     });
+
+    store.linkedDeals = storeDeals.concat(extraDeals);
 
     let bestBilling = findBestBillingMatch(store.name);
     const branchBillings = storeToBillingMatches.get(store.id);
     if (branchBillings && branchBillings.length > 0) {
-      const bestBranch = branchBillings.reduce((best, cur) => (cur.discount > best.discount ? cur : best), branchBillings[0]);
+      let bestBranch = branchBillings[0];
+      for (let i = 1; i < branchBillings.length; i++) {
+        if (branchBillings[i].discount > bestBranch.discount) bestBranch = branchBillings[i];
+      }
       if (!bestBilling || bestBranch.discount > bestBilling.discount) {
         bestBilling = bestBranch;
       }
@@ -145,12 +179,18 @@ export function crossLinkAllDatasets() {
 
   // Cross-link Deals (Tab 2)
   state.allDeals.forEach(deal => {
-    const suppCore = getCoreBrand(deal.supplier);
-    deal.linkedStore = state.allStores.find(s =>
-      (deal.matched_store_id && s.id === deal.matched_store_id) ||
-      (deal.matched_store_name && s.name === deal.matched_store_name) ||
-      (suppCore && getCoreBrand(s.name) === suppCore)
-    ) || null;
+    const suppCore = deal._suppCore;
+    let matchedStore = null;
+    if (deal.matched_store_id) {
+      matchedStore = state.allStores.find(s => s.id === deal.matched_store_id) || null;
+    }
+    if (!matchedStore && deal.matched_store_name) {
+      matchedStore = storeByNormalizedName.get(normalizeHebrew(deal.matched_store_name)) || null;
+    }
+    if (!matchedStore && suppCore) {
+      matchedStore = storeByCore.get(suppCore) || null;
+    }
+    deal.linkedStore = matchedStore;
 
     let bestBilling = findBestBillingMatch(deal.supplier);
     if (!bestBilling && deal.linkedStore && deal.linkedStore.linkedBillingStore) {

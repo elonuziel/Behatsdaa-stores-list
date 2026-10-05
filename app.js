@@ -208,7 +208,10 @@ function renderStores() {
     storesLoadMoreContainer.classList.toggle('hidden', state.storesVisibleCount >= filtered.length);
   }
 
-  if (window.lucide) lucide.createIcons();
+  if (window.lucide) {
+    const root = state.currentView === 'grid' ? cardsView : tableView;
+    if (root) lucide.createIcons({ root });
+  }
 }
 
 function renderDeals() {
@@ -244,7 +247,10 @@ function renderDeals() {
     dealsLoadMoreContainer.classList.toggle('hidden', state.dealsVisibleCount >= filtered.length);
   }
 
-  if (window.lucide) lucide.createIcons();
+  if (window.lucide) {
+    const root = state.currentView === 'grid' ? cardsView : tableView;
+    if (root) lucide.createIcons({ root });
+  }
 }
 
 function renderBillingStores() {
@@ -280,7 +286,10 @@ function renderBillingStores() {
     billingLoadMoreContainer.classList.toggle('hidden', state.billingVisibleCount >= filtered.length);
   }
 
-  if (window.lucide) lucide.createIcons();
+  if (window.lucide) {
+    const root = state.currentView === 'grid' ? cardsView : tableView;
+    if (root) lucide.createIcons({ root });
+  }
 }
 
 function applyViewMode(mode) {
@@ -367,6 +376,7 @@ function switchTab(tab, options = {}) {
       if (billingGrid) billingGrid.classList.add('hidden');
       if (noBillingResults) noBillingResults.classList.add('hidden');
       if (billingLoadMoreContainer) billingLoadMoreContainer.classList.add('hidden');
+      startLoadBilling();
     } else {
       if (billingTabSpinner) billingTabSpinner.classList.add('hidden');
       if (billingGrid) billingGrid.classList.remove('hidden');
@@ -448,6 +458,32 @@ const billingModalCallbacks = {
 };
 
 // Data Loading Initialization
+function startLoadBilling() {
+  if (state.billingLoaded || state._loadingBilling) return Promise.resolve();
+  state._loadingBilling = true;
+  return loadBilling(() => {
+    if (totalBillingCountEl) totalBillingCountEl.textContent = state.allBillingStores.length.toLocaleString('he-IL');
+    if (tabBillingCount) tabBillingCount.textContent = state.allBillingStores.length.toLocaleString('he-IL');
+
+    if (state.billingData.metadata?.scraped_at && billingLastUpdatedDateEl) {
+      const d = new Date(state.billingData.metadata.scraped_at);
+      billingLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
+    }
+
+    if (billingCitySelect) populateBillingCitiesFilter(billingCitySelect);
+    if (billingCategoryChipsContainer) updateBillingCategoryChips(billingCategoryChipsContainer);
+
+    if (billingTabSpinner) billingTabSpinner.classList.add('hidden');
+    if (billingGrid) billingGrid.classList.remove('hidden');
+
+    if (state.currentTab === 'billing') {
+      renderBillingStores();
+    }
+
+    onDatasetsLoaded();
+  });
+}
+
 async function loadAllData() {
   if (tabDealsCount) {
     tabDealsCount.innerHTML = '<span class="inline-block w-2.5 h-2.5 border-2 border-slate-300 dark:border-slate-600 border-t-emerald-500 rounded-full animate-spin align-middle"></span>';
@@ -474,52 +510,37 @@ async function loadAllData() {
     }
   });
 
-  Promise.all([
-    loadDeals(() => {
-      totalDealsCountEl.textContent = state.allDeals.length;
-      tabDealsCount.textContent = state.allDeals.length;
+  const loadDealsPromise = loadDeals(() => {
+    totalDealsCountEl.textContent = state.allDeals.length;
+    tabDealsCount.textContent = state.allDeals.length;
 
-      if (state.dealsData.metadata?.last_updated) {
-        const d = new Date(state.dealsData.metadata.last_updated);
-        dealsLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
-      }
+    if (state.dealsData.metadata?.last_updated) {
+      const d = new Date(state.dealsData.metadata.last_updated);
+      dealsLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
+    }
 
-      populateDealsTagsFilter(dealsTagSelect);
-      updateDealsCategoryChips(dealsCategoryChipsContainer);
+    populateDealsTagsFilter(dealsTagSelect);
+    updateDealsCategoryChips(dealsCategoryChipsContainer);
 
-      if (dealsTabSpinner) dealsTabSpinner.classList.add('hidden');
-      if (dealsGrid) dealsGrid.classList.remove('hidden');
+    if (dealsTabSpinner) dealsTabSpinner.classList.add('hidden');
+    if (dealsGrid) dealsGrid.classList.remove('hidden');
 
-      if (state.currentTab === 'deals') {
-        renderDeals();
-      }
+    if (state.currentTab === 'deals') {
+      renderDeals();
+    }
 
-      onDatasetsLoaded();
-    }),
-    loadBilling(() => {
-      if (totalBillingCountEl) totalBillingCountEl.textContent = state.allBillingStores.length.toLocaleString('he-IL');
-      if (tabBillingCount) tabBillingCount.textContent = state.allBillingStores.length.toLocaleString('he-IL');
-
-      if (state.billingData.metadata?.scraped_at && billingLastUpdatedDateEl) {
-        const d = new Date(state.billingData.metadata.scraped_at);
-        billingLastUpdatedDateEl.textContent = d.toLocaleDateString('he-IL');
-      }
-
-      if (billingCitySelect) populateBillingCitiesFilter(billingCitySelect);
-      if (billingCategoryChipsContainer) updateBillingCategoryChips(billingCategoryChipsContainer);
-
-      if (billingTabSpinner) billingTabSpinner.classList.add('hidden');
-      if (billingGrid) billingGrid.classList.remove('hidden');
-
-      if (state.currentTab === 'billing') {
-        renderBillingStores();
-      }
-
-      onDatasetsLoaded();
-    })
-  ]).catch(err => {
-    console.warn('Background data load error:', err);
+    onDatasetsLoaded();
   });
+
+  if (state.currentTab === 'billing') {
+    startLoadBilling();
+  } else {
+    // Schedule billing load during idle time or short delay to keep initial UI thread smooth
+    const scheduleBilling = window.requestIdleCallback || ((cb) => setTimeout(cb, 10));
+    scheduleBilling(() => {
+      startLoadBilling();
+    });
+  }
 }
 
 // Event Listeners
