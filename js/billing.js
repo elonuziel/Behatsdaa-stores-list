@@ -97,59 +97,74 @@ export function getFilteredBillingStores() {
     const queryTerms = queryNorm.split(' ').filter(Boolean);
 
     if (queryTerms.length > 0) {
-      const matches = [];
       const isSingle = queryTerms.length === 1;
       const inDesc = state.billingSearchInDesc;
+      const sortMode = state.currentBillingSort;
+
+      const exactMatches = [];
+      const prefixMatches = [];
+      const containsMatches = [];
+      const descOnlyMatches = [];
 
       for (let i = 0; i < result.length; i++) {
         const s = result[i];
+        const sName = s._nameNorm || '';
         const searchStr = inDesc ? (s._searchWithDescStr || '') : (s._searchStr || '');
+
         const isMatch = isSingle
           ? searchStr.includes(queryNorm)
           : queryTerms.every(term => searchStr.includes(term));
 
         if (isMatch) {
-          const sName = s._nameNorm || '';
-          s._score = sName === queryNorm ? 3 : (sName.startsWith(queryNorm) ? 2 : (sName.includes(queryNorm) ? 1 : 0));
-          matches.push(s);
+          if (sName === queryNorm) {
+            exactMatches.push(s);
+          } else if (sName.startsWith(queryNorm)) {
+            prefixMatches.push(s);
+          } else if (sName.includes(queryNorm)) {
+            containsMatches.push(s);
+          } else {
+            descOnlyMatches.push(s);
+          }
         }
       }
 
-      result = matches;
+      const sortBucket = (arr) => {
+        if (arr.length <= 1) return;
+        if (sortMode === 'discount-desc') {
+          arr.sort((a, b) => b.discount - a.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+        } else if (sortMode === 'discount-asc') {
+          arr.sort((a, b) => a.discount - b.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+        } else if (sortMode === 'name-asc') {
+          arr.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+        } else if (sortMode === 'city-asc') {
+          arr.sort((a, b) => ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+        } else {
+          arr.sort((a, b) => b.discount - a.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+        }
+      };
 
-      const sortMode = state.currentBillingSort;
-      if (sortMode === 'discount-desc') {
-        result.sort((a, b) => (b._score - a._score) || (b.discount - a.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      } else if (sortMode === 'discount-asc') {
-        result.sort((a, b) => (b._score - a._score) || (a.discount - b.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      } else if (sortMode === 'name-asc') {
-        result.sort((a, b) => (b._score - a._score) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      } else if (sortMode === 'city-asc') {
-        result.sort((a, b) => (b._score - a._score) || ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      } else {
-        result.sort((a, b) => (b._score - a._score) || (b.discount - a.discount) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      }
+      sortBucket(exactMatches);
+      sortBucket(prefixMatches);
+      sortBucket(containsMatches);
+      sortBucket(descOnlyMatches);
 
-      return result;
+      return exactMatches.concat(prefixMatches, containsMatches, descOnlyMatches);
     }
   }
 
-  switch (state.currentBillingSort) {
-    case 'discount-desc':
-      result.sort((a, b) => b.discount - a.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      break;
-    case 'discount-asc':
-      result.sort((a, b) => a.discount - b.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      break;
-    case 'name-asc':
-      result.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      break;
-    case 'city-asc':
-      result.sort((a, b) => ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
-      break;
+  const sortMode = state.currentBillingSort;
+  const arr = result.slice();
+  if (sortMode === 'discount-desc') {
+    arr.sort((a, b) => b.discount - a.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+  } else if (sortMode === 'discount-asc') {
+    arr.sort((a, b) => a.discount - b.discount || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+  } else if (sortMode === 'name-asc') {
+    arr.sort((a, b) => (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
+  } else if (sortMode === 'city-asc') {
+    arr.sort((a, b) => ((a.city || '') > (b.city || '') ? 1 : (a.city || '') < (b.city || '') ? -1 : 0) || (a.name > b.name ? 1 : a.name < b.name ? -1 : 0));
   }
 
-  return result;
+  return arr;
 }
 
 export function getBillingCategoryIcon(category) {
