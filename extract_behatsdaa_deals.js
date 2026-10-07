@@ -166,15 +166,62 @@
         console.warn("Category tree error:", err);
     }
 
-    console.log(`%c✨ Complete! Total unique deals & vouchers collected: ${dealsMap.size}`, "color: #10b981; font-size: 15px; font-weight: bold;");
+    console.log(`💧 [3/3] Hydrating deep deal details (terms of use, limits, variants, expiry)...`);
+    const allDeals = Array.from(dealsMap.values());
+    const batchSize = 15;
 
-    const rawDeals = Array.from(dealsMap.values());
+    for (let i = 0; i < allDeals.length; i += batchSize) {
+        const batch = allDeals.slice(i, i + batchSize);
+        await Promise.all(batch.map(async (d) => {
+            const did = String(d.categoryId || d.id);
+            try {
+                const prodRes = await window.fetch(`https://back.behatsdaa.org.il/api/product/GetProductById?productId=${did}`, {
+                    headers,
+                    credentials: "include"
+                });
+                if (prodRes && prodRes.ok) {
+                    const prodJson = await prodRes.json();
+                    const p = prodJson?.data?.product || prodJson?.data || {};
+                    if (p && typeof p === "object") {
+                        if (p.termsOfUse || p.usageInstructions || p.notes || p.remarks) {
+                            d.termsOfUse = p.termsOfUse || p.usageInstructions || p.notes || p.remarks;
+                        }
+                        if (p.purchaseLimits || p.maxQuantityPerUser || p.maxQuantity) {
+                            d.purchaseLimits = p.purchaseLimits || p.maxQuantityPerUser || (p.maxQuantity ? `עד ${p.maxQuantity} יחידות למנוי` : "");
+                        }
+                        if (p.validTo || p.expirationDate) {
+                            d.validTo = p.validTo || p.expirationDate;
+                        }
+                        if (Array.isArray(p.branches) && p.branches.length > 0) {
+                            d.branches = p.branches;
+                        } else if (Array.isArray(p.redemptionLocations) && p.redemptionLocations.length > 0) {
+                            d.branches = p.redemptionLocations;
+                        }
+                        if (Array.isArray(p.subProducts) && p.subProducts.length > 0) {
+                            d.subProducts = p.subProducts;
+                        } else if (Array.isArray(p.variants) && p.variants.length > 0) {
+                            d.variants = p.variants;
+                        } else if (Array.isArray(p.pricesList) && p.pricesList.length > 0) {
+                            d.variants = p.pricesList;
+                        }
+                    }
+                }
+            } catch (err) {}
+        }));
+        if ((i + batchSize) % 60 === 0 || i + batchSize >= allDeals.length) {
+            console.log(`   Hydrated ${Math.min(i + batchSize, allDeals.length)}/${allDeals.length} deals...`);
+        }
+        await delay(50);
+    }
+
+    console.log(`%c✨ Complete! Total unique deals & vouchers collected: ${allDeals.length}`, "color: #10b981; font-size: 15px; font-weight: bold;");
+
     const payload = {
         ok: true,
         extracted_at: new Date().toISOString(),
-        total_items: rawDeals.length,
+        total_items: allDeals.length,
         tags: tagsList,
-        deals: rawDeals
+        deals: allDeals
     };
 
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
@@ -185,5 +232,5 @@
     a.click();
     document.body.removeChild(a);
 
-    console.log("%c🎉 File downloaded as 'deals_raw.json' with full campaign tags and subcategories!", "color: #10b981; font-weight: bold;");
+    console.log("%c🎉 File downloaded as 'deals_raw.json' with full campaign tags, subcategories, terms, limits, and variants!", "color: #10b981; font-weight: bold;");
 })();

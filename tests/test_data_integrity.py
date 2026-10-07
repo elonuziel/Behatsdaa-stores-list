@@ -123,6 +123,46 @@ class TestDataIntegrity(unittest.TestCase):
 
         self.assertGreater(matched_stores, 0, "At least some card stores should match billing stores (e.g. ביגה, אופיס דיפו, ריקושט)")
 
+    def test_wallets_info_json_integrity(self):
+        json_path = DATA_DIR / "wallets_info.json"
+        self.assertTrue(json_path.exists(), "data/wallets_info.json must exist")
+
+        with open(json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+
+        self.assertIn("metadata", data)
+        self.assertIn("wallets", data)
+        meta = data["metadata"]
+        self.assertIn("title", meta)
+        self.assertIn("general_caps", meta)
+        self.assertIn("general_rules", meta)
+
+        caps = meta["general_caps"]
+        self.assertEqual(caps.get("monthly_cap_general"), 3000)
+        self.assertEqual(caps.get("monthly_cap_fighter"), 2500)
+        self.assertEqual(caps.get("instant_balance_cap"), 1000)
+        self.assertEqual(caps.get("min_reload"), 100)
+
+        rules = meta["general_rules"]
+        self.assertGreaterEqual(len(rules), 4)
+        for r in rules:
+            self.assertTrue(r.get("id"), f"Rule missing id: {r}")
+            self.assertTrue(r.get("title"), f"Rule missing title: {r}")
+            self.assertTrue(r.get("summary"), f"Rule missing summary: {r}")
+
+        wallets = data["wallets"]
+        self.assertGreater(len(wallets), 0, "wallets_info.json must contain wallets")
+        for w in wallets:
+            self.assertTrue(w.get("id"), f"Wallet missing id: {w}")
+            self.assertTrue(w.get("name"), f"Wallet missing name: {w}")
+            self.assertIn("discount", w)
+            self.assertIn("color_theme", w)
+            self.assertIn("badge_class", w)
+            self.assertIn("monthly_cap", w)
+            self.assertIn("instant_cap", w)
+            if w["id"] == "card-3336":
+                self.assertEqual(w["monthly_cap"], 2500, "Fighter card 3336 monthly cap must be 2500")
+
 
 if __name__ == "__main__":
     unittest.main()

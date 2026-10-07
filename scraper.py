@@ -32,6 +32,11 @@ from core.parsers import (
     _GENERIC_TOKENS,
     _GENERIC_NORMS,
     _SUPER_CATS,
+    clean_html,
+    get_color_theme,
+    get_badge_class,
+    build_wallet_info_entry,
+    parse_caps_and_rules,
     extract_discount_percent,
     generate_store_id,
     parse_chains_from_categories,
@@ -59,6 +64,9 @@ from core.extractors import (
 from core.storage import (
     save_catalog,
     save_deals,
+    save_wallets_info,
+    DEFAULT_GENERAL_CAPS,
+    DEFAULT_GENERAL_RULES,
 )
 from core.importers import (
     import_deals_from_file,
@@ -131,6 +139,13 @@ def parse_arguments():
         type=int,
         default=None,
         help="Maximum number of deals to deeply scrape (default: all)"
+    )
+    parser.add_argument(
+        "--no-hydrate",
+        dest="hydrate_deals",
+        action="store_false",
+        default=True,
+        help="Skip deep per-deal hydration (terms of use, variants, limits) for faster scraping"
     )
     parser.add_argument(
         "--import-deals",
@@ -253,6 +268,9 @@ def scrape_with_playwright(args):
         time.sleep(1)
 
         # 1. Scrape Cards (unless deals-only)
+        wallets_info_list = []
+        final_caps = None
+        final_rules = None
         if not args.deals_only:
             print("\n[2/3] Extracting wallets and stores across all cards...")
             start_time = time.time()
@@ -265,11 +283,19 @@ def scrape_with_playwright(args):
             if raw_result and raw_result.get("ok"):
                 results = raw_result.get("results", [])
                 total_cards = len(results)
+
+                # Parse dynamic caps and rules from official site
+                final_caps, final_rules = parse_caps_and_rules(
+                    extracted_caps=raw_result.get("extracted_caps"),
+                    extracted_rules=raw_result.get("extracted_rules"),
+                    page_text=raw_result.get("page_text_sample")
+                )
+
                 for idx, item in enumerate(results, start=1):
                     w = item["wallet"]
-                    wid = str(w.get("walletID"))
-                    wname = (w.get("walletName") or f"כרטיס ארנק {wid}").strip()
-                    disc_num = extract_discount_percent(w.get("discountRate", 0))
+                    wid = str(w.get("walletId") or w.get("walletID") or w.get("id"))
+                    wname = (w.get("walletName") or w.get("name") or f"כרטיס ארנק {wid}").strip()
+                    disc_num = extract_discount_percent(w.get("discount") or w.get("discountRate") or w.get("discountNumeric", 0))
                     disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
 
                     card_entry = {
@@ -282,6 +308,7 @@ def scrape_with_playwright(args):
                         "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
                     }
                     discovered_cards.append(card_entry)
+                    wallets_info_list.append(build_wallet_info_entry(w, caps_dict=final_caps))
 
                     categories = item.get("categories", [])
                     stores = parse_chains_from_categories(categories, card_entry)
@@ -295,6 +322,12 @@ def scrape_with_playwright(args):
                         done=(idx == total_cards)
                     )
 
+                # Process any extra raw wallets not in results
+                for rw in raw_result.get("raw_wallets", []):
+                    entry = build_wallet_info_entry(rw, caps_dict=final_caps)
+                    if not any(x["id"] == entry["id"] for x in wallets_info_list):
+                        wallets_info_list.append(entry)
+
                 print(f"[+] Successfully retrieved data for {total_cards} cards ({len(all_scraped_stores):,} participating stores) in {time.time() - start_time:.2f}s!")
             else:
                 err_msg = (raw_result or {}).get("error", "No cards or wallets returned from API")
@@ -306,7 +339,11 @@ def scrape_with_playwright(args):
             start_time = time.time()
             deals_result = None
             try:
-                deals_result = fetch_deals_via_evaluate(page, max_deals=args.max_deals)
+                deals_result = fetch_deals_via_evaluate(
+                    page,
+                    max_deals=args.max_deals,
+                    hydrate_details=getattr(args, "hydrate_deals", True)
+                )
             except Exception as err:
                 print(f"[!] In-browser deals extraction error: {err}")
 
@@ -331,6 +368,13 @@ def scrape_with_playwright(args):
             final_stores_list = list(all_scraped_stores.values())
             print(f"\n[+] Total unique stores saved: {len(final_stores_list)}")
             save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
+            if wallets_info_list:
+                save_wallets_info(
+                    wallets_info_list,
+                    general_caps=final_caps,
+                    general_rules=final_rules,
+                    output_dir=args.output_dir
+                )
         else:
             print("\n[!] No stores were scraped in this run. Existing stores catalog preserved.")
 
@@ -362,11 +406,12 @@ def run_interactive_menu():
     print("  [6] 📥 Import Cards from file (cards_raw.json)")
     print("  [7] 📥 Import Deals from file (deals_raw.json)")
     print("  [8] 🔧 Check & Install Requirements (Playwright & Chromium)")
+    print("  [9] 💳 Refresh Wallets & Spending Caps (wallets_info.json)")
     print("  [0] ❌ Exit")
     print("=" * 62)
 
     try:
-        choice = input("Enter choice [0-8]: ").strip()
+        choice = input("Enter choice [0-9]: ").strip()
     except (KeyboardInterrupt, EOFError):
         print("\nExiting.")
         sys.exit(0)
@@ -379,6 +424,21 @@ def run_interactive_menu():
 
     if choice == "8":
         check_all_requirements()
+        return
+
+    if choice == "9":
+        stores_path = Path(args.output_dir) / "stores.json"
+        wallets_to_save = []
+        if stores_path.exists():
+            with open(stores_path, "r", encoding="utf-8") as f:
+                sdata = json.load(f)
+                for c in sdata.get("metadata", {}).get("available_cards", []):
+                    wallets_to_save.append(build_wallet_info_entry(c))
+        if wallets_to_save:
+            save_wallets_info(wallets_to_save, output_dir=args.output_dir)
+            print("[SUCCESS] Wallets info refreshed successfully!")
+        else:
+            print("[!] No available cards found in stores.json to build wallets info.")
         return
 
     if choice == "4":

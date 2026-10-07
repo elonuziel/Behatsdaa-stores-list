@@ -16,13 +16,17 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from scraper import (
     parse_arguments,
+    clean_html,
     extract_discount_percent,
     generate_store_id,
     parse_chains_from_categories,
     merge_stores_into_catalog,
     parse_deal,
     save_catalog,
-    save_deals
+    save_deals,
+    save_wallets_info,
+    build_wallet_info_entry,
+    parse_caps_and_rules,
 )
 
 
@@ -315,6 +319,166 @@ class TestScraperLogic(unittest.TestCase):
         self.assertIn("50.0%", out)
         self.assertIn("5/10", out)
         self.assertIn("Testing:", out)
+
+    def test_clean_html(self):
+        self.assertEqual(clean_html("<p>שלום <b>עולם</b></p>"), "שלום עולם")
+        self.assertEqual(clean_html("ללא&nbsp;הנחה &quot;מיוחדת&quot;"), 'ללא הנחה "מיוחדת"')
+        self.assertEqual(clean_html(""), "")
+        self.assertEqual(clean_html(None), "")
+
+    def test_build_wallet_info_entry(self):
+        w_regular = {
+            "walletId": "2809",
+            "walletName": "בהצדעה- ארנק רשתות 20%",
+            "discount": 20
+        }
+        res_regular = build_wallet_info_entry(w_regular)
+        self.assertEqual(res_regular["id"], "card-2809")
+        self.assertEqual(res_regular["short_name"], "ארנק רשתות 20%")
+        self.assertEqual(res_regular["discount"], 20)
+        self.assertEqual(res_regular["color_theme"], "emerald")
+        self.assertEqual(res_regular["badge_class"], "badge-emerald")
+        self.assertEqual(res_regular["monthly_cap"], 3000)
+        self.assertEqual(res_regular["instant_cap"], 1000)
+
+        w_fighter = {
+            "walletId": "3336",
+            "walletName": "ארנק בתשלום עם כרטיס פייטר 15% הנחה",
+            "discount": 15
+        }
+        res_fighter = build_wallet_info_entry(w_fighter)
+        self.assertEqual(res_fighter["id"], "card-3336")
+        self.assertEqual(res_fighter["monthly_cap"], 2500)
+        self.assertEqual(res_fighter["color_theme"], "amber")
+
+    def test_parse_caps_and_rules(self):
+        # 1. Defaults
+        caps, rules = parse_caps_and_rules()
+        self.assertEqual(caps["monthly_cap_general"], 3000)
+        self.assertEqual(caps["monthly_cap_fighter"], 2500)
+        self.assertEqual(caps["instant_balance_cap"], 1000)
+        self.assertEqual(caps["min_reload"], 100)
+        self.assertGreaterEqual(len(rules), 4)
+
+        # 2. Dynamic extraction from live page text
+        sample_page_text = """
+        תקנון מועדון בהצדעה:
+        תקרת הטעינה מוגבלת ל-3500 ₪ בחודש קלנדרי.
+        למחזיקי כרטיס פייטר תקרה של עד 2800 ₪ בחודש.
+        יתרה רגעית בכרטיס עד 1200 ₪ בכל רגע נתון.
+        טעינה מינימלית החל מ-50 ₪.
+        """
+        custom_rules = [
+            {"id": "cancellation_policy", "title": "מדיניות ביטולים", "summary": "ביטול טעינה תוך 14 יום"}
+        ]
+        dyn_caps, dyn_rules = parse_caps_and_rules(
+            extracted_rules=custom_rules,
+            page_text=sample_page_text
+        )
+        self.assertEqual(dyn_caps["monthly_cap_general"], 3500)
+        self.assertEqual(dyn_caps["monthly_cap_fighter"], 2800)
+        self.assertEqual(dyn_caps["instant_balance_cap"], 1200)
+        self.assertEqual(dyn_caps["min_reload"], 50)
+        self.assertTrue(any(r["id"] == "cancellation_policy" for r in dyn_rules))
+
+    def test_save_wallets_info(self):
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            sample_wallet = {
+                "id": "card-2809",
+                "name": "בהצדעה- ארנק רשתות 20%",
+                "short_name": "ארנק רשתות 20%",
+                "discount": 20,
+                "color_theme": "emerald",
+                "badge_class": "badge-emerald",
+                "monthly_cap": 3000,
+                "instant_cap": 1000,
+                "category_scope": "רשתות אופנה",
+                "description": "הנחת רשתות"
+            }
+            save_wallets_info([sample_wallet], output_dir=tmp_dir)
+            out_file = Path(tmp_dir) / "wallets_info.json"
+            self.assertTrue(out_file.exists())
+
+            with open(out_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.assertIn("metadata", data)
+            self.assertEqual(data["metadata"]["general_caps"]["monthly_cap_general"], 3000)
+            self.assertEqual(len(data["wallets"]), 1)
+            self.assertEqual(data["wallets"][0]["id"], "card-2809")
+
+    def test_store_conditions_and_card_notes_parsing(self):
+        card_info = {
+            "id": "card-2809",
+            "name": "ארנק רשתות 20%",
+            "discount_default": "20%",
+            "discount_numeric": 20
+        }
+        categories = [
+            {
+                "tagName": "אופנה",
+                "walletChainData": [
+                    {
+                        "chainName": "פוקס",
+                        "chainID": "100",
+                        "remarks": "<p>לא תקף בחנויות עודפים ובאתר האינטרנט</p>",
+                        "discountRemarks": "עד גמר המלאי"
+                    }
+                ]
+            }
+        ]
+        stores = parse_chains_from_categories(categories, card_info)
+        self.assertEqual(len(stores), 1)
+        self.assertEqual(stores[0]["name"], "פוקס")
+        self.assertEqual(stores[0]["conditions"], "לא תקף בחנויות עודפים ובאתר האינטרנט")
+        self.assertEqual(stores[0]["card_notes"], "עד גמר המלאי")
+
+        catalog = {}
+        merge_stores_into_catalog(catalog, stores, card_info)
+        self.assertIn("פוקס", catalog)
+        self.assertEqual(catalog["פוקס"]["conditions"], "לא תקף בחנויות עודפים ובאתר האינטרנט")
+        self.assertEqual(catalog["פוקס"]["cards"][0]["notes"], "עד גמר המלאי")
+
+    def test_parse_deal_deep_hydration_fields(self):
+        raw_hydrated_deal = {
+            "categoryId": "20001",
+            "categoryName": "כרטיס לסרט קולנוע + פופקורן",
+            "supplierName": "סינמה סיטי",
+            "category": "מופעים והצגות",
+            "termsOfUse": "<p>תקף בימים א'-ה' בלבד. יש להציג את הברקוד בקופה.</p>",
+            "purchaseLimits": "עד 4 כרטיסים למנוי בחודש",
+            "validTo": "2026-11-30",
+            "branches": [
+                {"name": "סניף גלילות", "address": "מתחם גלילות"},
+                {"name": "סניף ראשון לציון", "address": "ילדי טהרן 5"}
+            ],
+            "subProducts": [
+                {
+                    "subProductId": "sp-1",
+                    "name": "כרטיס יחיד כולל פופקורן קטן",
+                    "memberPrice": 45,
+                    "originalPrice": 65,
+                    "discountPercent": 31
+                },
+                {
+                    "subProductId": "sp-2",
+                    "name": "כרטיס זוגי כולל פופקורן ענק",
+                    "memberPrice": 85,
+                    "originalPrice": 120,
+                    "discountPercent": 29
+                }
+            ]
+        }
+        deal = parse_deal(raw_hydrated_deal)
+        self.assertEqual(deal["id"], "20001")
+        self.assertEqual(deal["terms_of_use"], "תקף בימים א'-ה' בלבד. יש להציג את הברקוד בקופה.")
+        self.assertEqual(deal["limits"], "עד 4 כרטיסים למנוי בחודש")
+        self.assertEqual(deal["expiration_date"], "2026-11-30")
+        self.assertIn("סניף גלילות", deal["locations"])
+        self.assertIn("סניף ראשון לציון", deal["locations"])
+        self.assertEqual(len(deal["variants"]), 2)
+        self.assertEqual(deal["variants"][0]["price"], 45.0)
+        self.assertEqual(deal["variants"][0]["original_price"], 65.0)
+        self.assertEqual(deal["price"], 45.0)
 
 
 if __name__ == "__main__":

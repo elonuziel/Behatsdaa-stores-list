@@ -12,47 +12,172 @@ def fetch_wallets_via_evaluate(page):
                 "Accept": "application/json"
             };
 
-            // 1. Retrieve all cards/wallets
+            // 1. Retrieve all cards/wallets (trying GetChargingCard first, fallback to GetCardGeneralInfo)
             let wallets = [];
             try {
-                const genRes = await window.fetch("https://back.behatsdaa.org.il/api/cards/GetCardGeneralInfo", {
+                let genRes = await window.fetch("https://back.behatsdaa.org.il/api/card/GetChargingCard", {
                     headers,
                     credentials: "include"
                 });
+                if (!genRes.ok) {
+                    genRes = await window.fetch("https://back.behatsdaa.org.il/api/cards/GetCardGeneralInfo", {
+                        headers,
+                        credentials: "include"
+                    });
+                }
                 const genJson = await genRes.json();
-                wallets = genJson?.data?.wallets || [];
+                wallets = genJson?.data?.wallets || genJson?.data || [];
             } catch (e) {
-                return { error: 'GetCardGeneralInfo failed: ' + e.toString() };
+                try {
+                    const fallbackRes = await window.fetch("https://back.behatsdaa.org.il/api/cards/GetCardGeneralInfo", {
+                        headers,
+                        credentials: "include"
+                    });
+                    const fallbackJson = await fallbackRes.json();
+                    wallets = fallbackJson?.data?.wallets || fallbackJson?.data || [];
+                } catch (err2) {
+                    return { error: 'GetChargingCard / GetCardGeneralInfo failed: ' + e.toString() };
+                }
             }
 
             if (!wallets || wallets.length === 0) {
-                return { error: 'No wallets returned from GetCardGeneralInfo' };
+                return { error: 'No wallets returned from card endpoints' };
             }
 
             // 2. Fetch all stores for each wallet in parallel
             const results = await Promise.all(
                 wallets.map(async (w) => {
-                    const wid = w.walletID;
+                    const wid = w.walletId || w.walletID || w.id;
                     try {
-                        const chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
+                        let chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/card/GetShopsByWalletId?walletId=${wid}`, {
                             headers,
                             credentials: "include"
                         });
+                        if (!chainRes.ok) {
+                            chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
+                                headers,
+                                credentials: "include"
+                            });
+                        }
                         const chainJson = await chainRes.json();
+                        const categories = chainJson?.data?.categories || chainJson?.data?.shops || chainJson?.data || [];
                         return {
                             wallet: w,
-                            categories: chainJson?.data || []
+                            categories: categories
                         };
                     } catch (err) {
-                        return {
-                            wallet: w,
-                            error: err.toString(),
-                            categories: []
-                        };
+                        try {
+                            const chainRes2 = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
+                                headers,
+                                credentials: "include"
+                            });
+                            const chainJson2 = await chainRes2.json();
+                            return {
+                                wallet: w,
+                                categories: chainJson2?.data || []
+                            };
+                        } catch (err2) {
+                            return {
+                                wallet: w,
+                                error: err.toString(),
+                                categories: []
+                            };
+                        }
                     }
                 })
             );
-            return { ok: true, results };
+
+            // 3. Extract caps, rules, and terms dynamically from regulations page DOM & text
+            let extractedRules = [];
+            let extractedCaps = {};
+
+            try {
+                // Check if GetChargingCard returned metadata caps or regulations
+                const apiData = (typeof genJson !== "undefined" && genJson?.data) ? genJson.data : {};
+                if (apiData.monthlyCap || apiData.generalMonthlyCap) {
+                    extractedCaps.monthly_cap_general = Number(apiData.monthlyCap || apiData.generalMonthlyCap);
+                }
+                if (apiData.fighterMonthlyCap) {
+                    extractedCaps.monthly_cap_fighter = Number(apiData.fighterMonthlyCap);
+                }
+                if (apiData.instantBalanceCap || apiData.maxBalance) {
+                    extractedCaps.instant_balance_cap = Number(apiData.instantBalanceCap || apiData.maxBalance);
+                }
+                if (apiData.minReload || apiData.minDeposit) {
+                    extractedCaps.min_reload = Number(apiData.minReload || apiData.minDeposit);
+                }
+
+                const apiRules = apiData.rules || apiData.regulations || apiData.generalRules || [];
+                if (Array.isArray(apiRules)) {
+                    apiRules.forEach((r, idx) => {
+                        extractedRules.push({
+                            id: r.id || `api_rule_${idx + 1}`,
+                            title: (r.title || r.name || '').trim(),
+                            summary: (r.summary || r.content || r.description || '').trim()
+                        });
+                    });
+                }
+
+                // Scrape accordion items, rule blocks, and terms containers from live page DOM
+                if (typeof document !== "undefined") {
+                    const candidates = document.querySelectorAll(
+                        '.q-expansion-item, [class*="accordion"], [class*="rule"], [class*="term"], [class*="regulation"], [class*="faq"], [class*="policy"], [class*="info-box"]'
+                    );
+
+                    candidates.forEach((el, idx) => {
+                        const header = el.querySelector('[class*="title"], [class*="header"], h3, h4, h5, button, .q-item__label');
+                        const title = header ? header.innerText.trim() : '';
+                        const content = el.querySelector('[class*="content"], [class*="body"], [class*="text"], p, .q-expansion-item__content');
+                        const summary = content ? content.innerText.trim() : el.innerText.replace(title, '').trim();
+
+                        if (title && summary && title.length < 120 && summary.length > 15) {
+                            extractedRules.push({
+                                id: `dom_rule_${idx + 1}`,
+                                title: title,
+                                summary: summary.replace(/\\s+/g, ' ')
+                            });
+                        }
+                    });
+
+                    // Scrape page text to regex-extract official caps
+                    const bodyText = document.body ? document.body.innerText : '';
+
+                    const mGen = bodyText.match(/(?:תקרה חודשית|תקרת הטעינה מוגבלת ל-?|עד ל?תקרה של)\\s*([1-9]\\d{0,1}[,\\.]?\\d{3})\\s*₪/);
+                    if (mGen) {
+                        const val = parseInt(mGen[1].replace(/[^\\d]/g, ''), 10);
+                        if (val >= 1000 && val <= 10000) extractedCaps.monthly_cap_general = val;
+                    }
+
+                    const mFight = bodyText.match(/(?:פייטר|fighter)[^\\n.]{0,80}?(?:תקרה|עד)\\s*([1-9]\\d{0,1}[,\\.]?\\d{3})\\s*₪/i);
+                    if (mFight) {
+                        const val = parseInt(mFight[1].replace(/[^\\d]/g, ''), 10);
+                        if (val >= 1000 && val <= 10000) extractedCaps.monthly_cap_fighter = val;
+                    }
+
+                    const mInst = bodyText.match(/(?:יתרה רגעית|יתרה מקסימלית|סכום כולל של עד)\\s*([1-9]\\d{0,1}[,\\.]?\\d{3})\\s*₪/);
+                    if (mInst) {
+                        const val = parseInt(mInst[1].replace(/[^\\d]/g, ''), 10);
+                        if (val >= 500 && val <= 5000) extractedCaps.instant_balance_cap = val;
+                    }
+
+                    const mMin = bodyText.match(/(?:טעינה מינימלית|מינימום|החל מ-?)\\s*([1-9]\\d{1,2})\\s*₪/);
+                    if (mMin) {
+                        const val = parseInt(mMin[1].replace(/[^\\d]/g, ''), 10);
+                        if (val >= 20 && val <= 500) extractedCaps.min_reload = val;
+                    }
+                }
+            } catch (ruleErr) {
+                console.warn("Dynamic rule and cap extraction warning:", ruleErr);
+            }
+
+            return {
+                ok: true,
+                results,
+                raw_wallets: wallets,
+                extracted_caps: extractedCaps,
+                extracted_rules: extractedRules,
+                page_text_sample: (typeof document !== "undefined" && document.body) ? document.body.innerText.slice(0, 10000) : ""
+            };
         }
     """)
 
@@ -60,7 +185,7 @@ def fetch_wallets_via_evaluate(page):
 from core.progress import render_progress_bar
 
 
-def fetch_deals_via_evaluate(page, max_deals=None):
+def fetch_deals_via_evaluate(page, max_deals=None, hydrate_details=True):
     """Execute deep catalog scraping for rotating deals, coupons, and vouchers."""
     def _default_progress(data):
         if isinstance(data, dict):
@@ -80,7 +205,10 @@ def fetch_deals_via_evaluate(page, max_deals=None):
         pass
 
     return page.evaluate("""
-        async (maxCount) => {
+        async (evalArgs) => {
+            const maxCount = Array.isArray(evalArgs) ? evalArgs[0] : evalArgs;
+            const shouldHydrate = Array.isArray(evalArgs) ? (evalArgs[1] !== false) : true;
+
             const headers = {
                 "OrganizationId": "20",
                 "Accept": "application/json"
@@ -286,11 +414,62 @@ def fetch_deals_via_evaluate(page, max_deals=None):
             const rawDeals = Array.from(dealsMap.values());
             const finalDeals = maxCount ? rawDeals.slice(0, maxCount) : rawDeals;
 
+            // 3. Deep Deal Hydration via GetProductById
+            if (shouldHydrate && finalDeals.length > 0) {
+                const totalHydrate = finalDeals.length;
+                let hydratedCount = 0;
+                await reportProgress(0, totalHydrate, "Hydrating Deals Details:", `| 0/${totalHydrate}`);
+
+                await runInBatches(finalDeals, 15, async (d) => {
+                    const did = String(d.categoryId || d.id);
+                    try {
+                        const prodRes = await safeFetch(`https://back.behatsdaa.org.il/api/product/GetProductById?productId=${did}`, 5000);
+                        if (prodRes && prodRes.ok) {
+                            const prodJson = await prodRes.json();
+                            const p = prodJson?.data || prodJson?.data?.product || {};
+                            if (p && typeof p === "object") {
+                                if (p.termsOfUse || p.usageInstructions || p.notes || p.remarks) {
+                                    d.termsOfUse = p.termsOfUse || p.usageInstructions || p.notes || p.remarks;
+                                }
+                                if (p.purchaseLimits || p.maxQuantityPerUser || p.maxQuantity) {
+                                    d.purchaseLimits = p.purchaseLimits || p.maxQuantityPerUser || (p.maxQuantity ? `עד ${p.maxQuantity} יחידות למנוי` : "");
+                                }
+                                if (p.validTo || p.expirationDate) {
+                                    d.validTo = p.validTo || p.expirationDate;
+                                }
+                                if (Array.isArray(p.branches) && p.branches.length > 0) {
+                                    d.branches = p.branches;
+                                } else if (Array.isArray(p.redemptionLocations) && p.redemptionLocations.length > 0) {
+                                    d.branches = p.redemptionLocations;
+                                }
+                                if (Array.isArray(p.subProducts) && p.subProducts.length > 0) {
+                                    d.subProducts = p.subProducts;
+                                } else if (Array.isArray(p.variants) && p.variants.length > 0) {
+                                    d.variants = p.variants;
+                                } else if (Array.isArray(p.pricesList) && p.pricesList.length > 0) {
+                                    d.variants = p.pricesList;
+                                }
+                            }
+                        }
+                    } catch (e) {}
+                    hydratedCount++;
+                    if (hydratedCount % 20 === 0 || hydratedCount === totalHydrate) {
+                        await reportProgress(
+                            hydratedCount,
+                            totalHydrate,
+                            "Hydrating Deals Details:",
+                            `| ${hydratedCount}/${totalHydrate}`,
+                            hydratedCount === totalHydrate
+                        );
+                    }
+                });
+            }
+
             return {
                 ok: true,
                 deals: finalDeals,
                 tags: discoveredTags
             };
         }
-    """, max_deals)
+    """, [max_deals, hydrate_details])
 

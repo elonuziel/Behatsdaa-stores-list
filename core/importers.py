@@ -10,8 +10,9 @@ from core.parsers import (
     parse_chains_from_categories,
     merge_stores_into_catalog,
     parse_deal,
+    build_wallet_info_entry,
 )
-from core.storage import save_catalog, save_deals
+from core.storage import save_catalog, save_deals, save_wallets_info
 from core.progress import render_progress_bar
 
 
@@ -113,6 +114,25 @@ def import_cards_from_file(args):
     final_stores_list.sort(key=lambda s: s["name"])
     print(f"[+] Total unique participating stores saved: {len(final_stores_list)}")
     save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
+
+    # Save wallets_info.json
+    raw_wallets = data.get("wallets", []) if isinstance(data, dict) else []
+    wallets_info = []
+    if raw_wallets:
+        for rw in raw_wallets:
+            wallets_info.append(build_wallet_info_entry(rw))
+    elif results:
+        for item in results:
+            w = item.get("wallet", {})
+            if w:
+                wallets_info.append(build_wallet_info_entry(w))
+    elif discovered_cards:
+        for dc in discovered_cards:
+            wallets_info.append(build_wallet_info_entry(dc))
+
+    if wallets_info:
+        save_wallets_info(wallets_info, output_dir=args.output_dir)
+
     print("\n[SUCCESS] Cards import completed successfully!")
 
 

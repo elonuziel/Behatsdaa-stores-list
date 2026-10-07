@@ -8,6 +8,60 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+DEFAULT_GENERAL_CAPS = {
+    "monthly_cap_general": 3000,
+    "monthly_cap_fighter": 2500,
+    "instant_balance_cap": 1000,
+    "min_reload": 100,
+    "daily_cap": "ללא מגבלה יומית נפרדת (בכפוף לתקרה החודשית וליתרת 1,000 ₪ רגעית)"
+}
+
+DEFAULT_GENERAL_RULES = [
+    {
+        "id": "instant_cap",
+        "title": "תקרת יתרה רגעית (עד 1,000 ₪)",
+        "summary": "ניתן להחזיק בכרטיס סכום כולל של עד 1,000 ₪ בכל רגע נתון. לאחר ביצוע תשלום בקופה, ניתן לטעון מחדש עד 1,000 ₪ נוספים בכל פעם עד לתקרה החודשית."
+    },
+    {
+        "id": "monthly_cap",
+        "title": "תקרה חודשית קלנדרית (עד 3,000 ₪)",
+        "summary": "תקרת הטעינה מוגבלת ל-3,000 ₪ בחודש קלנדרי (פייטר: 2,500 ₪)."
+    },
+    {
+        "id": "billing_discount",
+        "title": "חיוב בניכוי ההנחה ובתשלום יחיד",
+        "summary": "החיוב באשראי בהצדעה מתבצע בתשלום אחד ובסכום המוזל (למשל: 800 ₪ עבור טעינת 1,000 ₪ בארנק של 20%)."
+    },
+    {
+        "id": "promotions_stacking",
+        "title": "כפל מבצעים והנחות סוף עונה",
+        "summary": "הכרטיס מכובד כולל כפל מבצעים והנחות סוף עונה במרבית הרשתות המובילות."
+    }
+]
+
+
+def save_wallets_info(wallets, general_caps=None, general_rules=None, output_dir="data"):
+    """Save finalized wallets metadata, caps, and rules into wallets_info.json."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / "wallets_info.json"
+
+    payload = {
+        "metadata": {
+            "title": "תנאי שימוש, תקרות טעינה וכללי כרטיסים נטענים - מועדון בהצדעה",
+            "last_updated": datetime.now(timezone.utc).isoformat(),
+            "general_caps": general_caps or DEFAULT_GENERAL_CAPS,
+            "general_rules": general_rules or DEFAULT_GENERAL_RULES
+        },
+        "wallets": wallets
+    }
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False, indent=2)
+    print(f"[+] Saved wallets info JSON to: {json_path}")
+    return json_path
+
+
 def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
     """Save finalized stores list into stores.json and stores.csv."""
     output_dir = Path(output_dir)
