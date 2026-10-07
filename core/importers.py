@@ -12,6 +12,7 @@ from core.parsers import (
     parse_deal,
 )
 from core.storage import save_catalog, save_deals
+from core.progress import render_progress_bar
 
 
 def import_deals_from_file(args):
@@ -40,10 +41,19 @@ def import_deals_from_file(args):
             pass
 
     final_deals_list = []
-    for rd in raw_deals:
+    total_raw = len(raw_deals)
+    for idx, rd in enumerate(raw_deals, start=1):
         parsed = parse_deal(rd, all_scraped_stores)
         if parsed and parsed.get("title"):
             final_deals_list.append(parsed)
+        if idx % 100 == 0 or idx == total_raw:
+            render_progress_bar(
+                idx,
+                total_raw,
+                prefix="Processing Deals:   ",
+                suffix=f"| {len(final_deals_list):,} valid deals",
+                done=(idx == total_raw)
+            )
 
     print(f"[+] Processed {len(final_deals_list)} valid deals & vouchers.")
     save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
@@ -67,8 +77,9 @@ def import_cards_from_file(args):
 
     discovered_cards = []
     all_scraped_stores = {}
+    total_cards = len(results)
 
-    for item in results:
+    for idx, item in enumerate(results, start=1):
         w = item.get("wallet", {})
         wid = str(w.get("walletID") or item.get("walletID", ""))
         wname = (w.get("walletName") or item.get("walletName") or f"כרטיס ארנק {wid}").strip()
@@ -88,8 +99,15 @@ def import_cards_from_file(args):
 
         categories = item.get("categories", [])
         stores = parse_chains_from_categories(categories, card_entry)
-        print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
         merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+
+        render_progress_bar(
+            idx,
+            total_cards,
+            prefix="Processing Cards:   ",
+            suffix=f"| {len(all_scraped_stores):,} stores found",
+            done=(idx == total_cards)
+        )
 
     final_stores_list = list(all_scraped_stores.values())
     final_stores_list.sort(key=lambda s: s["name"])

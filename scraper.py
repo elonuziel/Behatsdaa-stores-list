@@ -65,6 +65,7 @@ from core.importers import (
     import_cards_from_file,
     find_downloaded_file,
 )
+from core.progress import render_progress_bar
 
 
 def parse_arguments():
@@ -263,9 +264,8 @@ def scrape_with_playwright(args):
 
             if raw_result and raw_result.get("ok"):
                 results = raw_result.get("results", [])
-                print(f"[+] Successfully retrieved data for {len(results)} cards in {time.time() - start_time:.2f}s!")
-
-                for item in results:
+                total_cards = len(results)
+                for idx, item in enumerate(results, start=1):
                     w = item["wallet"]
                     wid = str(w.get("walletID"))
                     wname = (w.get("walletName") or f"כרטיס ארנק {wid}").strip()
@@ -285,8 +285,17 @@ def scrape_with_playwright(args):
 
                     categories = item.get("categories", [])
                     stores = parse_chains_from_categories(categories, card_entry)
-                    print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
                     merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+
+                    render_progress_bar(
+                        idx,
+                        total_cards,
+                        prefix="Processing Cards:   ",
+                        suffix=f"| {len(all_scraped_stores):,} stores found",
+                        done=(idx == total_cards)
+                    )
+
+                print(f"[+] Successfully retrieved data for {total_cards} cards ({len(all_scraped_stores):,} participating stores) in {time.time() - start_time:.2f}s!")
             else:
                 err_msg = (raw_result or {}).get("error", "No cards or wallets returned from API")
                 print(f"[!] Card extraction failed: {err_msg}")

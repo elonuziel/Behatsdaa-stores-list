@@ -37,6 +37,7 @@ from .importers import (
     import_cards_from_file,
     find_downloaded_file,
 )
+from .progress import render_progress_bar
 
 __all__ = [
     "extract_discount_percent",
@@ -61,5 +62,6 @@ __all__ = [
     "import_deals_from_file",
     "import_cards_from_file",
     "find_downloaded_file",
+    "render_progress_bar",
 ]
 

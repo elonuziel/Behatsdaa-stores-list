@@ -304,6 +304,18 @@ class TestScraperLogic(unittest.TestCase):
             self.assertTrue(res)
             mock_page.goto.assert_not_called()
 
+    def test_render_progress_bar(self):
+        import io
+        from core.progress import render_progress_bar
+
+        buf = io.StringIO()
+        with unittest.mock.patch("sys.stdout", buf):
+            render_progress_bar(5, 10, prefix="Testing:", suffix="done", done=True)
+        out = buf.getvalue()
+        self.assertIn("50.0%", out)
+        self.assertIn("5/10", out)
+        self.assertIn("Testing:", out)
+
 
 if __name__ == "__main__":
     unittest.main()

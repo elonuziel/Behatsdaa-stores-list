@@ -57,10 +57,22 @@ def fetch_wallets_via_evaluate(page):
     """)
 
 
+from core.progress import render_progress_bar
+
+
 def fetch_deals_via_evaluate(page, max_deals=None):
     """Execute deep catalog scraping for rotating deals, coupons, and vouchers."""
-    def _default_progress(msg):
-        print(f"    [*] {msg}")
+    def _default_progress(data):
+        if isinstance(data, dict):
+            render_progress_bar(
+                data.get("current", 0),
+                data.get("total", 1),
+                prefix=data.get("prefix", "Scanning Catalog:   "),
+                suffix=data.get("suffix", ""),
+                done=data.get("done", False)
+            )
+        else:
+            print(f"  [*] {data}")
 
     try:
         page.expose_function("reportDealsProgress", _default_progress)
@@ -80,6 +92,20 @@ def fetch_deals_via_evaluate(page, max_deals=None):
             async function logProgress(msg) {
                 if (typeof window.reportDealsProgress === "function") {
                     try { await window.reportDealsProgress(msg); } catch(e) {}
+                }
+            }
+
+            async function reportProgress(current, total, prefix, suffix, done = false) {
+                if (typeof window.reportDealsProgress === "function") {
+                    try {
+                        await window.reportDealsProgress({
+                            current,
+                            total,
+                            prefix,
+                            suffix,
+                            done
+                        });
+                    } catch(e) {}
                 }
             }
 
@@ -121,7 +147,7 @@ def fetch_deals_via_evaluate(page, max_deals=None):
             }
 
             // 1. Fetch top tags from homepage (holiday specials, featured carousels)
-            await logProgress("Scanning promotional tags and homepage carousels...");
+            await logProgress("Scanning promotional tags & homepage carousels...");
             try {
                 const topTagsRes = await safeFetch("https://back.behatsdaa.org.il/api/tags/GetCategorysByTopTag?selectTop=50&skipTags=0", 6000);
                 if (topTagsRes && topTagsRes.ok) {
@@ -186,8 +212,6 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                 console.warn("Failed fetching top tags:", err);
             }
 
-            await logProgress(`Discovered ${dealsMap.size} featured deals from homepage. Scanning full category catalog...`);
-
             // 2. Fetch full category hierarchy and crawl sub-categories in parallel
             try {
                 const catHeaderRes = await safeFetch("https://back.behatsdaa.org.il/api/category/GetCategoryHeader", 6000);
@@ -215,7 +239,9 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                     }
                     extractSubCategories(headerData, "צרכנות");
 
-                    await logProgress(`Scanning ${subCategoryList.length} categories in parallel...`);
+                    let processedSubs = 0;
+                    const totalSubs = subCategoryList.length;
+                    await reportProgress(0, totalSubs, "Scanning Categories:", `| ${dealsMap.size:,} deals found`);
 
                     // Fetch products from subcategories in parallel batches of 15
                     await runInBatches(subCategoryList, 15, async (sub) => {
@@ -241,6 +267,16 @@ def fetch_deals_via_evaluate(page, max_deals=None):
                                 }
                             }
                         } catch (e) {}
+                        processedSubs++;
+                        if (processedSubs % 5 === 0 || processedSubs === totalSubs) {
+                            await reportProgress(
+                                processedSubs,
+                                totalSubs,
+                                "Scanning Categories:",
+                                `| ${dealsMap.size} deals found`,
+                                processedSubs === totalSubs
+                            );
+                        }
                     });
                 }
             } catch (err) {
@@ -249,7 +285,6 @@ def fetch_deals_via_evaluate(page, max_deals=None):
 
             const rawDeals = Array.from(dealsMap.values());
             const finalDeals = maxCount ? rawDeals.slice(0, maxCount) : rawDeals;
-            await logProgress(`Completed extraction of ${finalDeals.length} total deals!`);
 
             return {
                 ok: true,
