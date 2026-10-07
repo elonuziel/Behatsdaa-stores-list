@@ -272,6 +272,38 @@ class TestScraperLogic(unittest.TestCase):
             # Should run without error or hanging
             check_all_requirements()
 
+    def test_check_is_authenticated(self):
+        from unittest.mock import MagicMock
+        from scraper import check_is_authenticated
+
+        # Case 1: On /login page -> not authenticated
+        mock_page = MagicMock()
+        mock_page.url = "https://www.behatsdaa.org.il/login"
+        self.assertFalse(check_is_authenticated(mock_page))
+
+        # Case 2: On chargingCard page, login button visible -> not authenticated
+        mock_page.url = "https://www.behatsdaa.org.il/card/chargingCard"
+        mock_login_btn = MagicMock()
+        mock_login_btn.count.return_value = 1
+        mock_login_btn.nth.return_value.is_visible.return_value = True
+        mock_page.locator.return_value = mock_login_btn
+        self.assertFalse(check_is_authenticated(mock_page))
+
+        # Case 3: In-browser evaluate returns hasWallets: True -> authenticated
+        mock_login_btn.count.return_value = 0
+        mock_page.evaluate.return_value = {"ok": True, "hasWallets": True}
+        self.assertTrue(check_is_authenticated(mock_page))
+
+    def test_ensure_authenticated_session_already_authed(self):
+        from unittest.mock import patch, MagicMock
+        from scraper import ensure_authenticated_session
+
+        mock_page = MagicMock()
+        with patch("core.auth.check_is_authenticated", return_value=True):
+            res = ensure_authenticated_session(mock_page)
+            self.assertTrue(res)
+            mock_page.goto.assert_not_called()
+
 
 if __name__ == "__main__":
     unittest.main()

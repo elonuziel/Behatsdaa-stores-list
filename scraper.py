@@ -9,14 +9,9 @@ Supports extracting both:
 import os
 import sys
 import json
-import re
-import csv
 import time
 import argparse
-import subprocess
-from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urljoin
 
 # Ensure UTF-8 stdout encoding on Windows
 if sys.stdout.encoding != 'utf-8':
@@ -32,30 +27,44 @@ try:
 except ImportError:
     pass
 
-# ---------------------------------------------------------------------------
-# Module-level constants shared by parse_deal() — defined once, never rebuilt
-# ---------------------------------------------------------------------------
-
-# Words/tokens that must NOT be accepted as supplier names (dietary labels,
-# generic adjectives, distribution words, etc.)
-_GENERIC_TOKENS: set[str] = {
-    'כשר', 'כשרה', 'חלבי', 'בשרי', 'פרווה', 'אנרגיה', 'אילת', 'אונליין', 'online',
-    'חינם', 'מבצע', 'חדש', 'חדשה', 'ישן', 'מוגבל', 'בלבד', 'כולל', 'ללא',
-    'גדול', 'קטן', 'ממוחזר', 'עץ', 'פלסטיק', 'גב', 'רשת', 'סט', 'ערכת',
-}
-# Pre-normalised forms of _GENERIC_TOKENS (strip non-alnum, lower-case)
-_GENERIC_NORMS: set[str] = {re.sub(r'[^א-תa-zA-Z0-9]+', '', t).lower() for t in _GENERIC_TOKENS}
-
-# Top-level Behatsdaa category names — short, well-known super-categories
-_SUPER_CATS: set[str] = {
-    'צרכנות', 'אטרקציות', 'קולינריה', 'בילוי ופנאי', 'מופעים והצגות',
-    'תיירות ונופש', 'כושר וספורט', 'מבצעי רכב', 'ביטוח ושירותים',
-    'מחשבים ואלקטרוניקה', 'מרהטים את הבית', 'חשמל לבית ולמטבח',
-    'ריהוט ואביזרים לגן ולמרפסת', 'טקסטיל והלבשה', 'קמפינג, מחנאות וטיולים',
-    'מכינים את המטבח', 'נופש בארץ', 'מבצעי צרכנות לחג',
-}
-
-# ---------------------------------------------------------------------------
+# Re-export and import core modules for clean separation & 100% backward compatibility
+from core.parsers import (
+    _GENERIC_TOKENS,
+    _GENERIC_NORMS,
+    _SUPER_CATS,
+    extract_discount_percent,
+    generate_store_id,
+    parse_chains_from_categories,
+    merge_stores_into_catalog,
+    safe_float,
+    parse_deal,
+)
+from core.deps import (
+    check_and_install_playwright,
+    is_chromium_installed,
+    install_chromium_browser,
+    check_and_install_chromium,
+    check_all_requirements,
+)
+from core.auth import (
+    launch_stealth_context,
+    check_is_authenticated,
+    wait_for_user_login,
+    ensure_authenticated_session,
+)
+from core.extractors import (
+    fetch_wallets_via_evaluate,
+    fetch_deals_via_evaluate,
+)
+from core.storage import (
+    save_catalog,
+    save_deals,
+)
+from core.importers import (
+    import_deals_from_file,
+    import_cards_from_file,
+    find_downloaded_file,
+)
 
 
 def parse_arguments():
@@ -159,1057 +168,6 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def extract_discount_percent(text):
-    """Extract numeric percentage from discount strings like '20%', 'עד 15% הנחה'"""
-    if not text:
-        return 0
-    if isinstance(text, (int, float)):
-        return int(text)
-    match = re.search(r'(\d+(?:\.\d+)?)\s*%', str(text))
-    if match:
-        try:
-            return int(float(match.group(1)))
-        except ValueError:
-            pass
-    match = re.search(r'(\d+)', str(text))
-    if match:
-        val = int(match.group(1))
-        if 1 <= val <= 100:
-            return val
-    return 0
-
-
-def generate_store_id(name, fallback_index=0):
-    """Generate a clean URL-friendly identifier for a store."""
-    slug = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF]+', '-', str(name)).strip('-').lower()
-    return slug or f"store-{fallback_index}"
-
-
-def parse_chains_from_categories(categories, card_info):
-    """Parse list of categories and chains returned by GetWalletChain API."""
-    stores = []
-    card_id = card_info["id"]
-    card_name = card_info["name"]
-    card_discount_str = card_info["discount_default"]
-    card_discount_num = card_info["discount_numeric"]
-
-    for cat in categories:
-        cat_name = (cat.get("tagName") or "כללי").strip()
-        chains = cat.get("walletChainData") or []
-
-        for chain in chains:
-            name = (chain.get("chainName") or "").strip()
-            if not name:
-                continue
-
-            # Filter out UI anomalies
-            if any(bad in name for bad in ["סל קניות", "תעודת זהות", "לטעינה", "תשלום בקופה", "ביטול טעינה", "מספר כרטיס המועדון"]):
-                continue
-
-            stores.append({
-                "name": name,
-                "chain_id": str(chain.get("chainID") or ""),
-                "category": cat_name,
-                "logo": chain.get("logoURL") or "",
-                "website": chain.get("webSite") or "",
-                "card_id": card_id,
-                "card_name": card_name,
-                "discount": card_discount_str,
-                "discount_numeric": card_discount_num,
-                "conditions": ""
-            })
-
-    return stores
-
-
-def merge_stores_into_catalog(catalog, stores, card_info):
-    """Merge scraped stores into unified catalog with deduplication across cards."""
-    card_id = card_info["id"]
-    card_name = card_info["name"]
-    discount_str = card_info["discount_default"]
-    discount_num = card_info["discount_numeric"]
-
-    for s in stores:
-        sname = s["name"]
-        if sname not in catalog:
-            catalog[sname] = {
-                "id": generate_store_id(sname, len(catalog) + 1),
-                "name": sname,
-                "category": s.get("category") or "כללי",
-                "logo": s.get("logo") or "",
-                "website": s.get("website") or "",
-                "conditions": s.get("conditions") or "",
-                "cards": [],
-                "max_discount": 0
-            }
-
-        store_entry = catalog[sname]
-
-        # Add card if not already linked
-        linked_card_ids = {c["card_id"] for c in store_entry["cards"]}
-        if card_id not in linked_card_ids:
-            store_entry["cards"].append({
-                "card_id": card_id,
-                "card_name": card_name,
-                "discount": discount_str,
-                "discount_numeric": discount_num,
-                "notes": s.get("conditions") or ""
-            })
-
-        # Update maximum discount
-        if discount_num > store_entry["max_discount"]:
-            store_entry["max_discount"] = discount_num
-
-        # Update category if previously unclassified
-        if store_entry["category"] in ["כללי", "אחר"] and s.get("category"):
-            store_entry["category"] = s["category"]
-
-        # Backfill logo and website if missing
-        if not store_entry["logo"] and s.get("logo"):
-            store_entry["logo"] = s["logo"]
-        if not store_entry["website"] and s.get("website"):
-            store_entry["website"] = s["website"]
-
-
-def safe_float(val, default=0.0):
-    if val is None or val == "":
-        return default
-    if isinstance(val, (int, float)):
-        return float(val)
-    val_clean = re.sub(r'[^\d.]+', '', str(val).replace(',', ''))
-    try:
-        return float(val_clean) if val_clean else default
-    except Exception:
-        return default
-
-
-def parse_deal(raw_deal, stores_catalog=None):
-    """Normalize a raw deal/category/variant JSON object from Behatsdaa into a clean deal dict."""
-    category_id = str(raw_deal.get("categoryId") or raw_deal.get("id") or "")
-    title = (raw_deal.get("title") or raw_deal.get("categoryName") or raw_deal.get("name") or "").strip()
-    if not title:
-        return None
-
-    # Variants & Pricing
-    variants_raw = raw_deal.get("variants") or []
-    parsed_variants = []
-    prices = []
-    original_prices = []
-
-    for idx, v in enumerate(variants_raw):
-        v_price = safe_float(v.get("price"))
-        v_orig = safe_float(v.get("original_price") or v.get("discount"))
-        v_name = (v.get("name") or title).strip()
-        v_barcode = str(v.get("barCode") or v.get("barcode") or "")
-        v_stock = v.get("stock") or ("אזל במלאי" if v.get("outofStock") else "במלאי")
-
-        # v_orig is the ORIGINAL (pre-discount) price from the API.
-        # On Behatsdaa the "discount" field actually stores the original price, not a reduction amount.
-        # Only accept v_orig as original when it is strictly greater than the sale price.
-        orig_price = v_orig if v_orig > v_price else v_price
-        disc_pct = round(((orig_price - v_price) / orig_price) * 100) if orig_price > v_price else 0
-
-        parsed_variants.append({
-            "id": str(v.get("id") or f"v-{category_id}-{idx}"),
-            "name": v_name,
-            "price": v_price,
-            "original_price": orig_price,
-            "discount_percent": disc_pct,
-            "barcode": v_barcode,
-            "stock": v_stock,
-            "expire_date": v.get("expireDate") or v.get("expire_date") or raw_deal.get("eventDate") or ""
-        })
-        if v_price > 0:
-            prices.append(v_price)
-        if orig_price > 0:
-            original_prices.append(orig_price)
-
-    # Support top-level prices list from category catalog responses.
-    # Behatsdaa encodes prices as a flat array where the values represent
-    # different variants/tiers — min() = cheapest sale price, max() = highest
-    # original (pre-discount) price shown as crossed-out.
-    if not prices and raw_deal.get("prices") and isinstance(raw_deal["prices"], list):
-        raw_prices = [safe_float(p) for p in raw_deal["prices"] if safe_float(p) > 0]
-        if raw_prices:
-            prices.append(min(raw_prices))               # sale / member price
-            if max(raw_prices) > min(raw_prices):
-                original_prices.append(max(raw_prices))  # original / non-member price
-
-    # Support top-level single price & discount field
-    single_price = safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
-    if not prices and single_price > 0:
-        prices.append(single_price)
-
-    single_orig = safe_float(raw_deal.get("original_price") or raw_deal.get("discount"))
-    if not original_prices and single_orig > 0:
-        original_prices.append(single_orig)
-
-    category_url = (raw_deal.get("categoryUrl") or "").strip()
-    is_free = "חינם" in title or "מוזיאון" in title
-
-    # Filter out category folders or empty ghost shells that have no prices, no variants, no external url, and are not free
-    if not prices and not parsed_variants and not category_url and not is_free:
-        return None
-
-    # Skip intermediate category folder nodes that contain no products/prices
-    if raw_deal.get("isLeaf") is False and not prices and not parsed_variants and not category_url:
-        return None
-
-    supplier = (raw_deal.get("supplier") or raw_deal.get("supplierName") or "").strip()
-
-    # Extract supplier from title if missing from API fields
-    if not supplier:
-        # Try "מבית <Brand>" pattern first (most reliable)
-        supplier_match = re.search(r'מבית\s+[\'"]?([א-תA-Za-z0-9\s]{3,}?)[\'"]?(?:\s*[-–]|\s*$)', title)
-        if supplier_match:
-            supplier = supplier_match.group(1).strip()
-        else:
-            # Take FIRST segment before a dash — it is usually the brand name
-            # Require ≥4 normalised chars and not a known generic token
-            first_seg_match = re.match(r'^([^\-–]{4,50}?)\s*[-–]', title)
-            if first_seg_match:
-                candidate = first_seg_match.group(1).strip()
-                norm_candidate = re.sub(r'[^א-תa-zA-Z0-9]+', '', candidate).lower()
-                if len(norm_candidate) >= 4 and norm_candidate not in _GENERIC_NORMS:
-                    supplier = candidate
-
-    # Fallback to category if supplier is still empty or too short
-    if not supplier or len(re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier)) < 3:
-        supplier = (raw_deal.get("category") or "בהצדעה").strip()
-
-    # Clear generic tokens that slipped through (e.g. "כשר")
-    if re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower() in _GENERIC_NORMS:
-        supplier = (raw_deal.get("category") or "בהצדעה").strip()
-
-    # Image extraction (including CDN prefix for Behatsdaa media)
-    image = raw_deal.get("image") or ""
-    if not image and raw_deal.get("images") and isinstance(raw_deal["images"], list) and raw_deal["images"]:
-        first_img = raw_deal["images"][0]
-        if isinstance(first_img, dict):
-            fpath = first_img.get("file") or first_img.get("externalUrl") or ""
-            if fpath:
-                image = fpath if fpath.startswith("http") else f"https://pics.k4a.co.il/share/{fpath}"
-        elif isinstance(first_img, str):
-            image = first_img if first_img.startswith("http") else f"https://pics.k4a.co.il/share/{first_img}"
-
-    # Category name — prefer structured API fields; never let category equal the full deal title
-    raw_cat = raw_deal.get("category") or ""
-    # Only use the "category" field if it's a proper super-category, not if it accidentally equals the title
-    if raw_cat and raw_cat != title and (raw_cat in _SUPER_CATS or len(raw_cat) <= 30):
-        cat_name = raw_cat.strip()
-    else:
-        # Try parent/breadcrumb fields
-        cat_name = (raw_deal.get("parentCategoryName") or "").strip()
-        if not cat_name and raw_deal.get("breadcrumbs"):
-            crumbs = raw_deal.get("breadcrumbs")
-            if isinstance(crumbs, list) and crumbs:
-                cat_name = crumbs[0].get("name", "")
-        # Derive from sourceTags if available
-        if not cat_name:
-            tags_list = raw_deal.get("sourceTags") or []
-            if tags_list:
-                cat_name = tags_list[0]
-        if not cat_name:
-            cat_name = "כללי"
-
-    # Determine deal type
-    # is_free: "חינם" explicitly in title OR every listed price is 0
-    # Do NOT use "מוזיאון" — museums can cost money (e.g. מוזיאון האשליות = 85 ₪)
-    all_prices_free = bool(prices) and all(p == 0.0 for p in prices)
-    is_free = "חינם" in title or all_prices_free
-
-    is_external = bool(category_url and not prices and not parsed_variants)
-    if is_external:
-        deal_type = "external_partner"
-        deal_url = category_url
-        main_price = 0.0
-        main_orig = 0.0
-        discount_pct = 0
-    elif is_free and not prices:
-        deal_type = "free_benefit"
-        deal_url = f"https://www.behatsdaa.org.il/category/productPage/{category_id}"
-        main_price = 0.0
-        main_orig = 0.0
-        discount_pct = 100
-    else:
-        deal_type = "voucher"
-        deal_url = f"https://www.behatsdaa.org.il/category/productPage/{category_id}"
-        main_price = min(prices) if prices else safe_float(raw_deal.get("price") or raw_deal.get("fromPrice") or raw_deal.get("minPrice"))
-        if is_free:
-            main_price = 0.0
-        main_orig = max(original_prices) if original_prices else safe_float(raw_deal.get("original_price") or raw_deal.get("discount") or main_price)
-        if main_orig < main_price:
-            main_orig = main_price
-        discount_pct = round(((main_orig - main_price) / main_orig) * 100) if main_orig > main_price else 0
-
-    # Locations & Shipping (support business.address or locations list)
-    locs = raw_deal.get("locations") or []
-    loc_str = "מגוון סניפים"
-    shipping_included = False
-    business = raw_deal.get("business") or {}
-    if isinstance(business, dict) and business.get("address"):
-        loc_str = business["address"].strip()
-    elif isinstance(locs, list) and locs:
-        loc_str = ", ".join([l.get("address", "") for l in locs if l.get("address")]) or "מגוון סניפים"
-
-    raw_desc = raw_deal.get("description") or raw_deal.get("shortDescription") or raw_deal.get("categoryHTML") or ""
-    clean_desc = re.sub(r'<[^>]+>', ' ', str(raw_desc)).strip()
-    clean_desc = re.sub(r'\s+', ' ', clean_desc)
-
-    raw_terms = raw_deal.get("termsOfUse") or raw_deal.get("howToUse") or raw_deal.get("redimType") or ""
-    clean_terms = re.sub(r'<[^>]+>', ' ', str(raw_terms)).strip()
-    clean_terms = re.sub(r'\s+', ' ', clean_terms)
-
-    if "משלוח" in title or "משלוח" in clean_desc or "משלוח" in clean_terms:
-        shipping_included = True
-        if not locs and (not isinstance(business, dict) or not business.get("address")):
-            loc_str = "כולל משלוח עד הבית"
-
-    # Cross-link with stores in catalog — require meaningful match (≥4 chars, ≥40% length coverage)
-    matched_store_id = None
-    matched_store_name = None
-    if stores_catalog and supplier:
-        supp_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', supplier).lower()
-        if len(supp_norm) >= 4 and supp_norm not in _GENERIC_NORMS:
-            for sname, sdata in stores_catalog.items():
-                sname_norm = re.sub(r'[^א-תa-zA-Z0-9]+', '', sname).lower()
-                min_len = min(len(supp_norm), len(sname_norm))
-                max_len = max(len(supp_norm), len(sname_norm))
-                if min_len >= 4 and (supp_norm in sname_norm or sname_norm in supp_norm) and (min_len / max_len) >= 0.4:
-                    matched_store_id = sdata.get("id")
-                    matched_store_name = sname
-                    break
-
-    tags = raw_deal.get("sourceTags") or raw_deal.get("tags") or []
-    if isinstance(tags, str):
-        tags = [tags]
-
-    return {
-        "id": category_id,
-        "category_id": category_id,
-        "title": title,
-        "supplier": supplier,
-        "category": cat_name,
-        "tags": tags,
-        "image": image,
-        "url": deal_url,
-        "price": main_price,
-        "original_price": main_orig,
-        "discount_percent": discount_pct,
-        "deal_type": deal_type,
-        "is_external": is_external,
-        "locations": loc_str,
-        "shipping_included": shipping_included,
-        "expiration_date": raw_deal.get("expireDate") or raw_deal.get("eventDate") or "",
-        "limits": str(raw_deal.get("monthlyLimit") or raw_deal.get("orderLimit") or ""),
-        "description": clean_desc,
-        "terms_of_use": clean_terms,
-        "variants": parsed_variants,
-        "matched_store_id": matched_store_id,
-        "matched_store_name": matched_store_name
-    }
-
-
-def check_and_install_playwright(prompt_install=True):
-    """Verify that playwright is installed. If missing, prompt user to auto-install."""
-    try:
-        import playwright
-        from playwright.sync_api import sync_playwright
-        return True
-    except ImportError:
-        pass
-
-    print("\n" + "=" * 62)
-    print(" [!] Missing Requirement: Python package 'playwright' is not installed.")
-    print("=" * 62)
-
-    if not prompt_install or not sys.stdin.isatty():
-        print(f" Please run: {sys.executable} -m pip install -r requirements.txt\n")
-        return False
-
-    try:
-        ans = input(" Would you like to install required packages automatically now? [Y/n]: ").strip().lower()
-    except (KeyboardInterrupt, EOFError):
-        print("\nCancelled.")
-        return False
-
-    if ans not in ["", "y", "yes"]:
-        print("[!] Package installation skipped.")
-        return False
-
-    req_file = Path(__file__).resolve().parent / "requirements.txt"
-    install_targets = ["-r", str(req_file)] if req_file.exists() else ["playwright>=1.40.0", "python-dotenv>=1.0.0"]
-
-    print("\n[*] Installing packages via pip...")
-    cmd = [sys.executable, "-m", "pip", "install"] + install_targets
-    result = subprocess.run(cmd)
-
-    # In Ubuntu 24.04+ (PEP 668), standard pip install fails with externally-managed-environment
-    if result.returncode != 0:
-        print("[*] Retrying with --break-system-packages (for Debian/Ubuntu PEP 668 environments)...")
-        cmd_break = [sys.executable, "-m", "pip", "install", "--break-system-packages"] + install_targets
-        result = subprocess.run(cmd_break)
-
-    if result.returncode != 0:
-        print("\n[!] Package installation failed. Please run manually:")
-        print(f"    {sys.executable} -m pip install --break-system-packages -r requirements.txt\n")
-        return False
-
-    print("[+] Python packages installed successfully!")
-
-    # Invalidate import caches and ensure user site-packages is on sys.path if pip installed to --user
-    try:
-        import site
-        import importlib
-        if hasattr(site, "getusersitepackages"):
-            usp = site.getusersitepackages()
-            if usp and usp not in sys.path and Path(usp).exists():
-                sys.path.append(usp)
-        importlib.invalidate_caches()
-    except Exception:
-        pass
-
-    try:
-        import playwright
-        from playwright.sync_api import sync_playwright
-        return True
-    except ImportError:
-        print("[!] Playwright was installed but requires restarting the script.")
-        return False
-
-
-def is_chromium_installed(p=None):
-    """Check if Playwright's Chromium browser binary is present on the filesystem."""
-    try:
-        if p is not None:
-            path = p.chromium.executable_path
-            return bool(path and Path(path).exists())
-        home = Path.home()
-        cache_paths = [
-            home / ".cache" / "ms-playwright",
-            home / "AppData" / "Local" / "ms-playwright",
-        ]
-        for cp in cache_paths:
-            if cp.exists() and any(cp.glob("chromium-*")):
-                return True
-    except Exception:
-        pass
-    return False
-
-
-def install_chromium_browser():
-    """Download and install Playwright's Chromium browser binary."""
-    print("\n[*] Downloading and installing Playwright Chromium browser binary...")
-    print(f"[*] Running: {sys.executable} -m playwright install chromium")
-    result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
-    if result.returncode == 0:
-        print("[+] Playwright Chromium installed successfully!\n")
-        return True
-    else:
-        print(f"\n[!] Browser download failed (code {result.returncode}).")
-        print(f"    Please run manually: {sys.executable} -m playwright install chromium\n")
-        return False
-
-
-def check_and_install_chromium(p=None, prompt_install=True):
-    """Verify Chromium is installed. If missing, prompt to install."""
-    if is_chromium_installed(p):
-        return True
-
-    print("\n" + "=" * 62)
-    print(" [!] Missing Requirement: Playwright Chromium browser binary is not installed.")
-    print("=" * 62)
-
-    if not prompt_install or not sys.stdin.isatty():
-        print(f" Please run: {sys.executable} -m playwright install chromium\n")
-        return False
-
-    try:
-        ans = input(" Would you like to download and install Chromium now? [Y/n]: ").strip().lower()
-    except (KeyboardInterrupt, EOFError):
-        print("\nCancelled.")
-        return False
-
-    if ans in ["", "y", "yes"]:
-        return install_chromium_browser()
-    else:
-        print("[!] Chromium installation skipped.")
-        return False
-
-
-def check_all_requirements():
-    """Diagnostic check and interactive repair for all scraper dependencies."""
-    print("\n" + "=" * 62)
-    print("        🔧 Checking Scraper Environment & Requirements")
-    print("=" * 62)
-
-    # 1. Python package: playwright
-    has_playwright = False
-    try:
-        import playwright
-        print("  [✓] Python package 'playwright': Installed")
-        has_playwright = True
-    except ImportError:
-        print("  [✗] Python package 'playwright': NOT installed")
-        if check_and_install_playwright(prompt_install=True):
-            has_playwright = True
-
-    # 2. System browsers (Chrome / Edge)
-    import shutil
-    has_chrome = bool(shutil.which("google-chrome") or shutil.which("google-chrome-stable") or shutil.which("chrome"))
-    has_edge = bool(shutil.which("microsoft-edge") or shutil.which("msedge"))
-    print(f"  [{'✓' if has_chrome else '−'}] System Google Chrome: {'Found' if has_chrome else 'Not found'}")
-    print(f"  [{'✓' if has_edge else '−'}] System Microsoft Edge: {'Found' if has_edge else 'Not found'}")
-
-    # 3. Playwright Chromium binary
-    if has_playwright:
-        try:
-            from playwright.sync_api import sync_playwright
-            with sync_playwright() as p:
-                if is_chromium_installed(p):
-                    print("  [✓] Playwright Chromium browser: Installed")
-                else:
-                    print("  [✗] Playwright Chromium browser: NOT installed")
-                    check_and_install_chromium(p, prompt_install=True)
-        except Exception as e:
-            print(f"  [!] Could not inspect Playwright Chromium: {e}")
-    else:
-        print("  [−] Playwright Chromium check: Skipped (install 'playwright' first)")
-
-    print("=" * 62 + "\n")
-
-
-def launch_stealth_context(p, profile_dir, headless=False, channel=None):
-    """Launch Chromium context with stealth flags to bypass Incapsula WAF."""
-    profile_path = Path(profile_dir).resolve()
-    profile_path.mkdir(parents=True, exist_ok=True)
-
-    launch_args = [
-        "--disable-blink-features=AutomationControlled",
-        "--no-sandbox",
-        "--disable-infobars"
-    ]
-    if channel:
-        channels = [channel, None] if channel not in [None, "chromium"] else [None]
-    else:
-        channels = ["chrome", "msedge", None]
-
-    for ch in channels:
-        try:
-            kwargs = {
-                "user_data_dir": str(profile_path),
-                "headless": headless,
-                "args": launch_args,
-                "ignore_default_args": ["--enable-automation"],
-                "locale": "he-IL",
-                "timezone_id": "Asia/Jerusalem",
-                "viewport": {"width": 1400, "height": 900}
-            }
-            if ch:
-                kwargs["channel"] = ch
-                print(f"[*] Launching persistent browser using channel '{ch}'...")
-            else:
-                print("[*] Launching persistent browser using bundled Chromium...")
-
-            return p.chromium.launch_persistent_context(**kwargs)
-        except Exception as e:
-            msg = str(e).split('\n')[0]
-            if ch:
-                print(f"[*] Channel '{ch}' not available ({msg}), trying next option...")
-            else:
-                print(f"[!] Bundled Chromium launch failed: {msg}")
-                err_str = str(e).lower()
-                if "executable doesn't exist" in err_str or "playwright install" in err_str:
-                    if check_and_install_chromium(p, prompt_install=True):
-                        try:
-                            print("[*] Retrying persistent browser launch with newly installed Chromium...")
-                            return p.chromium.launch_persistent_context(**kwargs)
-                        except Exception as retry_err:
-                            print(f"[!] Retry failed: {retry_err}")
-
-    raise RuntimeError(f"Could not launch any browser! Please run: {sys.executable} -m playwright install chromium")
-
-
-def wait_for_user_login(page, user_id=None, manual=False):
-    """Detect if page redirected to /login and handle automated CLI or manual authentication."""
-    try:
-        page.wait_for_timeout(2000)
-        is_login = "/login" in page.url or page.locator("input[placeholder*='תעודת'], button:has-text('שלחו')").count() > 0
-    except Exception:
-        is_login = "/login" in page.url
-
-    if not is_login:
-        print("[+] Session is authenticated. Proceeding...")
-        return
-
-    # Check if manual window login requested
-    if manual:
-        print("\n" + "=" * 65)
-        print(" [!] ACTION REQUIRED: Manual Behatsdaa Login in Browser Window")
-        print("=" * 65)
-        print(" Behatsdaa requires logging in to access cards and participating stores.")
-        print(" -> Enter your ID & SMS code directly in the opened Chrome/Edge window.")
-        try:
-            input(" -> Once you are logged in on screen, press [Enter] here to continue: ")
-            print("[+] Login confirmed! Resuming scraper...")
-            page.wait_for_timeout(2000)
-        except Exception:
-            pass
-        print("=" * 65 + "\n")
-        return
-
-    print("\n" + "=" * 65)
-    print(" [!] ACTION REQUIRED: Behatsdaa Login Needed")
-    print("=" * 65)
-    print(" Behatsdaa requires logging in with your Israeli ID and an SMS code.")
-
-    try:
-        # Step 1: Obtain Israeli ID (from args, env, or terminal prompt)
-        id_val = (user_id or os.environ.get("BEHATSDAA_ID") or "").strip()
-        if not id_val:
-            try:
-                id_val = input(" -> Enter your Israeli ID (תעודת זהות - 9 digits, or press Enter for manual window login): ").strip()
-            except EOFError:
-                id_val = ""
-
-        if not id_val:
-            print("[!] Switching to manual login in browser window...")
-            print(" -> Enter your ID & SMS code in the opened browser window.")
-            input(" -> Press [Enter] once logged in on screen to continue: ")
-            print("[+] Login confirmed! Resuming scraper...")
-            page.wait_for_timeout(2000)
-            return
-
-        print("[*] Entering ID into login form...")
-        id_locator = page.locator("input[placeholder*='תעודת'], input[type='tel'], input[placeholder*='זהות'], input[type='text']").first
-        id_locator.wait_for(state="visible", timeout=10000)
-        id_locator.click()
-        id_locator.fill("")
-        id_locator.type(id_val, delay=60)
-        page.wait_for_timeout(500)
-
-        # Step 2: Click 'שלחו לי קוד חד פעמי'
-        send_btn = page.locator("button:has-text('שלחו לי קוד'), button:has-text('שלחו'), button[type='submit']").first
-        send_btn.wait_for(state="visible", timeout=5000)
-        print("[*] Clicking 'שלחו לי קוד חד פעמי' ...")
-        send_btn.click()
-
-        # Step 3: Wait for OTP input screen (/login/withCode)
-        print("[*] Waiting for verification code input screen...")
-        code_locator = page.locator("input[placeholder*='קוד התחברות'], input[placeholder*='קוד'], input[type='tel']").first
-        code_locator.wait_for(state="visible", timeout=15000)
-        print("[+] SMS/Email verification code sent by Behatsdaa!")
-
-        # Step 4: Prompt user for OTP code in terminal
-        otp_val = ""
-        while not otp_val:
-            try:
-                otp_val = input(" -> Enter the SMS OTP code you received (קוד התחברות): ").strip()
-            except EOFError:
-                break
-
-        if not otp_val:
-            print("[!] No verification code entered.")
-            return
-
-        print("[*] Submitting verification code...")
-        code_locator.click()
-        code_locator.fill("")
-        code_locator.type(otp_val, delay=60)
-        page.wait_for_timeout(500)
-
-        # Step 5: Click login submit button ('התחברות')
-        login_btn = page.locator("button:has-text('התחברות'), button[type='submit']").first
-        login_btn.wait_for(state="visible", timeout=5000)
-        login_btn.click()
-
-        print("[*] Verifying authentication...")
-        try:
-            page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
-            print("[+] Login confirmed! Session cookies saved to profile.")
-        except Exception:
-            page.wait_for_timeout(3000)
-            if "/login" not in page.url:
-                print("[+] Login confirmed! Session cookies saved to profile.")
-            else:
-                print("[!] Still on login page. Please check if the OTP code was valid.")
-
-        page.wait_for_timeout(2000)
-        print("=" * 65 + "\n")
-
-    except Exception as err:
-        print(f"\n[!] Automated CLI login note: {err}")
-        print(" -> If running headful, you can complete login in the browser window.")
-        try:
-            input(" -> Press [Enter] once logged in to continue: ")
-        except Exception:
-            pass
-        print("=" * 65 + "\n")
-
-
-def fetch_wallets_via_evaluate(page):
-    """Execute high-speed API extraction inside active browser session for rechargeable cards."""
-    return page.evaluate("""
-        async () => {
-            const headers = {
-                "OrganizationId": "20",
-                "Accept": "application/json"
-            };
-
-            // 1. Retrieve all cards/wallets
-            let wallets = [];
-            try {
-                const genRes = await window.fetch("https://back.behatsdaa.org.il/api/cards/GetCardGeneralInfo", {
-                    headers,
-                    credentials: "include"
-                });
-                const genJson = await genRes.json();
-                wallets = genJson?.data?.wallets || [];
-            } catch (e) {
-                return { error: 'GetCardGeneralInfo failed: ' + e.toString() };
-            }
-
-            if (!wallets || wallets.length === 0) {
-                return { error: 'No wallets returned from GetCardGeneralInfo' };
-            }
-
-            // 2. Fetch all stores for each wallet in parallel
-            const results = await Promise.all(
-                wallets.map(async (w) => {
-                    const wid = w.walletID;
-                    try {
-                        const chainRes = await window.fetch(`https://back.behatsdaa.org.il/api/cards/GetWalletChain?walletId=${wid}`, {
-                            headers,
-                            credentials: "include"
-                        });
-                        const chainJson = await chainRes.json();
-                        return {
-                            wallet: w,
-                            categories: chainJson?.data || []
-                        };
-                    } catch (err) {
-                        return {
-                            wallet: w,
-                            error: err.toString(),
-                            categories: []
-                        };
-                    }
-                })
-            );
-            return { ok: true, results };
-        }
-    """)
-
-
-def fetch_deals_via_evaluate(page, max_deals=None):
-    """Execute deep catalog scraping for rotating deals, coupons, and vouchers."""
-    return page.evaluate("""
-        async (maxCount) => {
-            const headers = {
-                "OrganizationId": "20",
-                "Accept": "application/json"
-            };
-
-            const dealsMap = new Map();
-            const discoveredTags = [];
-
-            function extractFromInfo(info) {
-                if (!info) return [];
-                if (Array.isArray(info.categories)) return info.categories;
-                if (info.categories && typeof info.categories === "object") return [info.categories];
-                if (info.categoryId || info.id) return [info];
-                return [];
-            }
-
-            // 1. Fetch top tags from homepage (holiday specials, featured carousels)
-            try {
-                const topTagsRes = await window.fetch("https://back.behatsdaa.org.il/api/tags/GetCategorysByTopTag?selectTop=50&skipTags=0", {
-                    headers,
-                    credentials: "include"
-                });
-                const topTagsJson = await topTagsRes.json();
-                const tagsData = topTagsJson?.data?.data || topTagsJson?.data || [];
-
-                for (const tag of tagsData) {
-                    const tagId = tag.tagId;
-                    const tagName = (tag.tagName || "").trim();
-                    if (tagName) discoveredTags.push({ id: tagId, name: tagName });
-
-                    const categoryInfos = tag.tagCategoryInfo || [];
-                    for (const catInfo of categoryInfos) {
-                        for (const cat of extractFromInfo(catInfo)) {
-                            if (cat && (cat.categoryId || cat.id)) {
-                                const cid = String(cat.categoryId || cat.id);
-                                if (!dealsMap.has(cid)) {
-                                    cat.sourceTags = tagName ? [tagName] : [];
-                                    dealsMap.set(cid, cat);
-                                } else {
-                                    const existing = dealsMap.get(cid);
-                                    if (tagName && (!existing.sourceTags || !existing.sourceTags.includes(tagName))) {
-                                        existing.sourceTags = existing.sourceTags || [];
-                                        existing.sourceTags.push(tagName);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    // Also fetch full items under this specific tag
-                    try {
-                        const tagFullRes = await window.fetch(`https://back.behatsdaa.org.il/api/tags/GetCategorysByTagID?tagid=${tagId}`, {
-                            headers,
-                            credentials: "include"
-                        });
-                        const tagFullJson = await tagFullRes.json();
-                        const fullInfo = tagFullJson?.data?.data?.tagCategoryInfo || tagFullJson?.data?.tagCategoryInfo || [];
-                        for (const catInfo of fullInfo) {
-                            for (const cat of extractFromInfo(catInfo)) {
-                                if (cat && (cat.categoryId || cat.id)) {
-                                    const cid = String(cat.categoryId || cat.id);
-                                    if (!dealsMap.has(cid)) {
-                                        cat.sourceTags = tagName ? [tagName] : [];
-                                        dealsMap.set(cid, cat);
-                                    } else {
-                                        const existing = dealsMap.get(cid);
-                                        if (tagName && (!existing.sourceTags || !existing.sourceTags.includes(tagName))) {
-                                            existing.sourceTags = existing.sourceTags || [];
-                                            existing.sourceTags.push(tagName);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // ignore single tag error
-                    }
-                }
-            } catch (err) {
-                console.warn("Failed fetching top tags:", err);
-            }
-
-            // 2. Fetch full category hierarchy and crawl sub-categories for all products
-            try {
-                const catHeaderRes = await window.fetch("https://back.behatsdaa.org.il/api/category/GetCategoryHeader", {
-                    headers,
-                    credentials: "include"
-                });
-                const catHeaderJson = await catHeaderRes.json();
-                const headerData = catHeaderJson?.data?.data || catHeaderJson?.data || [];
-
-                const subCategoryList = [];
-                function extractSubCategories(nodes, parentName) {
-                    if (!nodes || !Array.isArray(nodes)) return;
-                    for (const n of nodes) {
-                        const curName = n.categoryName || parentName || "צרכנות";
-                        if (n.children && n.children.length > 0) {
-                            extractSubCategories(n.children, curName);
-                        } else if (n.subCategories && n.subCategories.length > 0 && !n.isLeaf) {
-                            extractSubCategories(n.subCategories, curName);
-                        } else if (n.categoryId || n.id) {
-                            subCategoryList.push({
-                                id: String(n.categoryId || n.id),
-                                name: curName,
-                                parent: parentName || curName
-                            });
-                        }
-                    }
-                }
-                extractSubCategories(headerData, "צרכנות");
-
-                // Fetch products from each subcategory
-                for (const sub of subCategoryList) {
-                    try {
-                        const subRes = await window.fetch(`https://back.behatsdaa.org.il/api/category/GetCategoryById?categoryId=${sub.id}`, {
-                            headers,
-                            credentials: "include"
-                        });
-                        const subJson = await subRes.json();
-                        const products = subJson?.data?.subCategories || subJson?.data?.categories || [];
-                        for (const p of products) {
-                            if (p && (p.categoryId || p.id)) {
-                                const pid = String(p.categoryId || p.id);
-                                if (!dealsMap.has(pid)) {
-                                    p.category = sub.parent;
-                                    p.sourceTags = [sub.name];
-                                    dealsMap.set(pid, p);
-                                } else {
-                                    const existing = dealsMap.get(pid);
-                                    if (!existing.sourceTags.includes(sub.name)) {
-                                        existing.sourceTags.push(sub.name);
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        // ignore single subcategory error
-                    }
-                }
-            } catch (err) {
-                console.warn("Failed fetching category header:", err);
-            }
-
-            // 3. Deep-fetch product details & variants in batches if needed
-            const rawDeals = Array.from(dealsMap.values());
-            const dealsToFetch = maxCount ? rawDeals.slice(0, maxCount) : rawDeals;
-            const finalDeals = [];
-
-            const batchSize = 6;
-            for (let i = 0; i < dealsToFetch.length; i += batchSize) {
-                const batch = dealsToFetch.slice(i, i + batchSize);
-                const promises = batch.map(async (deal) => {
-                    const cid = deal.categoryId || deal.id;
-                    if (deal.variants && deal.variants.length > 0 && (deal.howToUse || deal.termsOfUse)) {
-                        return deal;
-                    }
-                    try {
-                        const pRes = await window.fetch(`https://back.behatsdaa.org.il/api/category/GetCategoryProducts?categoryId=${cid}`, {
-                            headers,
-                            credentials: "include"
-                        });
-                        const pJson = await pRes.json();
-                        if (pJson?.data?.data) {
-                            const detail = pJson.data.data;
-                            detail.sourceTags = deal.sourceTags || [];
-                            if (!detail.category && deal.category) detail.category = deal.category;
-                            return detail;
-                        }
-                    } catch (err) {
-                        // ignore and use shallow deal
-                    }
-                    return deal;
-                });
-
-                const batchResults = await Promise.all(promises);
-                finalDeals.push(...batchResults);
-            }
-
-            return {
-                ok: true,
-                deals: finalDeals,
-                tags: discoveredTags
-            };
-        }
-    """, max_deals)
-
-
-def save_catalog(final_stores_list, discovered_cards, output_dir, card_url):
-    """Save finalized stores list into stores.json and stores.csv."""
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    json_path = output_dir / "stores.json"
-    csv_path = output_dir / "stores.csv"
-
-    all_categories = sorted(list({s.get("category", "כללי") for s in final_stores_list if s.get("category")}))
-    if "הכל" not in all_categories:
-        all_categories.insert(0, "הכל")
-
-    output_payload = {
-        "metadata": {
-            "title": "רשימת רשתות מכבדות - כרטיסי בהצדעה",
-            "source": card_url,
-            "last_updated": datetime.now(timezone.utc).isoformat(),
-            "total_stores": len(final_stores_list),
-            "available_cards": discovered_cards,
-            "categories": all_categories
-        },
-        "stores": final_stores_list
-    }
-
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(output_payload, f, ensure_ascii=False, indent=2)
-    print(f"[+] Saved stores JSON catalog to: {json_path}")
-
-    with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "שם הרשת / העסק",
-            "קטגוריה",
-            "כרטיסים תומכים",
-            "הנחה מרבית %",
-            "פירוט הנחות לפי כרטיס",
-            "אתר אינטרנט",
-            "תנאים והגבלות"
-        ])
-        for s in final_stores_list:
-            card_names = ", ".join([c["card_name"] for c in s.get("cards", [])])
-            breakdown = " | ".join([f"{c['card_name']}: {c['discount']}" for c in s.get("cards", [])])
-            writer.writerow([
-                s.get("name", ""),
-                s.get("category", ""),
-                card_names,
-                s.get("max_discount", 0),
-                breakdown,
-                s.get("website", ""),
-                s.get("conditions", "")
-            ])
-    print(f"[+] Saved stores CSV catalog to: {csv_path}")
-
-
-def save_deals(final_deals_list, discovered_tags, output_dir, home_url):
-    """Save finalized deals and vouchers into deals.json and deals.csv."""
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
-    json_path = output_dir / "deals.json"
-    csv_path = output_dir / "deals.csv"
-
-    all_categories = sorted(list({d.get("category", "כללי") for d in final_deals_list if d.get("category")}))
-    if "הכל" not in all_categories:
-        all_categories.insert(0, "הכל")
-
-    all_tags = sorted(list({t for d in final_deals_list for t in d.get("tags", [])}))
-
-    output_payload = {
-        "metadata": {
-            "title": "מבצעים ושוברים ייעודיים - בהצדעה",
-            "source": home_url,
-            "last_updated": datetime.now(timezone.utc).isoformat(),
-            "total_deals": len(final_deals_list),
-            "tags": all_tags,
-            "categories": all_categories
-        },
-        "deals": final_deals_list
-    }
-
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(output_payload, f, ensure_ascii=False, indent=2)
-    print(f"[+] Saved deals JSON catalog to: {json_path}")
-
-    with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            "מזהה",
-            "שם המוצר / שובר",
-            "ספק / מותג",
-            "קטגוריה",
-            "מחיר בהצדעה ₪",
-            "מחיר מקורי ₪",
-            "אחוז חיסכון %",
-            "תגיות מבצע",
-            "מיקום / משלוח",
-            "תוקף המבצע",
-            "הגבלת רכישה",
-            "רשת מקושרת",
-            "קישור למוצר"
-        ])
-        for d in final_deals_list:
-            writer.writerow([
-                d.get("id", ""),
-                d.get("title", ""),
-                d.get("supplier", ""),
-                d.get("category", ""),
-                d.get("price", 0),
-                d.get("original_price", 0),
-                f"{d.get('discount_percent', 0)}%",
-                ", ".join(d.get("tags", [])),
-                d.get("locations", ""),
-                d.get("expiration_date", ""),
-                d.get("limits", ""),
-                d.get("matched_store_name") or "ללא",
-                d.get("url", "")
-            ])
-    print(f"[+] Saved deals CSV catalog to: {csv_path}")
-
-
 def scrape_with_playwright(args):
     if not check_and_install_playwright(prompt_install=True):
         sys.exit(1)
@@ -1240,9 +198,9 @@ def scrape_with_playwright(args):
         print(f"[*] Browser: {args.browser}")
         print(f"[*] Profile Directory: {args.profile_dir}")
 
-    # Load existing stores.json for deal cross-linking if deals-only
+    # Load existing stores.json for deal cross-linking ONLY if deals-only
     stores_path = Path(args.output_dir) / "stores.json"
-    if stores_path.exists():
+    if args.deals_only and stores_path.exists():
         try:
             with open(stores_path, "r", encoding="utf-8") as f:
                 existing_data = json.load(f)
@@ -1276,7 +234,7 @@ def scrape_with_playwright(args):
         page = context.pages[0] if context.pages else context.new_page()
         page.add_init_script("Object.defineProperty(navigator, 'webdriver', { get: () => undefined });")
 
-        # Navigate & check authentication
+        # Navigate & ensure authentication
         nav_url = args.home_url if args.deals_only else args.card_url
         print(f"\n[1/3] Navigating to: {nav_url}")
         try:
@@ -1284,8 +242,13 @@ def scrape_with_playwright(args):
         except Exception as e:
             print(f"[*] Navigation note: {e}")
 
-        wait_for_user_login(page, user_id=args.user_id, manual=getattr(args, "manual_login", False))
-        time.sleep(2)
+        ensure_authenticated_session(
+            page,
+            user_id=args.user_id,
+            manual=getattr(args, "manual_login", False),
+            target_url=nav_url
+        )
+        time.sleep(1)
 
         # 1. Scrape Cards (unless deals-only)
         if not args.deals_only:
@@ -1323,6 +286,9 @@ def scrape_with_playwright(args):
                     stores = parse_chains_from_categories(categories, card_entry)
                     print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
                     merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+            else:
+                err_msg = (raw_result or {}).get("error", "No cards or wallets returned from API")
+                print(f"[!] Card extraction failed: {err_msg}")
 
         # 2. Scrape Deals & Vouchers (unless cards-only)
         if not args.cards_only:
@@ -1343,126 +309,33 @@ def scrape_with_playwright(args):
                     parsed = parse_deal(rd, all_scraped_stores)
                     if parsed and parsed.get("title"):
                         final_deals_list.append(parsed)
+            else:
+                err_msg = (deals_result or {}).get("error", "Deals extraction returned empty")
+                print(f"[!] Deals extraction failed: {err_msg}")
 
         context.close()
 
     # Save Stores Catalog
-    if not args.deals_only and all_scraped_stores:
-        final_stores_list = list(all_scraped_stores.values())
-        print(f"\n[+] Total unique stores saved: {len(final_stores_list)}")
-        save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
+    if not args.deals_only:
+        if all_scraped_stores:
+            final_stores_list = list(all_scraped_stores.values())
+            print(f"\n[+] Total unique stores saved: {len(final_stores_list)}")
+            save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
+        else:
+            print("\n[!] No stores were scraped in this run. Existing stores catalog preserved.")
 
     # Save Deals Catalog
-    if not args.cards_only and final_deals_list:
-        print(f"[+] Total unique deals & vouchers saved: {len(final_deals_list)}")
-        save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
+    if not args.cards_only:
+        if final_deals_list:
+            print(f"[+] Total unique deals & vouchers saved: {len(final_deals_list)}")
+            save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
+        else:
+            print("[!] No deals were extracted in this run. Existing deals catalog preserved.")
 
-    print("\n[SUCCESS] Scraping completed successfully!")
-
-
-def import_deals_from_file(args):
-    """Import and process raw deals from a JSON file directly without Playwright."""
-    import_path = Path(args.import_deals)
-    if not import_path.exists():
-        print(f"[ERROR] Import file not found: {import_path}")
-        sys.exit(1)
-
-    print(f"[*] Importing raw deals from: {import_path} ...")
-    with open(import_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    raw_deals = data.get("deals", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
-    discovered_tags = data.get("tags", []) if isinstance(data, dict) else []
-
-    all_scraped_stores = {}
-    stores_path = Path(args.output_dir) / "stores.json"
-    if stores_path.exists():
-        try:
-            with open(stores_path, "r", encoding="utf-8") as f:
-                existing_data = json.load(f)
-                for s in existing_data.get("stores", []):
-                    all_scraped_stores[s["name"]] = s
-        except Exception:
-            pass
-
-    final_deals_list = []
-    for rd in raw_deals:
-        parsed = parse_deal(rd, all_scraped_stores)
-        if parsed and parsed.get("title"):
-            final_deals_list.append(parsed)
-
-    print(f"[+] Processed {len(final_deals_list)} valid deals & vouchers.")
-    save_deals(final_deals_list, discovered_tags, args.output_dir, args.home_url)
-    print("\n[SUCCESS] Deals import completed successfully!")
-
-
-def import_cards_from_file(args):
-    """Import and process raw cards from a JSON file directly without Playwright."""
-    import_path = Path(args.import_cards)
-    if not import_path.exists():
-        print(f"[ERROR] Import file not found: {import_path}")
-        sys.exit(1)
-
-    print(f"[*] Importing raw cards from: {import_path} ...")
-    with open(import_path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    results = data.get("results", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
-    if not results and isinstance(data, dict) and "data" in data:
-        results = data["data"].get("results", []) or data["data"].get("wallets", [])
-
-    discovered_cards = []
-    all_scraped_stores = {}
-
-    for item in results:
-        w = item.get("wallet", {})
-        wid = str(w.get("walletID") or item.get("walletID", ""))
-        wname = (w.get("walletName") or item.get("walletName") or f"כרטיס ארנק {wid}").strip()
-        disc_num = extract_discount_percent(w.get("discountRate", 0))
-        disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
-
-        card_entry = {
-            "id": f"card-{wid}",
-            "name": wname,
-            "wallet_id": wid,
-            "discount_default": disc_str,
-            "discount_numeric": disc_num,
-            "max_deposit": w.get("maxDeposit"),
-            "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
-        }
-        discovered_cards.append(card_entry)
-
-        categories = item.get("categories", [])
-        stores = parse_chains_from_categories(categories, card_entry)
-        print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
-        merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
-
-    final_stores_list = list(all_scraped_stores.values())
-    final_stores_list.sort(key=lambda s: s["name"])
-    print(f"[+] Total unique participating stores saved: {len(final_stores_list)}")
-    save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
-    print("\n[SUCCESS] Cards import completed successfully!")
-
-
-def find_downloaded_file(filename):
-    """Search for a file in current directory, Linux Downloads, and WSL Windows Downloads."""
-    candidates = [
-        Path.cwd() / filename,
-        Path.home() / "Downloads" / filename,
-    ]
-    try:
-        wsl_users = Path("/mnt/c/Users")
-        if wsl_users.exists():
-            for u in wsl_users.glob("*"):
-                if u.is_dir() and not u.name.startswith("Default") and u.name != "Public":
-                    candidates.append(u / "Downloads" / filename)
-    except Exception:
-        pass
-
-    for p in candidates:
-        if p.exists():
-            return str(p)
-    return ""
+    if all_scraped_stores or final_deals_list:
+        print("\n[SUCCESS] Scraping completed successfully!")
+    else:
+        print("\n[!] Scraping finished with no new data extracted. Please ensure you are logged in.")
 
 
 def run_interactive_menu():
@@ -1499,7 +372,6 @@ def run_interactive_menu():
         return
 
     if choice == "4":
-        # Classic manual on-screen entry in an opened browser window
         args.headless = False
         args.manual_login = True
         print("\n[*] Launching visual browser window for manual login...")
