@@ -85,63 +85,74 @@ Three extraction workflows are supported:
 
 ---
 
-### Method 1: In-Browser JavaScript Extractor (`extract_behatsdaa_deals.js`) 🚀 *(Recommended)*
+### Method 1: In-Browser JavaScript Extractors 🚀 *(Recommended & Fastest)*
 
-The fastest, simplest, and most reliable method to capture the full live catalog (**1,700+ deals** across all 99 sub-categories and 28+ campaign tags). Because it executes directly inside your authenticated browser session, it bypasses Imperva WAF / Cloudflare bot protections instantly with zero setup.
+The simplest and most reliable method to capture the live catalog directly from your standard browser (Chrome, Edge, Brave). Because it runs inside your existing authenticated session, it requires **zero browser setup or GUI in WSL** and bypasses all Imperva WAF / Cloudflare protections instantly.
 
-#### Step-by-Step Instructions:
-1. **Open & Log In**: In your standard browser (Chrome, Edge, Brave, etc.), navigate to [https://www.behatsdaa.org.il/](https://www.behatsdaa.org.il/) and log into your account.
-2. **Open Developer Console**: Press `F12` (or right-click $\rightarrow$ **Inspect**) and click the **Console** tab.
-3. **Run the Script**: Copy the entire contents of [`extract_behatsdaa_deals.js`](extract_behatsdaa_deals.js), paste it into the console, and press `Enter`.
-4. **Automatic Extraction**: The script will crawl:
-   - All 28+ campaign carousels (*"החמים של ספטמבר"*, *"מבצעי צרכנות לחג"*, *"אטרקציות"*, etc.)
-   - All 99 sub-categories across the entire navigation tree.
-   - Upon completion, it automatically triggers a download of `deals_raw.json` to your browser's Downloads folder.
-5. **Import into the Project Catalog**:
-   Run the normalization pipeline to process the raw file:
+> [!TIP]
+> **WSL Users & Downloads Folder**:
+> Files downloaded from Chrome/Edge in Windows land in your Windows Downloads folder, which is directly accessible in WSL at:
+> ```bash
+> /mnt/c/Users/<YourWindowsUsername>/Downloads/cards_raw.json
+> /mnt/c/Users/<YourWindowsUsername>/Downloads/deals_raw.json
+> ```
+> The interactive menu (`./scraper.py`) **automatically searches `/mnt/c/Users/*/Downloads/`** so you can just press Enter!
+
+#### A. Extract Rechargeable Cards (`extract_behatsdaa_cards.js`):
+1. Log into [behatsdaa.org.il](https://www.behatsdaa.org.il).
+2. Press `F12` $\rightarrow$ **Console**.
+3. Paste [`extract_behatsdaa_cards.js`](extract_behatsdaa_cards.js) and press `Enter` to download `cards_raw.json`.
+4. Import directly into the catalog:
    ```bash
-   python scraper.py --import-deals ~/Downloads/deals_raw.json
+   python3 scraper.py --import-cards /mnt/c/Users/<YourUsername>/Downloads/cards_raw.json
    ```
-   **What the import pipeline handles automatically**:
-   - **Filters Dead Ghost Shells**: Removes empty category nodes that have no products or inventory.
-   - **Direct Partner URLs**: Resolves external partner links with club discount keys (e.g. hotel booking portals on `ananas.holiday`, car rental, telecom).
-   - **Normalized Pricing**: Computes member prices, crossed-out original prices, savings %, and variant breakdowns.
-   - **Cross-Linking**: Matches deals with stores on rechargeable cards.
-   - **Catalog Generation**: Updates production-ready `data/deals.json` and `data/deals.csv`.
+
+#### B. Extract Deals & Vouchers (`extract_behatsdaa_deals.js`):
+1. Log into [behatsdaa.org.il](https://www.behatsdaa.org.il).
+2. Press `F12` $\rightarrow$ **Console**.
+3. Paste [`extract_behatsdaa_deals.js`](extract_behatsdaa_deals.js) and press `Enter` to download `deals_raw.json`.
+4. Import directly into the catalog:
+   ```bash
+   python3 scraper.py --import-deals /mnt/c/Users/<YourUsername>/Downloads/deals_raw.json
+   ```
 
 ---
 
-### Method 2: Automated Playwright Python Scraper (`scraper.py`) 🤖
+### Method 2: Automated Python Scraper (`scraper.py`) & Interactive Menu 🤖
 
-Automated scraper powered by Python and Playwright with anti-detection flags.
-
-#### 1. Prerequisites & Dependencies:
-Ensure Python 3.10+ is installed:
+Launch the interactive CLI menu:
 ```bash
-pip install -r requirements.txt
-playwright install chromium
+./scraper.py
+```
+*(Or pass `--menu`)*
+
+```text
+==============================================================
+        💳 Behatsdaa - Scraper & Data Pipeline Suite
+==============================================================
+ Select an action to perform:
+
+  [1] 💳 Scrape Rechargeable Cards (Playwright headless - terminal login)
+  [2] 🎁 Scrape Rotating Deals (Playwright headless - terminal login)
+  [3] 🚀 Full Scrape: Cards + Deals (Playwright headless - terminal login)
+  [4] 🖥️  Manual Browser Scrape (Playwright headful - enter in browser window)
+  [5] 🏷️  Scrape Be-Plus Billing Discounts (10,600+ stores, no browser)
+  [6] 📥 Import Cards from file (cards_raw.json)
+  [7] 📥 Import Deals from file (deals_raw.json)
+  [8] 🔧 Check & Install Requirements (Playwright & Chromium)
+  [0] ❌ Exit
+==============================================================
 ```
 
-#### 2. Running the Scraper:
-```bash
-# Scrape BOTH rechargeable cards and rotating deals:
-python scraper.py --browser chrome
+#### Automated Requirement Detection & Auto-Install:
+- **Interactive Check & Repair**: Running `./scraper.py --check-deps` or selecting Option `[8]` checks Python dependencies and Playwright's Chromium browser.
+- **Auto-Prompt on Missing Dependencies**: If `playwright` or the Chromium browser binary is missing when running any scraping option, the script prompts you (`[Y/n]`) and installs them automatically (including handling Ubuntu PEP 668 `--break-system-packages`), then immediately proceeds without failing!
 
-# Scrape ONLY rotating deals and vouchers:
-python scraper.py --deals-only
-
-# Scrape ONLY rechargeable card stores (980+ chains across 8 cards):
-python scraper.py --cards-only
-
-# Quick test run with a limited number of deals:
-python scraper.py --deals-only --max-deals 10
-```
-
-#### 3. Authentication & Imperva WAF Bypass:
-- Behatsdaa's backend API (`back.behatsdaa.org.il`) is protected by Imperva Incapsula WAF.
-- When running `scraper.py` interactively, a browser window opens. Log in once with your credentials / SMS verification.
-- The scraper automatically saves session cookies and browser tokens into `./behatsdaa_profile`.
-- Subsequent runs reuse the persistent profile without requiring repeated logins.
+#### Login Modes Supported:
+1. **Automated Terminal Login (`--headless`)**:
+   Prompts for your Israeli ID (or reads `--id`) and the SMS OTP verification code directly in your terminal, enters them automatically, and saves cookies to `./behatsdaa_profile`.
+2. **Classic Manual Browser Login (`--manual-login` or Option `4`)**:
+   Opens a visible Chrome/Edge browser window on screen, allows you to enter your ID and SMS code directly in the browser GUI, and resumes once you press Enter in the terminal.
 
 ---
 

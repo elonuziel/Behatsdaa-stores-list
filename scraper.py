@@ -13,6 +13,7 @@ import re
 import csv
 import time
 import argparse
+import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urljoin
@@ -125,6 +126,35 @@ def parse_arguments():
         "--import-deals",
         default=None,
         help="Path to raw deals JSON file (e.g. extracted from browser console) to process and save directly"
+    )
+    parser.add_argument(
+        "--import-cards",
+        default=None,
+        help="Path to raw cards JSON file (e.g. extracted from browser console) to process and save directly"
+    )
+    parser.add_argument(
+        "--id",
+        dest="user_id",
+        default=None,
+        help="Israeli ID (תעודת זהות - 9 digits) for automated login (if omitted, you will be prompted in terminal)"
+    )
+    parser.add_argument(
+        "--manual-login",
+        action="store_true",
+        default=False,
+        help="Use manual login in browser window (enter ID & SMS code directly in Chrome/Edge)"
+    )
+    parser.add_argument(
+        "--menu",
+        action="store_true",
+        default=False,
+        help="Launch interactive terminal menu to choose scraping or importing actions"
+    )
+    parser.add_argument(
+        "--check-deps",
+        action="store_true",
+        default=False,
+        help="Check dependencies (Playwright & Chromium) and prompt to install if missing"
     )
     return parser.parse_args()
 
@@ -480,6 +510,175 @@ def parse_deal(raw_deal, stores_catalog=None):
     }
 
 
+def check_and_install_playwright(prompt_install=True):
+    """Verify that playwright is installed. If missing, prompt user to auto-install."""
+    try:
+        import playwright
+        from playwright.sync_api import sync_playwright
+        return True
+    except ImportError:
+        pass
+
+    print("\n" + "=" * 62)
+    print(" [!] Missing Requirement: Python package 'playwright' is not installed.")
+    print("=" * 62)
+
+    if not prompt_install or not sys.stdin.isatty():
+        print(f" Please run: {sys.executable} -m pip install -r requirements.txt\n")
+        return False
+
+    try:
+        ans = input(" Would you like to install required packages automatically now? [Y/n]: ").strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        print("\nCancelled.")
+        return False
+
+    if ans not in ["", "y", "yes"]:
+        print("[!] Package installation skipped.")
+        return False
+
+    req_file = Path(__file__).resolve().parent / "requirements.txt"
+    install_targets = ["-r", str(req_file)] if req_file.exists() else ["playwright>=1.40.0", "python-dotenv>=1.0.0"]
+
+    print("\n[*] Installing packages via pip...")
+    cmd = [sys.executable, "-m", "pip", "install"] + install_targets
+    result = subprocess.run(cmd)
+
+    # In Ubuntu 24.04+ (PEP 668), standard pip install fails with externally-managed-environment
+    if result.returncode != 0:
+        print("[*] Retrying with --break-system-packages (for Debian/Ubuntu PEP 668 environments)...")
+        cmd_break = [sys.executable, "-m", "pip", "install", "--break-system-packages"] + install_targets
+        result = subprocess.run(cmd_break)
+
+    if result.returncode != 0:
+        print("\n[!] Package installation failed. Please run manually:")
+        print(f"    {sys.executable} -m pip install --break-system-packages -r requirements.txt\n")
+        return False
+
+    print("[+] Python packages installed successfully!")
+
+    # Invalidate import caches and ensure user site-packages is on sys.path if pip installed to --user
+    try:
+        import site
+        import importlib
+        if hasattr(site, "getusersitepackages"):
+            usp = site.getusersitepackages()
+            if usp and usp not in sys.path and Path(usp).exists():
+                sys.path.append(usp)
+        importlib.invalidate_caches()
+    except Exception:
+        pass
+
+    try:
+        import playwright
+        from playwright.sync_api import sync_playwright
+        return True
+    except ImportError:
+        print("[!] Playwright was installed but requires restarting the script.")
+        return False
+
+
+def is_chromium_installed(p=None):
+    """Check if Playwright's Chromium browser binary is present on the filesystem."""
+    try:
+        if p is not None:
+            path = p.chromium.executable_path
+            return bool(path and Path(path).exists())
+        home = Path.home()
+        cache_paths = [
+            home / ".cache" / "ms-playwright",
+            home / "AppData" / "Local" / "ms-playwright",
+        ]
+        for cp in cache_paths:
+            if cp.exists() and any(cp.glob("chromium-*")):
+                return True
+    except Exception:
+        pass
+    return False
+
+
+def install_chromium_browser():
+    """Download and install Playwright's Chromium browser binary."""
+    print("\n[*] Downloading and installing Playwright Chromium browser binary...")
+    print(f"[*] Running: {sys.executable} -m playwright install chromium")
+    result = subprocess.run([sys.executable, "-m", "playwright", "install", "chromium"])
+    if result.returncode == 0:
+        print("[+] Playwright Chromium installed successfully!\n")
+        return True
+    else:
+        print(f"\n[!] Browser download failed (code {result.returncode}).")
+        print(f"    Please run manually: {sys.executable} -m playwright install chromium\n")
+        return False
+
+
+def check_and_install_chromium(p=None, prompt_install=True):
+    """Verify Chromium is installed. If missing, prompt to install."""
+    if is_chromium_installed(p):
+        return True
+
+    print("\n" + "=" * 62)
+    print(" [!] Missing Requirement: Playwright Chromium browser binary is not installed.")
+    print("=" * 62)
+
+    if not prompt_install or not sys.stdin.isatty():
+        print(f" Please run: {sys.executable} -m playwright install chromium\n")
+        return False
+
+    try:
+        ans = input(" Would you like to download and install Chromium now? [Y/n]: ").strip().lower()
+    except (KeyboardInterrupt, EOFError):
+        print("\nCancelled.")
+        return False
+
+    if ans in ["", "y", "yes"]:
+        return install_chromium_browser()
+    else:
+        print("[!] Chromium installation skipped.")
+        return False
+
+
+def check_all_requirements():
+    """Diagnostic check and interactive repair for all scraper dependencies."""
+    print("\n" + "=" * 62)
+    print("        🔧 Checking Scraper Environment & Requirements")
+    print("=" * 62)
+
+    # 1. Python package: playwright
+    has_playwright = False
+    try:
+        import playwright
+        print("  [✓] Python package 'playwright': Installed")
+        has_playwright = True
+    except ImportError:
+        print("  [✗] Python package 'playwright': NOT installed")
+        if check_and_install_playwright(prompt_install=True):
+            has_playwright = True
+
+    # 2. System browsers (Chrome / Edge)
+    import shutil
+    has_chrome = bool(shutil.which("google-chrome") or shutil.which("google-chrome-stable") or shutil.which("chrome"))
+    has_edge = bool(shutil.which("microsoft-edge") or shutil.which("msedge"))
+    print(f"  [{'✓' if has_chrome else '−'}] System Google Chrome: {'Found' if has_chrome else 'Not found'}")
+    print(f"  [{'✓' if has_edge else '−'}] System Microsoft Edge: {'Found' if has_edge else 'Not found'}")
+
+    # 3. Playwright Chromium binary
+    if has_playwright:
+        try:
+            from playwright.sync_api import sync_playwright
+            with sync_playwright() as p:
+                if is_chromium_installed(p):
+                    print("  [✓] Playwright Chromium browser: Installed")
+                else:
+                    print("  [✗] Playwright Chromium browser: NOT installed")
+                    check_and_install_chromium(p, prompt_install=True)
+        except Exception as e:
+            print(f"  [!] Could not inspect Playwright Chromium: {e}")
+    else:
+        print("  [−] Playwright Chromium check: Skipped (install 'playwright' first)")
+
+    print("=" * 62 + "\n")
+
+
 def launch_stealth_context(p, profile_dir, headless=False, channel=None):
     """Launch Chromium context with stealth flags to bypass Incapsula WAF."""
     profile_path = Path(profile_dir).resolve()
@@ -490,7 +689,10 @@ def launch_stealth_context(p, profile_dir, headless=False, channel=None):
         "--no-sandbox",
         "--disable-infobars"
     ]
-    channels = [channel] if channel else ["chrome", "msedge", None]
+    if channel:
+        channels = [channel, None] if channel not in [None, "chromium"] else [None]
+    else:
+        channels = ["chrome", "msedge", None]
 
     for ch in channels:
         try:
@@ -516,27 +718,130 @@ def launch_stealth_context(p, profile_dir, headless=False, channel=None):
                 print(f"[*] Channel '{ch}' not available ({msg}), trying next option...")
             else:
                 print(f"[!] Bundled Chromium launch failed: {msg}")
+                err_str = str(e).lower()
+                if "executable doesn't exist" in err_str or "playwright install" in err_str:
+                    if check_and_install_chromium(p, prompt_install=True):
+                        try:
+                            print("[*] Retrying persistent browser launch with newly installed Chromium...")
+                            return p.chromium.launch_persistent_context(**kwargs)
+                        except Exception as retry_err:
+                            print(f"[!] Retry failed: {retry_err}")
 
-    raise RuntimeError("Could not launch any browser! Please run: playwright install chromium")
+    raise RuntimeError(f"Could not launch any browser! Please run: {sys.executable} -m playwright install chromium")
 
 
-def wait_for_user_login(page):
-    """Detect if page redirected to /login and wait for user authentication."""
+def wait_for_user_login(page, user_id=None, manual=False):
+    """Detect if page redirected to /login and handle automated CLI or manual authentication."""
     try:
-        is_login = "/login" in page.url or page.locator("input[type='tel'], input[placeholder*='תעודת'], button:has-text('כניסה')").count() > 0
+        page.wait_for_timeout(2000)
+        is_login = "/login" in page.url or page.locator("input[placeholder*='תעודת'], button:has-text('שלחו')").count() > 0
     except Exception:
         is_login = "/login" in page.url
 
-    if is_login:
+    if not is_login:
+        print("[+] Session is authenticated. Proceeding...")
+        return
+
+    # Check if manual window login requested
+    if manual:
         print("\n" + "=" * 65)
-        print(" [!] ACTION REQUIRED: Behatsdaa Login Needed")
+        print(" [!] ACTION REQUIRED: Manual Behatsdaa Login in Browser Window")
         print("=" * 65)
         print(" Behatsdaa requires logging in to access cards and participating stores.")
-        print(" -> Enter your ID & SMS code in the opened Chrome/Edge window.")
+        print(" -> Enter your ID & SMS code directly in the opened Chrome/Edge window.")
         try:
             input(" -> Once you are logged in on screen, press [Enter] here to continue: ")
             print("[+] Login confirmed! Resuming scraper...")
             page.wait_for_timeout(2000)
+        except Exception:
+            pass
+        print("=" * 65 + "\n")
+        return
+
+    print("\n" + "=" * 65)
+    print(" [!] ACTION REQUIRED: Behatsdaa Login Needed")
+    print("=" * 65)
+    print(" Behatsdaa requires logging in with your Israeli ID and an SMS code.")
+
+    try:
+        # Step 1: Obtain Israeli ID (from args, env, or terminal prompt)
+        id_val = (user_id or os.environ.get("BEHATSDAA_ID") or "").strip()
+        if not id_val:
+            try:
+                id_val = input(" -> Enter your Israeli ID (תעודת זהות - 9 digits, or press Enter for manual window login): ").strip()
+            except EOFError:
+                id_val = ""
+
+        if not id_val:
+            print("[!] Switching to manual login in browser window...")
+            print(" -> Enter your ID & SMS code in the opened browser window.")
+            input(" -> Press [Enter] once logged in on screen to continue: ")
+            print("[+] Login confirmed! Resuming scraper...")
+            page.wait_for_timeout(2000)
+            return
+
+        print("[*] Entering ID into login form...")
+        id_locator = page.locator("input[placeholder*='תעודת'], input[type='tel'], input[placeholder*='זהות'], input[type='text']").first
+        id_locator.wait_for(state="visible", timeout=10000)
+        id_locator.click()
+        id_locator.fill("")
+        id_locator.type(id_val, delay=60)
+        page.wait_for_timeout(500)
+
+        # Step 2: Click 'שלחו לי קוד חד פעמי'
+        send_btn = page.locator("button:has-text('שלחו לי קוד'), button:has-text('שלחו'), button[type='submit']").first
+        send_btn.wait_for(state="visible", timeout=5000)
+        print("[*] Clicking 'שלחו לי קוד חד פעמי' ...")
+        send_btn.click()
+
+        # Step 3: Wait for OTP input screen (/login/withCode)
+        print("[*] Waiting for verification code input screen...")
+        code_locator = page.locator("input[placeholder*='קוד התחברות'], input[placeholder*='קוד'], input[type='tel']").first
+        code_locator.wait_for(state="visible", timeout=15000)
+        print("[+] SMS/Email verification code sent by Behatsdaa!")
+
+        # Step 4: Prompt user for OTP code in terminal
+        otp_val = ""
+        while not otp_val:
+            try:
+                otp_val = input(" -> Enter the SMS OTP code you received (קוד התחברות): ").strip()
+            except EOFError:
+                break
+
+        if not otp_val:
+            print("[!] No verification code entered.")
+            return
+
+        print("[*] Submitting verification code...")
+        code_locator.click()
+        code_locator.fill("")
+        code_locator.type(otp_val, delay=60)
+        page.wait_for_timeout(500)
+
+        # Step 5: Click login submit button ('התחברות')
+        login_btn = page.locator("button:has-text('התחברות'), button[type='submit']").first
+        login_btn.wait_for(state="visible", timeout=5000)
+        login_btn.click()
+
+        print("[*] Verifying authentication...")
+        try:
+            page.wait_for_url(lambda u: "/login" not in u, timeout=20000)
+            print("[+] Login confirmed! Session cookies saved to profile.")
+        except Exception:
+            page.wait_for_timeout(3000)
+            if "/login" not in page.url:
+                print("[+] Login confirmed! Session cookies saved to profile.")
+            else:
+                print("[!] Still on login page. Please check if the OTP code was valid.")
+
+        page.wait_for_timeout(2000)
+        print("=" * 65 + "\n")
+
+    except Exception as err:
+        print(f"\n[!] Automated CLI login note: {err}")
+        print(" -> If running headful, you can complete login in the browser window.")
+        try:
+            input(" -> Press [Enter] once logged in to continue: ")
         except Exception:
             pass
         print("=" * 65 + "\n")
@@ -906,6 +1211,9 @@ def save_deals(final_deals_list, discovered_tags, output_dir, home_url):
 
 
 def scrape_with_playwright(args):
+    if not check_and_install_playwright(prompt_install=True):
+        sys.exit(1)
+
     try:
         from playwright.sync_api import sync_playwright
     except ImportError:
@@ -976,7 +1284,7 @@ def scrape_with_playwright(args):
         except Exception as e:
             print(f"[*] Navigation note: {e}")
 
-        wait_for_user_login(page)
+        wait_for_user_login(page, user_id=args.user_id, manual=getattr(args, "manual_login", False))
         time.sleep(2)
 
         # 1. Scrape Cards (unless deals-only)
@@ -1088,10 +1396,190 @@ def import_deals_from_file(args):
     print("\n[SUCCESS] Deals import completed successfully!")
 
 
-def main():
+def import_cards_from_file(args):
+    """Import and process raw cards from a JSON file directly without Playwright."""
+    import_path = Path(args.import_cards)
+    if not import_path.exists():
+        print(f"[ERROR] Import file not found: {import_path}")
+        sys.exit(1)
+
+    print(f"[*] Importing raw cards from: {import_path} ...")
+    with open(import_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    results = data.get("results", []) if isinstance(data, dict) else (data if isinstance(data, list) else [])
+    if not results and isinstance(data, dict) and "data" in data:
+        results = data["data"].get("results", []) or data["data"].get("wallets", [])
+
+    discovered_cards = []
+    all_scraped_stores = {}
+
+    for item in results:
+        w = item.get("wallet", {})
+        wid = str(w.get("walletID") or item.get("walletID", ""))
+        wname = (w.get("walletName") or item.get("walletName") or f"כרטיס ארנק {wid}").strip()
+        disc_num = extract_discount_percent(w.get("discountRate", 0))
+        disc_str = f"{disc_num}%" if disc_num else "הנחת מועדון"
+
+        card_entry = {
+            "id": f"card-{wid}",
+            "name": wname,
+            "wallet_id": wid,
+            "discount_default": disc_str,
+            "discount_numeric": disc_num,
+            "max_deposit": w.get("maxDeposit"),
+            "url": f"https://www.behatsdaa.org.il/card/shops?walletId={wid}"
+        }
+        discovered_cards.append(card_entry)
+
+        categories = item.get("categories", [])
+        stores = parse_chains_from_categories(categories, card_entry)
+        print(f"    [*] Card '{wname}' (walletId {wid}): {len(stores)} participating stores (הנחה: {disc_str})")
+        merge_stores_into_catalog(all_scraped_stores, stores, card_entry)
+
+    final_stores_list = list(all_scraped_stores.values())
+    final_stores_list.sort(key=lambda s: s["name"])
+    print(f"[+] Total unique participating stores saved: {len(final_stores_list)}")
+    save_catalog(final_stores_list, discovered_cards, args.output_dir, args.card_url)
+    print("\n[SUCCESS] Cards import completed successfully!")
+
+
+def find_downloaded_file(filename):
+    """Search for a file in current directory, Linux Downloads, and WSL Windows Downloads."""
+    candidates = [
+        Path.cwd() / filename,
+        Path.home() / "Downloads" / filename,
+    ]
+    try:
+        wsl_users = Path("/mnt/c/Users")
+        if wsl_users.exists():
+            for u in wsl_users.glob("*"):
+                if u.is_dir() and not u.name.startswith("Default") and u.name != "Public":
+                    candidates.append(u / "Downloads" / filename)
+    except Exception:
+        pass
+
+    for p in candidates:
+        if p.exists():
+            return str(p)
+    return ""
+
+
+def run_interactive_menu():
+    """Interactive CLI menu to select scraping or importing actions."""
+    print("\n" + "=" * 62)
+    print("        💳 Behatsdaa - Scraper & Data Pipeline Suite")
+    print("=" * 62)
+    print(" Select an action to perform:\n")
+    print("  [1] 💳 Scrape Rechargeable Cards (Playwright headless - terminal login)")
+    print("  [2] 🎁 Scrape Rotating Deals (Playwright headless - terminal login)")
+    print("  [3] 🚀 Full Scrape: Cards + Deals (Playwright headless - terminal login)")
+    print("  [4] 🖥️  Manual Browser Scrape (Playwright headful - enter in browser window)")
+    print("  [5] 🏷️  Scrape Be-Plus Billing Discounts (10,600+ stores, no browser)")
+    print("  [6] 📥 Import Cards from file (cards_raw.json)")
+    print("  [7] 📥 Import Deals from file (deals_raw.json)")
+    print("  [8] 🔧 Check & Install Requirements (Playwright & Chromium)")
+    print("  [0] ❌ Exit")
+    print("=" * 62)
+
+    try:
+        choice = input("Enter choice [0-8]: ").strip()
+    except (KeyboardInterrupt, EOFError):
+        print("\nExiting.")
+        sys.exit(0)
+
+    if choice == "0":
+        print("Goodbye!")
+        sys.exit(0)
+
     args = parse_arguments()
+
+    if choice == "8":
+        check_all_requirements()
+        return
+
+    if choice == "4":
+        # Classic manual on-screen entry in an opened browser window
+        args.headless = False
+        args.manual_login = True
+        print("\n[*] Launching visual browser window for manual login...")
+        scrape_with_playwright(args)
+        return
+
+    if choice == "5":
+        try:
+            from scrape_beplus import scrape_all_billing_stores
+            print("\n[*] Starting Be-Plus Billing Discounts scraper...")
+            scrape_all_billing_stores(output_dir=args.output_dir)
+        except Exception as err:
+            print(f"[!] Error running Be-Plus scraper: {err}")
+        return
+
+    if choice == "6":
+        suggested = find_downloaded_file("cards_raw.json")
+        prompt = f"Path to cards_raw.json [{suggested}]: " if suggested else "Path to cards_raw.json: "
+        try:
+            val = input(prompt).strip() or suggested
+        except (KeyboardInterrupt, EOFError):
+            return
+        if not val:
+            print("[!] No file path provided.")
+            return
+        args.import_cards = val
+        import_cards_from_file(args)
+        return
+
+    if choice == "7":
+        suggested = find_downloaded_file("deals_raw.json")
+        prompt = f"Path to deals_raw.json [{suggested}]: " if suggested else "Path to deals_raw.json: "
+        try:
+            val = input(prompt).strip() or suggested
+        except (KeyboardInterrupt, EOFError):
+            return
+        if not val:
+            print("[!] No file path provided.")
+            return
+        args.import_deals = val
+        import_deals_from_file(args)
+        return
+
+    # Browser Playwright Scraping (Headless with automated terminal login)
+    args.headless = True
+    args.manual_login = False
+    if choice == "1":
+        args.cards_only = True
+        args.deals_only = False
+    elif choice == "2":
+        args.deals_only = True
+        args.cards_only = False
+    elif choice == "3":
+        args.cards_only = False
+        args.deals_only = False
+    else:
+        print("[!] Invalid choice. Exiting.")
+        return
+
+    scrape_with_playwright(args)
+
+
+def main():
+    if len(sys.argv) == 1 and sys.stdin.isatty():
+        run_interactive_menu()
+        return
+
+    args = parse_arguments()
+    if args.menu:
+        run_interactive_menu()
+        return
+
+    if args.check_deps:
+        check_all_requirements()
+        return
+
     if args.import_deals:
         import_deals_from_file(args)
+    elif args.import_cards:
+        import_cards_from_file(args)
     else:
         scrape_with_playwright(args)
 
