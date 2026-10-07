@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "scraped_at": "2026-09-25T19:30:05.098451+00:00",
-    "total_stores": 10668,
+    "scraped_at": "2026-10-07T03:08:12.803220+00:00",
+    "total_stores": 10659,
     "source": "https://be-plus.co.il",
     "description": "הנחות במעמד החיוב למחזיקי כרטיס אשראי מועדון בהצדעה (Be-Plus)"
   },
@@ -2164,7 +2164,7 @@
     },
     {
       "id": 19623,
-      "name": "Aylanda hom אקססוריז לבית",
+      "name": "Aylanda home אקססוריז לבית",
       "discount": 5,
       "city": "כאבול",
       "address": "כאבול 1",
@@ -2172,8 +2172,8 @@
       "subcategory": "טקסטיל ואקססוריז לבית",
       "category_id": 55,
       "color": "#EFF6FF",
-      "description": "אקססורי לבית קדים אגרטלים כלי מטבח עציצים מפיצי ריח צמחי משי מנורות מר",
-      "logo": "",
+      "description": "אקססוריס לבית, כדים, אגרטלים, כלי מטבח, עציצים, מפיצי ריח, צמחי משי, מ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/hv84Ln3yek4YKUAy.jpg",
       "detail_url": "https://be-plus.co.il/product/19623"
     },
     {
@@ -5784,7 +5784,7 @@
       "subcategory": "חוגים והעשרה",
       "category_id": 152,
       "color": "#FEE2E2",
-      "description": "בית ספר לריקודים סלוניים ולטיניים",
+      "description": "Dance Continental – ריקודים סלוניים ולטיניים למבוגריםחוויה אלגנטית, אנ",
       "logo": "https://be-plus.co.il/media/com_product/icons/9sswka2AIwOGoPXA.jpg",
       "detail_url": "https://be-plus.co.il/product/19451"
     },
@@ -9760,8 +9760,8 @@
       "subcategory": "מסעדות חלביות",
       "category_id": 83,
       "color": "#FAF5FF",
-      "description": "? Guy's Pizza Bar – פיצה בר בלב הטיילת של נהריה בלב הטיילת המדהימה ש",
-      "logo": "",
+      "description": "Guy's Pizza Bar – פיצה בר בלב הטיילת של נהריה בלב הטיילת המדהימה",
+      "logo": "https://be-plus.co.il/media/com_product/icons/yIYqKKbBFI7owxIX.jpg",
       "detail_url": "https://be-plus.co.il/product/19620"
     },
     {
@@ -10181,7 +10181,7 @@
       "category_id": 49,
       "color": "#FED7D7",
       "description": "מכון יופי, ספא ראש יפני",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/alR1te5ejmoeAB0o.jpg",
       "detail_url": "https://be-plus.co.il/product/19595"
     },
     {
@@ -12981,7 +12981,7 @@
       "category_id": 223,
       "color": "#FEF2F2",
       "description": "מזון וציוד לבעלי חיים, לכלבים, חתולים, בעלי כנף, מכרסמים, אביזרים לבעל",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/C944ceRfzqXy1j8Y.jpg",
       "detail_url": "https://be-plus.co.il/product/19621"
     },
     {
@@ -14940,8 +14940,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "בשרים טריים ואיכותיים, המבורגרים עסיסיים, Monkey burger המבורגריה מקומ",
-      "logo": "",
+      "description": "Monkey burger- בשרים טריים ואיכותיים, המבורגרים עסיסיים, המבורגר",
+      "logo": "https://be-plus.co.il/media/com_product/icons/CSt99tSjbTnTWjQ0.jpg",
       "detail_url": "https://be-plus.co.il/product/19587"
     },
     {
@@ -15976,8 +15976,8 @@
       "subcategory": "צעצועים ומשחקי ילדים",
       "category_id": 44,
       "color": "#FEF9C3",
-      "description": "סקוושים מארזים בלונים צעצועים תכשיטים ועוד מגוון דברים..",
-      "logo": "",
+      "description": "סקוושים, מארזים, בלונים, צעצועים, תכשיטים ועוד מגוון דברים...",
+      "logo": "https://be-plus.co.il/media/com_product/icons/gEHn240OtE2Um3sT.webp",
       "detail_url": "https://be-plus.co.il/product/19586"
     },
     {
@@ -16719,7 +16719,7 @@
       "category_id": 80,
       "color": "#ECFDF5",
       "description": "ביגוד בייסיק",
-      "logo": "https://be-plus.co.il/media/com_product/icons/49777_logo.png",
+      "logo": "https://be-plus.co.il/media/com_product/icons/7w0xuNWOX8MR188e.png",
       "detail_url": "https://be-plus.co.il/product/16935"
     },
     {
@@ -17349,7 +17349,7 @@
       "category_id": 130,
       "color": "#EFF6FF",
       "description": "ביצוע בדק בית לדירות חדשות מקבלן ויד שניה.",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/yKXleugOCOtjwrrc.jpg",
       "detail_url": "https://be-plus.co.il/product/19626"
     },
     {
@@ -17754,8 +17754,8 @@
       "subcategory": "אופניים וגלגינועים",
       "category_id": 117,
       "color": "#F7FEE7",
-      "description": "מכירת אופניים חדשים , מכירת אופני הרים, אופני כביש אופני ילדים, אופניי",
-      "logo": "",
+      "description": "מכירת אופניים חדשים, מכירת אופני הרים, אופני כביש אופני ילדים, אופניים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/J9agn48juwj1p0Y4.jpg",
       "detail_url": "https://be-plus.co.il/product/19632"
     },
     {
@@ -19719,6 +19719,20 @@
       "detail_url": "https://be-plus.co.il/product/11932"
     },
     {
+      "id": 5594,
+      "name": "Quad פעילויות שטח",
+      "discount": 3,
+      "city": "online",
+      "address": "מושב נחם",
+      "category": "אופנה",
+      "subcategory": "",
+      "category_id": 36,
+      "color": "#ECFDF5",
+      "description": "טרקטוני אזימוט במושב \"נחם\", הסמוך לבית שמש, מציעים טיולי טרטרונים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/TwoM5JnHABe02Ep2.png",
+      "detail_url": "https://be-plus.co.il/product/5594"
+    },
+    {
       "id": 15813,
       "name": "Queen caffe",
       "discount": 3.5,
@@ -20386,8 +20400,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "המבורגר חזה עוף טוסט נקניק שניצל סלטים ועוד מגוון דברים",
-      "logo": "",
+      "description": "המבורגר, חזה עוף, טוסט נקניק, שניצל, סלטים ועוד מגוון דברים.",
+      "logo": "https://be-plus.co.il/media/com_product/icons/UmpcIqpV6iPghqSh.jpg",
       "detail_url": "https://be-plus.co.il/product/19613"
     },
     {
@@ -20442,8 +20456,8 @@
       "subcategory": "מסעדות חלביות",
       "category_id": 83,
       "color": "#FAF5FF",
-      "description": "מסעדת אוכל רחוב מודרנית כשרה המביאה גישה חדשה לאוכל מהיר עם מנות המבוס",
-      "logo": "",
+      "description": "מסעדת אוכל רחוב מודרנית כשרה, המביאה גישה חדשה לאוכל מהיר עם מנות המבו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/92PiOZohTHrtRwvF.jpg",
       "detail_url": "https://be-plus.co.il/product/19635"
     },
     {
@@ -21633,7 +21647,7 @@
       "category_id": 69,
       "color": "#FFF1F2",
       "description": "שתלים, ציפויים, כירורגיה פה ולסת, יישור שיניים, אורתודנטיה",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/cLxmfUgZAwk8OYX5.jpg",
       "detail_url": "https://be-plus.co.il/product/19593"
     },
     {
@@ -21940,8 +21954,8 @@
       "subcategory": "מסעדות חלביות",
       "category_id": 83,
       "color": "#FAF5FF",
-      "description": "סן פדרו מסעדה מקסיקנית כשרה הנמצאת בדרך יפו 39 בעיר התחתית בחיפה מציעה",
-      "logo": "",
+      "description": "סן פדרו, מסעדה מקסיקנית כשרה, הנמצאת בדרך יפו 39 בעיר התחתית בחיפה, מצ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/tIDAl1eoFMdHmEPc.jpg",
       "detail_url": "https://be-plus.co.il/product/19627"
     },
     {
@@ -21997,7 +22011,7 @@
       "category_id": 308,
       "color": "#EFF6FF",
       "description": "פופים, פינות ישיבה, ריפודים ועוד",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/V7l1HWgoRSYesZoz.png",
       "detail_url": "https://be-plus.co.il/product/19619"
     },
     {
@@ -22612,7 +22626,7 @@
       "subcategory": "חנויות אלכוהול וטבק",
       "category_id": 180,
       "color": "#FEF2F2",
-      "description": "אנחנו Spiritu, יצרני קוקטיילים מבוקבקים מוכנים לשתייה. שנים רבות בתחו",
+      "description": "אנחנו Spiritu, יצרני קוקטיילים מבוקבקים מוכנים לשתייה. שנים רבות בתחום",
       "logo": "https://be-plus.co.il/media/com_product/icons/14703_36782_LOGO-2.jpeg",
       "detail_url": "https://be-plus.co.il/product/14703"
     },
@@ -25986,8 +26000,8 @@
       "subcategory": "סושיות",
       "category_id": 105,
       "color": "#FAF5FF",
-      "description": "סושי פוקיבול מנות ראשונות יין ועוד מגוון דברים..",
-      "logo": "",
+      "description": "סושי פוקיבול, מנות ראשונות, יין ועוד מגוון דברים...",
+      "logo": "https://be-plus.co.il/media/com_product/icons/9q0djOw3IFAHjCHj.jpg",
       "detail_url": "https://be-plus.co.il/product/19590"
     },
     {
@@ -26267,7 +26281,7 @@
       "category_id": 47,
       "color": "#EFF6FF",
       "description": "מתמחים בארונות לפי מידות הלקוח, חדרי ארונות בהתאמה אישית, חדרי שינה וח",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/ojnuqE236Y8VB1Wy.jpg",
       "detail_url": "https://be-plus.co.il/product/19624"
     },
     {
@@ -30177,20 +30191,6 @@
       "detail_url": "https://be-plus.co.il/product/8251"
     },
     {
-      "id": 8584,
-      "name": "fit step pro",
-      "discount": 8.5,
-      "city": "אשקלון",
-      "address": "אלי כהן 39",
-      "category": "צרכנות",
-      "subcategory": "",
-      "category_id": 81,
-      "color": "#FEF2F2",
-      "description": "מרכז אורטופדיה, מדרסים בהתאמה אישית, בדיקה ממוחשבת חינם ומגוון אביזרי",
-      "logo": "",
-      "detail_url": "https://be-plus.co.il/product/8584"
-    },
-    {
       "id": 8464,
       "name": "fit step pro",
       "discount": 8.5,
@@ -30203,6 +30203,20 @@
       "description": "אורטופדיה, יצור מדרסים, נעלי נוחות וצילומי כפות רגלים.",
       "logo": "https://be-plus.co.il/media/com_product/icons/8464_13538_1.png",
       "detail_url": "https://be-plus.co.il/product/8464"
+    },
+    {
+      "id": 8584,
+      "name": "fit step pro",
+      "discount": 8.5,
+      "city": "אשקלון",
+      "address": "אלי כהן 39",
+      "category": "צרכנות",
+      "subcategory": "",
+      "category_id": 81,
+      "color": "#FEF2F2",
+      "description": "מרכז אורטופדיה, מדרסים בהתאמה אישית, בדיקה ממוחשבת חינם ומגוון אביזרי",
+      "logo": "",
+      "detail_url": "https://be-plus.co.il/product/8584"
     },
     {
       "id": 7520,
@@ -30362,14 +30376,14 @@
       "id": 14638,
       "name": "food appeal",
       "discount": 5,
-      "city": "CITY2",
+      "city": "online",
       "address": "",
       "category": "לבית ולגן",
       "subcategory": "",
       "category_id": 41,
       "color": "#EFF6FF",
-      "description": "חברת food appeal מאמינה שאוכל מעולה ראוי לכלים איכותיים, המיוצרים בתה",
-      "logo": "https://be-plus.co.il/media/com_product/icons/14638_35025_logo.jpg",
+      "description": "חברת food appeal מאמינהשאוכל מעולה ראוי לכלים איכותיים, המיו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/LdTQHpwUDSA4opZi.jpg",
       "detail_url": "https://be-plus.co.il/product/14638"
     },
     {
@@ -36155,6 +36169,20 @@
       "detail_url": "https://be-plus.co.il/product/16155"
     },
     {
+      "id": 19477,
+      "name": "power house pilates",
+      "discount": 3,
+      "city": "כפר סבא",
+      "address": "היוצרים 3",
+      "category": "ספורט",
+      "subcategory": "אימוני כושר",
+      "category_id": 96,
+      "color": "#F7FEE7",
+      "description": "Power House Pilates - סטודיו בוטיק לפילאטיס מכשירים בכפר סבא.האימונים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/lZdZSu700HUSTj8I.jpg",
+      "detail_url": "https://be-plus.co.il/product/19477"
+    },
+    {
       "id": 9167,
       "name": "power of beauty",
       "discount": 3,
@@ -37313,7 +37341,7 @@
       "category_id": 91,
       "color": "#CFFAFE",
       "description": "אביזרים לסלולר ומעבדת תיקונים.",
-      "logo": "https://be-plus.co.il/media/com_product/icons/10153_78385_10463849_1453398241598552_4376625213513573143_o.jpg",
+      "logo": "https://be-plus.co.il/media/com_product/icons/1LTzxirvF9bhmCR4.jpg",
       "detail_url": "https://be-plus.co.il/product/10153"
     },
     {
@@ -37634,8 +37662,8 @@
       "subcategory": "- אטרקציות",
       "category_id": 311,
       "color": "#8B5CF6",
-      "description": "שמן זית בוטיק _מוצרי מזון סחר הוגן",
-      "logo": "",
+      "description": "שמן זית בוטיק, מוצרי מזון, סחר הוגן",
+      "logo": "https://be-plus.co.il/media/com_product/icons/DKVFBZfeQP4JHPnx.jpeg",
       "detail_url": "https://be-plus.co.il/product/19612"
     },
     {
@@ -37648,8 +37676,8 @@
       "subcategory": "- אטרקציות",
       "category_id": 311,
       "color": "#8B5CF6",
-      "description": "שמן זית בוטיק _מוצרי מזון סחר הוגן",
-      "logo": "",
+      "description": "שמן זית בוטיק, מוצרי מזון, סחר הוגן",
+      "logo": "https://be-plus.co.il/media/com_product/icons/ZnJCqiT2vSZSdQcC.jpeg",
       "detail_url": "https://be-plus.co.il/product/19611"
     },
     {
@@ -40532,7 +40560,7 @@
       "subcategory": "מסעדות טבעוניות צמחוניות",
       "category_id": 243,
       "color": "#FAF5FF",
-      "description": "בר/מסעדה",
+      "description": "מסעדת שווארמה ובשרים בעפולה",
       "logo": "https://be-plus.co.il/media/com_product/icons/17222_82800_tmwnh13.jpg",
       "detail_url": "https://be-plus.co.il/product/17222"
     },
@@ -41288,8 +41316,8 @@
       "subcategory": "- פנאי",
       "category_id": 305,
       "color": "#8B5CF6",
-      "description": "סדנאות קרמיקה חווייתיות לבניית כלים בעבודת יד.",
-      "logo": "",
+      "description": "סדנאות קרמיקה חווייתיות לבניית כלים בעבודת יד",
+      "logo": "https://be-plus.co.il/media/com_product/icons/DV0Y3WX1xP4Jrx9N.png",
       "detail_url": "https://be-plus.co.il/product/19634"
     },
     {
@@ -41303,7 +41331,7 @@
       "category_id": 134,
       "color": "#D1FAE5",
       "description": "פיצוחים, קטניות, פירות יבשים, ממתקים, שוקולדים, מארזי שי, סלסלות לחגים",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/zWA35gqMSeDGMKeT.jpg",
       "detail_url": "https://be-plus.co.il/product/19622"
     },
     {
@@ -41737,7 +41765,7 @@
       "category_id": 260,
       "color": "#FAF5FF",
       "description": "גלידות, יוגורט, קרפים, מקום טעים שאפשר להתענג בו. כשר למהדרין.",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/zuLAwyG4Zwl0LJyB.jpg",
       "detail_url": "https://be-plus.co.il/product/19629"
     },
     {
@@ -42138,10 +42166,10 @@
       "discount": 3.5,
       "city": "קרית שמונה",
       "address": "החושן אזור תעשייה דרומי",
-      "category": "מוסכים ושירותי רכב",
-      "subcategory": "",
-      "category_id": 61,
-      "color": "#FFF7ED",
+      "category": "לבית ולגן",
+      "subcategory": "טמבוריה",
+      "category_id": 291,
+      "color": "#EFF6FF",
       "description": "עולם שלם של אספקה טכנית, אנו מספקים כלי עבודה ידניים, כלי עבודה חשמליי",
       "logo": "https://be-plus.co.il/media/com_product/icons/9aF9pnSMBUXz9ggA.jpg",
       "detail_url": "https://be-plus.co.il/product/11181"
@@ -42913,7 +42941,7 @@
       "category_id": 0,
       "color": "#FED7D7",
       "description": "מרכז שיווק ואקדמיה למקצועות היופי. קורסים בכל תחומי היופי. מכירה גם לב",
-      "logo": "https://be-plus.co.il/media/com_product/icons/11029_41962_107794908_111565523961197_8366897161890557517_n.jpg",
+      "logo": "https://be-plus.co.il/media/com_product/icons/EoVatUhGcqNuP4X9.jpg",
       "detail_url": "https://be-plus.co.il/product/11029"
     },
     {
@@ -43898,7 +43926,7 @@
     },
     {
       "id": 15497,
-      "name": "אופנת עלי גדבאן",
+      "name": "אופנת עלי ע'דבאן",
       "discount": 3.5,
       "city": "אום אל-פחם",
       "address": "שכ אלבאטן 1",
@@ -44467,7 +44495,7 @@
       "category_id": 223,
       "color": "#FEF2F2",
       "description": "רשת חנויות לציוד ומזון לחיות מחמד עם חוויית הטובה ביותר בארץ. בהתחייבו",
-      "logo": "https://be-plus.co.il/media/com_product/icons/tIXu1sp2xtbvhBn9.jpg",
+      "logo": "https://be-plus.co.il/media/com_product/icons/WSjco75PAdzWY2nG.jpg",
       "detail_url": "https://be-plus.co.il/product/19262"
     },
     {
@@ -44881,7 +44909,7 @@
       "name": "אורן מערכות",
       "discount": 3.5,
       "city": "כפר סבא",
-      "address": "יל~ג3",
+      "address": "החרושת 1",
       "category": "מוסכים ושירותי רכב",
       "subcategory": "אביזרים וחלקי חילוף",
       "category_id": 121,
@@ -45197,34 +45225,6 @@
       "description": "פיצוחים, תבלינים, פירות יבשים, חליטות תה, מוצרי בריאות, מוצרי טבע, פיר",
       "logo": "https://be-plus.co.il/media/com_product/icons/13521_96525_305061922_100790826117893_1226332749996970542_n.jpg",
       "detail_url": "https://be-plus.co.il/product/13521"
-    },
-    {
-      "id": 19558,
-      "name": "אזימוט טיולי טרקטורונים",
-      "discount": 5,
-      "city": "נחם",
-      "address": "מושב נחם",
-      "category": "אופנה וצרכנות",
-      "subcategory": "אופניים ואופנועים",
-      "category_id": 335,
-      "color": "#8B5CF6",
-      "description": "טיול טרקטורונים, ימי כיף וגיבוש, אירוח ופעילויות לכל מטרה. \"טרקטו",
-      "logo": "https://be-plus.co.il/media/com_product/icons/uYdpxIIsnEdNfGeq.png",
-      "detail_url": "https://be-plus.co.il/product/19558"
-    },
-    {
-      "id": 5594,
-      "name": "אזימוט טיולי טרקטורונים",
-      "discount": 3,
-      "city": "online",
-      "address": "מושב נחם",
-      "category": "אופנה",
-      "subcategory": "",
-      "category_id": 36,
-      "color": "#ECFDF5",
-      "description": "טרקטוני אזימוט במשב \"נחם\" הסמוך לבית שמש מציעים טיולי טרטרונ",
-      "logo": "",
-      "detail_url": "https://be-plus.co.il/product/5594"
     },
     {
       "id": 18708,
@@ -50211,20 +50211,6 @@
       "detail_url": "https://be-plus.co.il/product/16221"
     },
     {
-      "id": 17782,
-      "name": "אפקט הפרקט",
-      "discount": 3.5,
-      "city": "ראשון לציון",
-      "address": "הרצל 110",
-      "category": "צרכנות",
-      "subcategory": "כלים חד פעמיים",
-      "category_id": 82,
-      "color": "#FEF2F2",
-      "description": "",
-      "logo": "https://be-plus.co.il/media/com_product/icons/17782_10677_tmwnh1.jpg",
-      "detail_url": "https://be-plus.co.il/product/17782"
-    },
-    {
       "id": 6202,
       "name": "אפרודיטה - מוצרי ים המלח",
       "discount": 3,
@@ -50935,7 +50921,7 @@
       "category_id": 164,
       "color": "#D1FAE5",
       "description": "חנות נוחות - מרכול, מוצרי סופר, משקאות חריפים ואלכוהולים, משקאות קלים,",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/GT0plaOZ4zmaSSEM.jpg",
       "detail_url": "https://be-plus.co.il/product/19604"
     },
     {
@@ -54238,8 +54224,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "מסעדה בורקס ג'חנון חביתות ארוחות בוקר מלאווח שקשוקות מלבי מקומות ישיבה",
-      "logo": "",
+      "description": "מסעדה, בורקס, ג'חנון, חביתות, ארוחות בוקר, מלאווח, שקשוקות, מלבי, מקומ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/bqnJ6jJ4rC0q4jJ7.png",
       "detail_url": "https://be-plus.co.il/product/19582"
     },
     {
@@ -58201,7 +58187,7 @@
       "category_id": 37,
       "color": "#ECFDF5",
       "description": "כל סוגי כיסויי הראש, מטפחות, כובעים, תכשיטים, אקססוריז, תיקים, ארנקים,",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/AOJlmvQm3zisumHF.jpg",
       "detail_url": "https://be-plus.co.il/product/19625"
     },
     {
@@ -58294,10 +58280,10 @@
       "discount": 3,
       "city": "אשדוד",
       "address": "תל חי 39",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "",
-      "category_id": 45,
-      "color": "#FAF5FF",
+      "category": "מזון, מינימרקטים וסופרמרקטים",
+      "subcategory": "קייטרינג",
+      "category_id": 316,
+      "color": "#D1FAE5",
       "description": "אוכל מוכן לשבת, קייטרינג לאירועים. כשר למהדרין. בכל יום שישי פסטיבל או",
       "logo": "",
       "detail_url": "https://be-plus.co.il/product/4926"
@@ -59818,12 +59804,12 @@
       "id": 6193,
       "name": "גבעולים",
       "discount": 3,
-      "city": "online",
+      "city": "תל אביב - יפו",
       "address": "ברודצקי 15",
-      "category": "אופנה",
-      "subcategory": "",
-      "category_id": 36,
-      "color": "#ECFDF5",
+      "category": "לבית ולגן",
+      "subcategory": "חנויות פרחים",
+      "category_id": 259,
+      "color": "#EFF6FF",
       "description": "סידורי פרחים, זרים, צמחים לבית, כלים ועוד. משלוחים!",
       "logo": "",
       "detail_url": "https://be-plus.co.il/product/6193"
@@ -60529,6 +60515,20 @@
       "detail_url": "https://be-plus.co.il/product/19486"
     },
     {
+      "id": 19563,
+      "name": "גילטי",
+      "discount": 10,
+      "city": "יבנה",
+      "address": "שידלובסקי 5",
+      "category": "טיפוח, קוסמטיקה ועיצוב שיער",
+      "subcategory": "חנויות קוסמטיקה",
+      "category_id": 128,
+      "color": "#FED7D7",
+      "description": "מותגי יופי מובילים במחירים אטרקטיביים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/7t0b8hZQegS8yjbk.png",
+      "detail_url": "https://be-plus.co.il/product/19563"
+    },
+    {
       "id": 7878,
       "name": "גילי אילן- תכשיטים מקרמיקה",
       "discount": 3.5,
@@ -60569,20 +60569,6 @@
       "description": "אימוני כושר אישיים בבית הלקוח ובחוץ.",
       "logo": "https://be-plus.co.il/media/com_product/images/11306_81363_533153_452505248156225_1655147459_n.jpg",
       "detail_url": "https://be-plus.co.il/product/11306"
-    },
-    {
-      "id": 19563,
-      "name": "גיליטי",
-      "discount": 10,
-      "city": "יבנה",
-      "address": "שידלובסקי 5",
-      "category": "טיפוח, קוסמטיקה ועיצוב שיער",
-      "subcategory": "חנויות קוסמטיקה",
-      "category_id": 128,
-      "color": "#FED7D7",
-      "description": "מותגי יופי מובילים במחירים אטרקטיביים",
-      "logo": "https://be-plus.co.il/media/com_product/icons/7t0b8hZQegS8yjbk.png",
-      "detail_url": "https://be-plus.co.il/product/19563"
     },
     {
       "id": 17258,
@@ -61672,8 +61658,8 @@
       "subcategory": "לבית ולגן",
       "category_id": 308,
       "color": "#EFF6FF",
-      "description": "עיצוב הבית , מתנות, אומנות ומלאכה מקומית, איסוף פריטים בהשראת הטבע המס",
-      "logo": "https://be-plus.co.il/media/com_product/images/9373_55564_1.jpg",
+      "description": "עיצוב הבית, מתנות, אומנות ומלאכה מקומית, איסוף פריטים בהשראת הטבע המסו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/cm4SKmsaIi1HpVh5.png",
       "detail_url": "https://be-plus.co.il/product/9373"
     },
     {
@@ -68154,7 +68140,7 @@
       "subcategory": "תכשיטים ושעונים",
       "category_id": 72,
       "color": "#ECFDF5",
-      "description": "סטודיו היצירה עיצוב וייצור טבעות נישואים ואירוסין ייחודיות",
+      "description": "סטודיו היצירה, עיצוב וייצור טבעות נישואים ואירוסין ייחודיות",
       "logo": "https://be-plus.co.il/media/com_product/icons/5610_13051_418662_219815751447578_1799376637_n.jpg",
       "detail_url": "https://be-plus.co.il/product/5610"
     },
@@ -68610,11 +68596,11 @@
       "id": 8062,
       "name": "הישראליה",
       "discount": 3,
-      "city": "ראשון לציון",
-      "address": "הרצל 46",
+      "city": "חולון",
+      "address": "הפלד 26",
       "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "",
-      "category_id": 45,
+      "subcategory": "מסעדות בשריות",
+      "category_id": 50,
       "color": "#FAF5FF",
       "description": "מסעדת פועלים בסגנון של פעם. קטנה ויש בה הכל. בשרים על האש, קציצות עוף",
       "logo": "",
@@ -69582,8 +69568,8 @@
       "subcategory": "שווארמה ופלאפל",
       "category_id": 87,
       "color": "#FAF5FF",
-      "description": "מסעדה שווארמה פרגיות כל סוגי הבשר פלאפל שניצלים שתיה קרה קומת ישיבה מש",
-      "logo": "https://be-plus.co.il/media/com_product/images/15596_22634_20191029_185713.jpg",
+      "description": "מסעדה, שווארמה, פרגיות, כל סוגי הבשר, פלאפל, שניצלים, שתיה קרה, קומת י",
+      "logo": "https://be-plus.co.il/media/com_product/images/90fOaIQ5KPgPAvLq.webp",
       "detail_url": "https://be-plus.co.il/product/15596"
     },
     {
@@ -70352,8 +70338,8 @@
       "subcategory": "קייטרינג",
       "category_id": 316,
       "color": "#D1FAE5",
-      "description": "מעדניה יום יומית, אוכל מוכן במשקל,לקחת או לשבת, שרקוטרי, בשרים ,דגים,",
-      "logo": "",
+      "description": "מעדניה יום יומית, אוכל מוכן במשקל, לקחת או לשבת, שרקוטרי, בשרים , דגים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/pSHMfVXSFOmovk9W.jpg",
       "detail_url": "https://be-plus.co.il/product/19589"
     },
     {
@@ -71077,8 +71063,8 @@
       "city": "באר שבע",
       "address": "פינחס החוצב 10",
       "category": "מוסכים ושירותי רכב",
-      "subcategory": "",
-      "category_id": 61,
+      "subcategory": "מוסכים וחשמל רכב",
+      "category_id": 146,
       "color": "#FFF7ED",
       "description": "פחחות, צבע, חשמל, מיזוג ומכונאות , רכב חלופי, טיפול בתביעות, שטיפת רכב",
       "logo": "https://be-plus.co.il/media/com_product/icons/9333_38300_12743781_1703620953249749_8138574668081310385_n.png",
@@ -73007,13 +72993,13 @@
       "name": "הקליניקה של נעמי",
       "discount": 4,
       "city": "חיפה",
-      "address": "שד שיקגו 137",
+      "address": "שד' שיקגו 137",
       "category": "רפואה",
       "subcategory": "רפואה משלימה",
       "category_id": 92,
       "color": "#FFF1F2",
       "description": "אני כאן כדי לעזור לכם לטפל בכאבים בגוף, בנפש ולהחזיר לגוף שלכם את היכו",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/TourPMPxZn9hTO1N.jpg",
       "detail_url": "https://be-plus.co.il/product/19616"
     },
     {
@@ -74958,8 +74944,8 @@
       "subcategory": "חנויות אלכוהול וטבק",
       "category_id": 180,
       "color": "#FEF2F2",
-      "description": "חנות יין בוטיקית. מתמחה ביינות מיוחדים ובלעדיים, משקאות אלכוהולים, החל",
-      "logo": "",
+      "description": "חנות יין בוטיקית, מתמחה ביינות מיוחדים ובלעדיים ומשקאות אלכוהולים.החל",
+      "logo": "https://be-plus.co.il/media/com_product/icons/t7v6jv6UTD26QCF2.jpg",
       "detail_url": "https://be-plus.co.il/product/19285"
     },
     {
@@ -75551,34 +75537,6 @@
       "detail_url": "https://be-plus.co.il/product/4565"
     },
     {
-      "id": 18553,
-      "name": "זוארץ סנטר",
-      "discount": 3.5,
-      "city": "חדרה",
-      "address": "הרברט סמואל 75",
-      "category": "טיפוח, קוסמטיקה ועיצוב שיער",
-      "subcategory": "חנויות קוסמטיקה",
-      "category_id": 128,
-      "color": "#FED7D7",
-      "description": "זוארץ סנטר- חנות למוצרי שיער מקצועי, ציוד למספרות ,מוצרי ציפורניים, קו",
-      "logo": "https://be-plus.co.il/media/com_product/icons/qUYJOvAhxLyi5wq4.jpg",
-      "detail_url": "https://be-plus.co.il/product/18553"
-    },
-    {
-      "id": 18554,
-      "name": "זוארץ סנטר",
-      "discount": 3.5,
-      "city": "online",
-      "address": "",
-      "category": "טיפוח, קוסמטיקה ועיצוב שיער",
-      "subcategory": "חנויות קוסמטיקה",
-      "category_id": 128,
-      "color": "#FED7D7",
-      "description": "זוארץ סנטר- חנות למוצרי שיער מקצועי, ציוד למספרות ,מוצרי ציפורניים, קו",
-      "logo": "https://be-plus.co.il/media/com_product/icons/TlQNz65TkR1zauoc.jpg",
-      "detail_url": "https://be-plus.co.il/product/18554"
-    },
-    {
       "id": 7036,
       "name": "זוהר בנקיון",
       "discount": 8.5,
@@ -75743,7 +75701,7 @@
       "category_id": 136,
       "color": "#FEE2E2",
       "description": "פנינה רייפמן, מנטורית מומחית להתאמה זוגית ויצירת זוגיות, הסרת חסמים וט",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/Zac8mcjfSvFt0mJA.avif",
       "detail_url": "https://be-plus.co.il/product/19580"
     },
     {
@@ -76792,8 +76750,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "חומוס שתיה קרה סלטים",
-      "logo": "",
+      "description": "חומוס, שתיה קרה, סלטים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/61eiV3m7DufzMN9M.png",
       "detail_url": "https://be-plus.co.il/product/19606"
     },
     {
@@ -77279,8 +77237,8 @@
       "city": "תל אביב - יפו",
       "address": "הרכבת 28",
       "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "",
-      "category_id": 45,
+      "subcategory": "אוכל מהיר",
+      "category_id": 46,
       "color": "#FAF5FF",
       "description": "חומוס הכי טוב בעיר, חומוס, פול מסבחה, חומוס גרגירים, חומוס טחינה, סלט",
       "logo": "https://be-plus.co.il/media/com_product/icons/13233_41121_273631498_422130793041942_195832863077920680_n.jpg",
@@ -78976,8 +78934,8 @@
       "subcategory": "מזון וציוד לבעלי חיים",
       "category_id": 223,
       "color": "#FEF2F2",
-      "description": "חנות חיות ציוד ואוכל לבעלי חיים דגים ציפורים אקווריומים מוצרי הדברה או",
-      "logo": "",
+      "description": "חנות חיות, ציוד ואוכל לבעלי חיים, דגים, ציפורים, אקווריומים, מוצרי הדב",
+      "logo": "https://be-plus.co.il/media/com_product/icons/6QrPWXV0eQShulok.jpg",
       "detail_url": "https://be-plus.co.il/product/19633"
     },
     {
@@ -79060,8 +79018,8 @@
       "subcategory": "מזון וציוד לבעלי חיים",
       "category_id": 223,
       "color": "#FEF2F2",
-      "description": "חנות לבעלי חיים מכירת אוכל לבעלי חיים לציפורים לכלבים לחתולים לדגים צי",
-      "logo": "",
+      "description": ",חנות לבעלי חיים, מכירת אוכל לבעלי חיים, לציפורים, לכלבים, לחתולים, לד",
+      "logo": "https://be-plus.co.il/media/com_product/icons/wVPM9yZrJgQ5y6C2.jpg",
       "detail_url": "https://be-plus.co.il/product/19585"
     },
     {
@@ -80181,7 +80139,7 @@
       "category_id": 196,
       "color": "#FAF5FF",
       "description": "קפה ומאפה, עוגות, עוגיות, קינוחים, טוסטים, פיצות אישיות, לחמים, מאפים,",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/QPP0YYyCEdrGf1e4.jpg",
       "detail_url": "https://be-plus.co.il/product/19615"
     },
     {
@@ -82389,8 +82347,8 @@
       "city": "online",
       "address": "",
       "category": "אלקטרוניקה, תאורה ומוצרי חשמל",
-      "subcategory": "",
-      "category_id": 76,
+      "subcategory": "מוצרי חשמל",
+      "category_id": 123,
       "color": "#ECFEFF",
       "description": "טרקלין חשמל הינה רשת ארצית לשיווק מוצרי חשמל ואלקטרוניקה לבית, מה",
       "logo": "https://be-plus.co.il/media/com_product/icons/11580_27757_logo_2.jpg",
@@ -82398,7 +82356,7 @@
     },
     {
       "id": 15718,
-      "name": "י דהן רהיטים",
+      "name": "י. דהן רהיטים",
       "discount": 3.5,
       "city": "חיפה",
       "address": "ביאליק 12",
@@ -82406,7 +82364,7 @@
       "subcategory": "ריהוט ומטבחים",
       "category_id": 47,
       "color": "#EFF6FF",
-      "description": "מכירה כל סוגי הרהיטים לבית סלונים פינות אוכל כיסאות כורסאות חדרי שינה",
+      "description": "מכירת כל סוגי הרהיטים לבית, סלונים, פינות אוכל, כיסאות, כורסאות, חדרי",
       "logo": "https://be-plus.co.il/media/com_product/icons/15718_92322_302142368_510800621049117_8517233176195288545_n.png",
       "detail_url": "https://be-plus.co.il/product/15718"
     },
@@ -85631,20 +85589,6 @@
       "detail_url": "https://be-plus.co.il/product/16795"
     },
     {
-      "id": 10827,
-      "name": "כל הפתרונות לבית ולגן",
-      "discount": 2.5,
-      "city": "ראשון לציון",
-      "address": "שמעון פרס 33",
-      "category": "לבית ולגן",
-      "subcategory": "",
-      "category_id": 41,
-      "color": "#EFF6FF",
-      "description": "מוצרי אינסטלציה, חשמל, כלי עבודה, חומרי בניין, סולמות, כלי בית, שכפול",
-      "logo": "https://be-plus.co.il/media/com_product/icons/10827_98440_129970001_191162409324288_5110875601152515004_n.png",
-      "detail_url": "https://be-plus.co.il/product/10827"
-    },
-    {
       "id": 5954,
       "name": "כל טוב לחי",
       "discount": 3,
@@ -86018,8 +85962,8 @@
       "subcategory": "בתי קפה",
       "category_id": 63,
       "color": "#FAF5FF",
-      "description": "מגוון מטורף של כל סוגי הכנאפה עם גלידה טורקית ,כנאפה טבעונית ,בקלוואה",
-      "logo": "https://be-plus.co.il/media/com_product/icons/15752_34190_ALMAHDI-1.jpg",
+      "description": "מגוון מטורף של כל סוגי הכנאפה עם גלידה טורקית, כנאפה טבעונית, בקלוואה,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/23Uhpqc3cBaPHa2l.jpg",
       "detail_url": "https://be-plus.co.il/product/15752"
     },
     {
@@ -87536,7 +87480,7 @@
     },
     {
       "id": 19559,
-      "name": "לויז אמסלם פודאטור",
+      "name": "לויז אמסלם",
       "discount": 3.5,
       "city": "אשדוד",
       "address": "הציונות 50",
@@ -88006,8 +87950,8 @@
       "subcategory": "תכשיטים ושעונים",
       "category_id": 72,
       "color": "#ECFDF5",
-      "description": "חנות וינטג', אספנות, תכשיטים עתיקים ,חפצי יד שניה, מכירה וקניה.",
-      "logo": "",
+      "description": "חנות וינטג', אספנות, תכשיטים עתיקים, חפצי יד שניה, מכירה וקניה.",
+      "logo": "https://be-plus.co.il/media/com_product/icons/nTUhX1SCKKeis2aU.jpg",
       "detail_url": "https://be-plus.co.il/product/19602"
     },
     {
@@ -89420,8 +89364,8 @@
       "subcategory": "רפואה משלימה",
       "category_id": 92,
       "color": "#FFF1F2",
-      "description": "אני מזמינה אותך לטיפול שיאצו מרגיע ומאזן. טיפול שיאצו הוא הזדמנות לעצ",
-      "logo": "",
+      "description": "אני מזמינה אותך לטיפול שיאצו מרגיע ומאזן. טיפול שיאצו הוא הזדמנות לעצו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/q3MtGXIeUM1BkAcN.jpeg",
       "detail_url": "https://be-plus.co.il/product/19605"
     },
     {
@@ -90732,10 +90676,10 @@
       "discount": 3,
       "city": "כפר קרע",
       "address": "כביש ראשי, מרכז הכפר",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
+      "category": "כללי",
       "subcategory": "",
-      "category_id": 45,
-      "color": "#FAF5FF",
+      "category_id": 0,
+      "color": "#D1FAE5",
       "description": "מינימרקט, מאפיה, מאפים, קטניות, תבלינים, מתוקים, פיצוחים, הכנת סנדוויצ",
       "logo": "https://be-plus.co.il/media/com_product/icons/DWfX352FJ5aUR0cI.jpg",
       "detail_url": "https://be-plus.co.il/product/11566"
@@ -93004,8 +92948,8 @@
       "subcategory": "מוסכים וחשמל רכב",
       "category_id": 146,
       "color": "#FFF7ED",
-      "description": "מוסך פחחות וצבע לכל סוגי הרכב צבע בתנור",
-      "logo": "",
+      "description": "מוסך פחחות וצבע לכל סוגי הרכב, צבע בתנור",
+      "logo": "https://be-plus.co.il/media/com_product/icons/hGTClODLsO9a09Vd.jpg",
       "detail_url": "https://be-plus.co.il/product/19579"
     },
     {
@@ -94509,7 +94453,7 @@
     {
       "id": 19452,
       "name": "מותגוס",
-      "discount": 5.5,
+      "discount": 3,
       "city": "מודיעין-מכבים-רעות",
       "address": "עמק זבולון 24",
       "category": "אופנה",
@@ -98702,7 +98646,7 @@
       "subcategory": "מלונות",
       "category_id": 57,
       "color": "#FFEDD5",
-      "description": "מלון הים של ישראל בחוף הכי יפה בארץ.מגוון רחב של חדרים:- מאירוח כפרי ו",
+      "description": "מלון חוף נחשולים מציע מגוון רחב של חדרים, מסוויטות צמודות קרקע ועד חדר",
       "logo": "https://be-plus.co.il/media/com_product/icons/jBHUTbnY01sr1l6n.jpg",
       "detail_url": "https://be-plus.co.il/product/19465"
     },
@@ -101853,7 +101797,7 @@
       "category_id": 0,
       "color": "#FAF5FF",
       "description": "מסעדה תימנית ומזרחית אוכל ואווירה של פעם",
-      "logo": "https://be-plus.co.il/media/com_product/icons/5800_92983_jfif",
+      "logo": "https://be-plus.co.il/media/com_product/icons/jHmD7sUXaQp2auQr.jpg",
       "detail_url": "https://be-plus.co.il/product/5800"
     },
     {
@@ -101936,8 +101880,8 @@
       "subcategory": "שווארמה ופלאפל",
       "category_id": 87,
       "color": "#FAF5FF",
-      "description": "שווארמה איכותית, שניצל מתכון יחודי רק לנו,סלטים,מעורב ירושלמי מיוחד של",
-      "logo": "",
+      "description": "שווארמה איכותית, שניצל מתכון ייחודי רק לנו, סלטים, מעורב ירושלמי מיוחד",
+      "logo": "https://be-plus.co.il/media/com_product/icons/8mkQrzvC5w5qdMd9.jpg",
       "detail_url": "https://be-plus.co.il/product/14351"
     },
     {
@@ -102636,8 +102580,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "מסעדה ים תיכונית מאכלי ים ארוחות בוקר ארוחות ערב אירועי וי איי פי ימי",
-      "logo": "",
+      "description": "מסעדה ים תיכונית, מאכלי ים, ארוחות בוקר, ארוחות ערב, אירועי וי איי פי,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/W8xnUh8edfCw8i13.jpg",
       "detail_url": "https://be-plus.co.il/product/19628"
     },
     {
@@ -104009,7 +103953,7 @@
       "category_id": 50,
       "color": "#FAF5FF",
       "description": "כל סוגי הבשר, טרי טרי, כבש, עגל, עופות, צלעות, שחיטה כשרה. כשר",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/APE4wRAhxWp9MBE9.jpg",
       "detail_url": "https://be-plus.co.il/product/4587"
     },
     {
@@ -106747,7 +106691,7 @@
       "name": "מרפאת שיניים - דר' מוטי צנווירט",
       "discount": 3.5,
       "city": "נתניה",
-      "address": "ד\"ר פרח יהודה5",
+      "address": "ד\"ר פרח יהודה 5",
       "category": "רפואה",
       "subcategory": "מרפאות שיניים",
       "category_id": 69,
@@ -106892,8 +106836,8 @@
       "subcategory": "מרפאות שיניים",
       "category_id": 69,
       "color": "#FFF1F2",
-      "description": "מרפאת שיניים השתלות טיפולים שנתיים מטפלת ילדים תינוקת בגז צחוק ועוד",
-      "logo": "",
+      "description": "מרפאת שיניים, השתלות, טיפולים שנתיים, מטפלת ילדים ותינוקת בגז צחוק ועו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/7qe7BLKCgZYHeJIW.jpg",
       "detail_url": "https://be-plus.co.il/product/19610"
     },
     {
@@ -106976,8 +106920,8 @@
       "subcategory": "מרפאות שיניים",
       "category_id": 69,
       "color": "#FFF1F2",
-      "description": "מרפאת שיניים השתלות טיפולים שנתיים בוטוקס ועוד",
-      "logo": "",
+      "description": "מרפאת שיניים השתלות, טיפולים שנתיים, בוטוקס ועוד...",
+      "logo": "https://be-plus.co.il/media/com_product/icons/iZBPpzlGhAQkBy5D.jpg",
       "detail_url": "https://be-plus.co.il/product/19592"
     },
     {
@@ -107214,8 +107158,8 @@
       "subcategory": "מרפאות שיניים",
       "category_id": 69,
       "color": "#FFF1F2",
-      "description": "שתלים, טיפול בטשטוש, הלבנה, יישור שיניים ועוד",
-      "logo": "",
+      "description": "שתלים, טיפול בטשטוש, הלבנה, יישור שיניים ועוד...",
+      "logo": "https://be-plus.co.il/media/com_product/icons/diPTZAHYRQHIOyhY.png",
       "detail_url": "https://be-plus.co.il/product/19581"
     },
     {
@@ -108745,20 +108689,6 @@
       "detail_url": "https://be-plus.co.il/product/18504"
     },
     {
-      "id": 16299,
-      "name": "משתלת הרא\"ה",
-      "discount": 3.5,
-      "city": "כפר הרא\"ה",
-      "address": "0",
-      "category": "לבית ולגן",
-      "subcategory": "משתלות",
-      "category_id": 58,
-      "color": "#EFF6FF",
-      "description": "משתלה בעמק חפר, התמחות בעצים נדירים, פרחים, צמחים ושיחים וכל מה שצריך",
-      "logo": "https://be-plus.co.il/media/com_product/icons/16299_26832_294833061_4975216902588102_6478506896327222604_n.jpg",
-      "detail_url": "https://be-plus.co.il/product/16299"
-    },
-    {
       "id": 16102,
       "name": "משתלת זמר / פרחי אסיל",
       "discount": 3.5,
@@ -108904,11 +108834,11 @@
       "discount": 3.5,
       "city": "בית חנן",
       "address": "בית חנן 1",
-      "category": "לבית ולגן",
-      "subcategory": "משתלות",
-      "category_id": 58,
-      "color": "#EFF6FF",
-      "description": "פרחים, עציצים, טבע, עצי נוי",
+      "category": "כללי",
+      "subcategory": "",
+      "category_id": 0,
+      "color": "#FAF5FF",
+      "description": "עגלת קפה, פרחים, עציצים, טבע, עצי נוי",
       "logo": "https://be-plus.co.il/media/com_product/icons/2EHZv6G5mPfGFfYJ.jpg",
       "detail_url": "https://be-plus.co.il/product/18463"
     },
@@ -109356,8 +109286,8 @@
       "subcategory": "רפואה משלימה",
       "category_id": 92,
       "color": "#FFF1F2",
-      "description": "רפואה סינית - דיקור סיני, דיקור יבש, כוסות רוח, צמחי מרפא ועוד",
-      "logo": "",
+      "description": "רפואה סינית - דיקור סיני, דיקור יבש, כוסות רוח, צמחי מרפא ועוד...",
+      "logo": "https://be-plus.co.il/media/com_product/icons/bwqMdUxbYxYnSoJS.jpg",
       "detail_url": "https://be-plus.co.il/product/19588"
     },
     {
@@ -109902,8 +109832,8 @@
       "subcategory": "תכשיטים ושעונים",
       "category_id": 72,
       "color": "#ECFDF5",
-      "description": "תיקים ,ארנקים, כובעים, אקססוריז, מוצרי ים המלח, אביזרי שיער, תחתונים,",
-      "logo": "",
+      "description": "תיקים, ארנקים, כובעים, אקססוריז, מוצרי ים המלח, אביזרי שיער, תחתונים,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/nHqaRTKWMIqRRg4K.jpg",
       "detail_url": "https://be-plus.co.il/product/19608"
     },
     {
@@ -110818,7 +110748,7 @@
     },
     {
       "id": 19583,
-      "name": "ניגונים בגליל/בפרדס",
+      "name": "ניגונים בגליל בפרדס",
       "discount": 3,
       "city": "פרדס חנה-כרכור",
       "address": "האורנים 10",
@@ -110826,8 +110756,8 @@
       "subcategory": "כלי נגינה ומוסיקה",
       "category_id": 159,
       "color": "#FEF2F2",
-      "description": "חנות כלי נגינה ציוד הגברה וציוד אולפן ,תיקון כלי נגינה מסט אפ, שברים,",
-      "logo": "",
+      "description": "חנות כלי נגינה ציוד הגברה וציוד אולפן, תיקון כלי נגינה מסט אפ, שברים,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/M11RJwJyZ2XJtJpr.jpg",
       "detail_url": "https://be-plus.co.il/product/19583"
     },
     {
@@ -111549,13 +111479,13 @@
       "name": "נעלי העיר - חדרה",
       "discount": 3.5,
       "city": "חדרה",
-      "address": "שד רוטשילד 17",
+      "address": "שד' רוטשילד 17",
       "category": "אופנה",
       "subcategory": "הנעלה",
       "category_id": 86,
       "color": "#ECFDF5",
-      "description": "נעלי העיר הכי מיוחדים אצלנו ,חנות קיימת מעל מעל 20 שנה ,מותגים ספורט ו",
-      "logo": "",
+      "description": "נעלי העיר הכי מיוחדים אצלנו, חנות קיימת מעל מעל 20 שנה, מותגים ספורט ו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/7ujvD4yLHo1IBZGB.jpg",
       "detail_url": "https://be-plus.co.il/product/19600"
     },
     {
@@ -112128,8 +112058,8 @@
       "subcategory": "חוגים והעשרה",
       "category_id": 152,
       "color": "#FEE2E2",
-      "description": "כלי נגינה מרגיעים הסדנאות להורדת מתח וחרדה.",
-      "logo": "",
+      "description": "כלי נגינה מרגיעים, סדנאות להורדת מתח וחרדה.",
+      "logo": "https://be-plus.co.il/media/com_product/icons/XiQQ2J6Jnz2Mr8au.jpg",
       "detail_url": "https://be-plus.co.il/product/19630"
     },
     {
@@ -114018,8 +113948,8 @@
       "subcategory": "מינימרקטים וסופרמרקטים",
       "category_id": 164,
       "color": "#D1FAE5",
-      "description": "סופרמרקט מוצרי קוסמטיקה טואלטיקה קפואים שימורים מעדניות חלב טנקים תבלי",
-      "logo": "",
+      "description": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/wP7DOs4FweJdD61i.jpg",
       "detail_url": "https://be-plus.co.il/product/19591"
     },
     {
@@ -117028,8 +116958,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "מיגוון רחב של סנדוויצ'ים בריאים בטעמים שונים, סנדוויץ' ההרכבה אישית, ס",
-      "logo": "",
+      "description": "מיגוון רחב של סנדוויצ'ים בריאים בטעמים שונים, סנדוויץ' בהרכבה אישית, ס",
+      "logo": "https://be-plus.co.il/media/com_product/icons/JhDNImiiKM749rkI.jpg",
       "detail_url": "https://be-plus.co.il/product/19598"
     },
     {
@@ -117532,8 +117462,8 @@
       "subcategory": "הלבשה לכל המשפחה",
       "category_id": 80,
       "color": "#ECFDF5",
-      "description": "בגדים לנשים לגברים בגדי ספורט נעלי ספורט אלגנט ומותגים בגדי יום יום כפ",
-      "logo": "",
+      "description": "בגדים לנשים ולגברים, בגדי ספורט, נעלי ספורט, אלגנט ומותגים, בגדי יום י",
+      "logo": "https://be-plus.co.il/media/com_product/icons/BzdEsDj1novFEKnh.jpg",
       "detail_url": "https://be-plus.co.il/product/19584"
     },
     {
@@ -118078,8 +118008,8 @@
       "subcategory": "",
       "category_id": 53,
       "color": "#F7FEE7",
-      "description": "בית ספר לגלישת גלים.",
-      "logo": "https://be-plus.co.il/media/com_product/icons/13036_38215_10112755_1666539419236-1.jpeg",
+      "description": "בית ספר לגלישת גלים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/AFFjXgRzP7dSlExH.png",
       "detail_url": "https://be-plus.co.il/product/13036"
     },
     {
@@ -118218,8 +118148,8 @@
       "subcategory": "בתי קפה",
       "category_id": 63,
       "color": "#FAF5FF",
-      "description": "עגלת קפה קסומה בחורשה במושב סתריה, תפריט עשיר. כריכים, סלטים, טוסטים,",
-      "logo": "",
+      "description": "עגלת קפה קסומה בחורשה, במושב סתריה, תפריט עשיר- כריכים, סלטים, טוסטים,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/abAtlpPEUBofPHUp.jpg",
       "detail_url": "https://be-plus.co.il/product/19597"
     },
     {
@@ -118400,8 +118330,8 @@
       "subcategory": "אוכל מהיר",
       "category_id": 46,
       "color": "#FAF5FF",
-      "description": "מסעדת אוכל ביתי ירושלמי אותנטי כשרה בניהולו של השף איתי עדיקה נכדו של",
-      "logo": "",
+      "description": "מסעדת אוכל ביתי ירושלמי אותנטי וכשרה, בניהולו של השף איתי עדיקה, נכדו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/As8eQkpswTjOmxAO.jpg",
       "detail_url": "https://be-plus.co.il/product/19601"
     },
     {
@@ -119209,8 +119139,8 @@
       "city": "תל אביב - יפו",
       "address": "מוהליבר 47",
       "category": "אופנה",
-      "subcategory": "",
-      "category_id": 36,
+      "subcategory": "הלבשה לכל המשפחה",
+      "category_id": 80,
       "color": "#ECFDF5",
       "description": "טקסטיל, מתמחים בבדי לייקרה לבגדי ים והצללות. תוצרת איטליה.",
       "logo": "https://be-plus.co.il/media/com_product/icons/8780_21151_27982786_171055970197917_2559979090753142742_o.jpg",
@@ -123893,20 +123823,6 @@
       "detail_url": "https://be-plus.co.il/product/14222"
     },
     {
-      "id": 18378,
-      "name": "פיצה בואנו",
-      "discount": 8.5,
-      "city": "בית שמש",
-      "address": "הרב מנחם פרוש 1",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "פיצריות",
-      "category_id": 52,
-      "color": "#FAF5FF",
-      "description": "פיצות בטאבון, סלטים, שתיה. כשרות: בד\"צ מהדרין",
-      "logo": "https://be-plus.co.il/media/com_product/icons/jF5TsFNHRxgF8S2p.jpg",
-      "detail_url": "https://be-plus.co.il/product/18378"
-    },
-    {
       "id": 8174,
       "name": "פיצה בוטיק",
       "discount": 3,
@@ -124481,20 +124397,6 @@
       "detail_url": "https://be-plus.co.il/product/13627"
     },
     {
-      "id": 14784,
-      "name": "פיצה האט",
-      "discount": 3.5,
-      "city": "חיפה",
-      "address": "שד מוריה 13",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "פיצריות",
-      "category_id": 52,
-      "color": "#FAF5FF",
-      "description": "פיצה פיצריה פסטות סלטים מוצרים ללא גלוטן טבעוני שתייה קרה קינוחים מקומ",
-      "logo": "https://be-plus.co.il/media/com_product/icons/14784_20609_pyzh-ht.jpg",
-      "detail_url": "https://be-plus.co.il/product/14784"
-    },
-    {
       "id": 14922,
       "name": "פיצה האט",
       "discount": 3.5,
@@ -124507,6 +124409,20 @@
       "description": "פיצה פיצריה פסטות סלטים מוצרים ללא גלוטן טבעוני שתייה קרה קינוחים מקומ",
       "logo": "https://be-plus.co.il/media/com_product/icons/14922_31911_385262710_696676012497002_2248279690760844251_n.png",
       "detail_url": "https://be-plus.co.il/product/14922"
+    },
+    {
+      "id": 14784,
+      "name": "פיצה האט",
+      "discount": 3.5,
+      "city": "חיפה",
+      "address": "שד מוריה 13",
+      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
+      "subcategory": "פיצריות",
+      "category_id": 52,
+      "color": "#FAF5FF",
+      "description": "פיצה פיצריה פסטות סלטים מוצרים ללא גלוטן טבעוני שתייה קרה קינוחים מקומ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/14784_20609_pyzh-ht.jpg",
+      "detail_url": "https://be-plus.co.il/product/14784"
     },
     {
       "id": 16467,
@@ -124557,8 +124473,8 @@
       "city": "אילת",
       "address": "צין 3",
       "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "",
-      "category_id": 45,
+      "subcategory": "פיצריות",
+      "category_id": 52,
       "color": "#FAF5FF",
       "description": "פיצות, זיות ומלאווח. כשר בד\"צ בית יוסף. משלוחים.",
       "logo": "https://be-plus.co.il/media/com_product/icons/11793_42360_271858452_114966874396546_839100208554370236_n.jpg",
@@ -125307,20 +125223,6 @@
       "detail_url": "https://be-plus.co.il/product/10181"
     },
     {
-      "id": 15754,
-      "name": "פיצה סטורי",
-      "discount": 3.5,
-      "city": "מזכרת בתיה",
-      "address": "שד בגין מנחם 4",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "פיצריות",
-      "category_id": 52,
-      "color": "#FAF5FF",
-      "description": "פיצה, פיצרייה, כל סוגי הפיצה בכל הגדלים, פיצה חלבית, פיצה טבעונית, פיצ",
-      "logo": "https://be-plus.co.il/media/com_product/icons/15754_52345_yzwb-ll-sm-2023-02-01T133927.144.png",
-      "detail_url": "https://be-plus.co.il/product/15754"
-    },
-    {
       "id": 15721,
       "name": "פיצה סטורי",
       "discount": 3.5,
@@ -125333,6 +125235,20 @@
       "description": "פיצה, פיצרייה, חלבי, כל סוגי הפיצות , לחם שום, זיוות, מלוואח, מלוואח פ",
       "logo": "https://be-plus.co.il/media/com_product/icons/15721_33190_330280633_717053326624857_1605229053119320160_n.jpg",
       "detail_url": "https://be-plus.co.il/product/15721"
+    },
+    {
+      "id": 15754,
+      "name": "פיצה סטורי",
+      "discount": 3.5,
+      "city": "מזכרת בתיה",
+      "address": "שד בגין מנחם 4",
+      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
+      "subcategory": "פיצריות",
+      "category_id": 52,
+      "color": "#FAF5FF",
+      "description": "פיצה, פיצרייה, כל סוגי הפיצה בכל הגדלים, פיצה חלבית, פיצה טבעונית, פיצ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/15754_52345_yzwb-ll-sm-2023-02-01T133927.144.png",
+      "detail_url": "https://be-plus.co.il/product/15754"
     },
     {
       "id": 15850,
@@ -126842,8 +126758,8 @@
       "subcategory": "חנויות נוחות/ קיוסקים",
       "category_id": 127,
       "color": "#D1FAE5",
-      "description": "פיצוחים, תבלינים, פירות יבשים, קפה ותה, פירות קפואים , מארזי שי.כשרות",
-      "logo": "",
+      "description": "פיצוחים, תבלינים, פירות יבשים, קפה ותה, פירות קפואים, מארזי שי.כשרות ב",
+      "logo": "https://be-plus.co.il/media/com_product/icons/TgdiPvIjTs8qXuvH.jpg",
       "detail_url": "https://be-plus.co.il/product/19631"
     },
     {
@@ -126856,8 +126772,8 @@
       "subcategory": "חנויות נוחות/ קיוסקים",
       "category_id": 127,
       "color": "#D1FAE5",
-      "description": "פיצוחים, תבלינים, פירות יבשים, קפה ותה, פירות קפואים , מארזי שי.כשרות",
-      "logo": "",
+      "description": "פיצוחים, תבלינים, פירות יבשים, קפה ותה, פירות קפואים, מארזי שי. כשרות",
+      "logo": "https://be-plus.co.il/media/com_product/icons/XJ2Tsvji9EJU3huD.jpg",
       "detail_url": "https://be-plus.co.il/product/19607"
     },
     {
@@ -126926,8 +126842,8 @@
       "subcategory": "",
       "category_id": 0,
       "color": "#D1FAE5",
-      "description": "כל מוצרי היסוד, פיצוחים, תבלינים, זיתים במשקל, מעדניה, סיגריות, ממתקים",
-      "logo": "",
+      "description": "כל מוצרי היסוד- פיצוחים, תבלינים, זיתים במשקל, מעדניה, סיגריות, ממתקים",
+      "logo": "https://be-plus.co.il/media/com_product/icons/Z09WvcLtWw79vJsP.jpg",
       "detail_url": "https://be-plus.co.il/product/16044"
     },
     {
@@ -129796,8 +129712,8 @@
       "subcategory": "סלולר",
       "category_id": 91,
       "color": "#CFFAFE",
-      "description": "מכירה ציוד למחשבים הניידים פלאפון גדג'טים מוצרים לרכב שעוני ספורט רמקו",
-      "logo": "",
+      "description": "מכירת ציוד למחשבים ניידים, פלאפון, גדג'טים, מוצרים לרכב, שעוני ספורט,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/eCdPhVZ8gR8Uv2Tw.jpg",
       "detail_url": "https://be-plus.co.il/product/19614"
     },
     {
@@ -129984,7 +129900,7 @@
     },
     {
       "id": 19609,
-      "name": "פרוותי הממלכה תחיית המחדה שלך",
+      "name": "פרוותי- הממלכה לחיית המחמד שלך",
       "discount": 3.5,
       "city": "שלומי",
       "address": "הרב עוזיאל 36",
@@ -129992,8 +129908,8 @@
       "subcategory": "מזון וציוד לבעלי חיים",
       "category_id": 223,
       "color": "#FEF2F2",
-      "description": "חנות לבעלי חיים מכירת אוכל לבעלי חיים לציפורים לכלבים לחתולים לדגים צי",
-      "logo": "",
+      "description": "חנות לבעלי חיים, מכירת אוכל לבעלי חיים, לציפורים, לכלבים, לחתולים, לדג",
+      "logo": "https://be-plus.co.il/media/com_product/icons/tj7B0DZxKGGtr4Ff.jpg",
       "detail_url": "https://be-plus.co.il/product/19609"
     },
     {
@@ -134501,7 +134417,7 @@
       "category_id": 63,
       "color": "#FAF5FF",
       "description": "בית קפה קונדיטוריה, ארוחות בוקר, קישים, טוסטים, שקשוקה, כריכים, מגוון",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/JZ1yekym41KSuezy.jpg",
       "detail_url": "https://be-plus.co.il/product/19603"
     },
     {
@@ -134626,8 +134542,8 @@
       "subcategory": "",
       "category_id": 61,
       "color": "#FFF7ED",
-      "description": "מערכות שמע ומיגון לרכב.",
-      "logo": "https://be-plus.co.il/media/com_product/icons/11585_44662_44712499_1002085563298290_3098121070662647808_n.jpg",
+      "description": "מערכות שמע ומיגון לרכב",
+      "logo": "https://be-plus.co.il/media/com_product/icons/ffjdpnKkLJ2pCrB4.jpg",
       "detail_url": "https://be-plus.co.il/product/11585"
     },
     {
@@ -135494,8 +135410,8 @@
       "subcategory": "מסעדות בשריות",
       "category_id": 50,
       "color": "#FAF5FF",
-      "description": "מסעדת קינג מיט מלכי הבשר של אזור השרון, כריכים דרום אמריקאיים, אנטריקו",
-      "logo": "https://be-plus.co.il/media/com_product/icons/16826_91491_1000014615.png",
+      "description": "מסעדת קינג מיט, מלכי הבשר של אזור השרון, כריכים דרום אמריקאים, אנטריקו",
+      "logo": "https://be-plus.co.il/media/com_product/icons/QK6ZewDYoshY7Ie4.jpg",
       "detail_url": "https://be-plus.co.il/product/16826"
     },
     {
@@ -136209,7 +136125,7 @@
       "category_id": 92,
       "color": "#FFF1F2",
       "description": "מטפלת בבעיות שינה • עייפות כרונית • נפיחות • כאבים דרך טיפול בעיסוי שי",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/UcMuNzuxmvJqE0Dk.PNG",
       "detail_url": "https://be-plus.co.il/product/19618"
     },
     {
@@ -136829,20 +136745,6 @@
       "detail_url": "https://be-plus.co.il/product/18304"
     },
     {
-      "id": 16382,
-      "name": "קפה בגינס",
-      "discount": 4,
-      "city": "תל אביב - יפו",
-      "address": "שדרות בן גוריון 126",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "בתי קפה",
-      "category_id": 63,
-      "color": "#FAF5FF",
-      "description": "בית קפה משפחתי באוירה חברית, ארוחות בוקר, מגוון כריכים ומתוקים. מטבח מ",
-      "logo": "https://be-plus.co.il/media/com_product/icons/16382_49094_300951562_760792041849178_4664499334190652353_n.jpg",
-      "detail_url": "https://be-plus.co.il/product/16382"
-    },
-    {
       "id": 11393,
       "name": "קפה בהר",
       "discount": 3.5,
@@ -137104,7 +137006,7 @@
       "subcategory": "בתי קפה",
       "category_id": 63,
       "color": "#FAF5FF",
-      "description": "עגלת קפה במרכז המושב אוירה נעימה מוזיקה טובה אוכל מוקפד וקפה משובח.",
+      "description": "עגלת קפה במרכז המושב, אוירה נעימה, מוזיקה טובה, אוכל מוקפד וקפה משובח.",
       "logo": "https://be-plus.co.il/media/com_product/icons/16017_13861_hwrdh-4.jfif",
       "detail_url": "https://be-plus.co.il/product/16017"
     },
@@ -137459,20 +137361,6 @@
       "detail_url": "https://be-plus.co.il/product/14832"
     },
     {
-      "id": 18224,
-      "name": "קפה עלמה",
-      "discount": 5,
-      "city": "רעננה",
-      "address": "סשה ארגוב 35",
-      "category": "מסעדות, בתי קפה, בתי מאפה ומזון מהיר",
-      "subcategory": "בתי קפה",
-      "category_id": 63,
-      "color": "#FAF5FF",
-      "description": "בית קפה במרכז נווה זמר, ארוחות בוקר מפנקות, פסטות, פיצות ועוד.",
-      "logo": "https://be-plus.co.il/media/com_product/icons/BrsZWs294THpQ660.jpg",
-      "detail_url": "https://be-plus.co.il/product/18224"
-    },
-    {
       "id": 16018,
       "name": "קפה פיורי",
       "discount": 3.5,
@@ -137748,8 +137636,8 @@
       "subcategory": "מינימרקטים וסופרמרקטים",
       "category_id": 164,
       "color": "#D1FAE5",
-      "description": "חנות פיצוחים פירות יבשים תבלינים ממתקים תרופות סבתא מוצרי אפייה מוצרי",
-      "logo": "",
+      "description": ",חנות פיצוחים, פירות יבשים, תבלינים, ממתקים, תרופות סבתא, מוצרי אפייה,",
+      "logo": "https://be-plus.co.il/media/com_product/icons/UmQYglUQ7psoChf3.jpg",
       "detail_url": "https://be-plus.co.il/product/19594"
     },
     {
@@ -138465,20 +138353,6 @@
       "description": "טיפולי פנים מתקדמים גבות",
       "logo": "",
       "detail_url": "https://be-plus.co.il/product/14790"
-    },
-    {
-      "id": 19477,
-      "name": "קרן ליבוביץ",
-      "discount": 3,
-      "city": "כפר סבא",
-      "address": "היוצרים 3",
-      "category": "ספורט",
-      "subcategory": "אימוני כושר",
-      "category_id": 96,
-      "color": "#F7FEE7",
-      "description": "סטודיו פילאטיס שיקומי",
-      "logo": "https://be-plus.co.il/media/com_product/icons/lZdZSu700HUSTj8I.jpg",
-      "detail_url": "https://be-plus.co.il/product/19477"
     },
     {
       "id": 17385,
@@ -141010,8 +140884,8 @@
       "subcategory": "רפואה מקצועית",
       "category_id": 140,
       "color": "#FFF1F2",
-      "description": "קליניקת רפואה מהטבע בעכו מנוהלת על ידי נוריאל זייציק, מטפל בכיר בעל ני",
-      "logo": "",
+      "description": "קליניקת רפואה מהטבע בעכו המנוהלת על ידי נוריאל זייציק, מטפל בכיר בעל נ",
+      "logo": "https://be-plus.co.il/media/com_product/icons/A30oVmqUn4cB1NSc.png",
       "detail_url": "https://be-plus.co.il/product/19596"
     },
     {
@@ -141991,7 +141865,7 @@
       "category_id": 87,
       "color": "#FAF5FF",
       "description": "מסעדה כל סוגי הבשר, שווארמה, פרגיות, חזה עוף, שתיה קרה, מקומות ישיבה,",
-      "logo": "https://be-plus.co.il/media/com_product/icons/13852_34686_336365961_221039887329201_2406281870424193536_n.jpg",
+      "logo": "https://be-plus.co.il/media/com_product/icons/mP5729xXZKv63uSl.jpg",
       "detail_url": "https://be-plus.co.il/product/13852"
     },
     {
@@ -143502,8 +143376,8 @@
       "subcategory": "חנויות פרחים",
       "category_id": 259,
       "color": "#EFF6FF",
-      "description": "פרחים, שזירת פרחים אומנותית, עציצים, בלוני הליום, קישוטי רכב,ועוד.",
-      "logo": "",
+      "description": "פרחים, שזירת פרחים אומנותית, עציצים, בלוני הליום, קישוטי רכב ועוד.",
+      "logo": "https://be-plus.co.il/media/com_product/icons/RRRUxq8izWfwNH0F.jpg",
       "detail_url": "https://be-plus.co.il/product/19578"
     },
     {
@@ -144356,7 +144230,7 @@
       "subcategory": "לבית ולגן",
       "category_id": 308,
       "color": "#EFF6FF",
-      "description": "ברי המים תמי 4 במגוון מסלולים. ללקוחות מצטרפים בלבד&",
+      "description": "ברי המים תמי 4 במגוון מסלולים. ללקוחות מצטרפים בלבד.",
       "logo": "https://be-plus.co.il/media/com_product/icons/1VMemv9gXntXAOU1.jpg",
       "detail_url": "https://be-plus.co.il/product/13046"
     },
@@ -144525,7 +144399,7 @@
       "category_id": 92,
       "color": "#FFF1F2",
       "description": "טיפולי שיאצו הם טיפולים משלימים במגע המסתכלים על האדם כמכלול של גוף ונ",
-      "logo": "",
+      "logo": "https://be-plus.co.il/media/com_product/icons/QxQbq7Ab3a0tG1Ij.png",
       "detail_url": "https://be-plus.co.il/product/19617"
     },
     {
@@ -146121,7 +145995,7 @@
       "category_id": 0,
       "color": "#FAF5FF",
       "description": "שניצלים ב -20 טעמים, טבעות בצל, צ'יפס, כדורי פירה, בטטה, פילה עוף, קבב",
-      "logo": "https://be-plus.co.il/media/com_product/icons/16247_36835_logo.png",
+      "logo": "",
       "detail_url": "https://be-plus.co.il/product/16247"
     },
     {
@@ -146975,7 +146849,7 @@
       "category_id": 49,
       "color": "#FED7D7",
       "description": "טיפולי פנים וגוף, הזרקות, מכונות שיזוף, הלחמת ריסים, הקפאת שומן, גלי ר",
-      "logo": "https://be-plus.co.il/media/com_product/icons/13945_95858_310144576_5633673533358704_1104585386752423936_n.jpg",
+      "logo": "https://be-plus.co.il/media/com_product/icons/ZIRBIeGSWF9Ytwqf.jpg",
       "detail_url": "https://be-plus.co.il/product/13945"
     },
     {
@@ -149270,8 +149144,8 @@
       "subcategory": "תשמישי קדושה",
       "category_id": 155,
       "color": "#8B5CF6",
-      "description": "תשמישי קדושה מתנות טליתות פמוטים מזוזות מוצרי יודאיקה הטבעות רקמה הדפס",
-      "logo": "",
+      "description": "תשמישי קדושה, מתנות, טליתות, פמוטים, מזוזות, מוצרי יודאיקה, הטבעות, רק",
+      "logo": "https://be-plus.co.il/media/com_product/icons/BmiBEhb1qCXQTv70.jpg",
       "detail_url": "https://be-plus.co.il/product/19599"
     },
     {
