@@ -246,7 +246,8 @@ def scrape_with_playwright(args):
             page,
             user_id=args.user_id,
             manual=getattr(args, "manual_login", False),
-            target_url=nav_url
+            target_url=nav_url,
+            headless=args.headless
         )
         time.sleep(1)
 

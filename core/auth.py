@@ -126,7 +126,7 @@ def find_visible_element(page, selectors, timeout_ms=15000):
     return None
 
 
-def wait_for_user_login(page, user_id=None, manual=False):
+def wait_for_user_login(page, user_id=None, manual=False, headless=False):
     """Execute automated CLI or manual authentication on the /login page."""
     # Check if manual window login requested
     if manual:
@@ -214,24 +214,24 @@ def wait_for_user_login(page, user_id=None, manual=False):
         print("[*] Clicking 'שלחו לי קוד חד פעמי' ...")
         send_btn.click()
 
-        # Step 3: Wait for OTP input screen (/login/withCode)
+        # Step 3: Wait for navigation to /login/withCode or for OTP UI to load
         print("[*] Waiting for verification code input screen...")
-        otp_selectors = [
-            "input[placeholder*='קוד התחברות']",
-            "input[placeholder*='קוד']",
-            "input[name*='code' i]",
-            "input[name*='otp' i]",
-            "input[type='tel']",
-            "input[type='number']",
-            "input",
-        ]
-        code_locator = find_visible_element(page, otp_selectors, timeout_ms=15000)
-        if not code_locator:
+        transition_ok = False
+        start_wait = time.time()
+        while time.time() - start_wait < 15:
+            if "withcode" in page.url.lower():
+                transition_ok = True
+                break
             try:
-                page.screenshot(path="otp_debug.png")
+                body_text = page.locator("body").inner_text(timeout=500)
+                if any(phrase in body_text for phrase in ["קוד התחברות", "מה הקוד שקיבלת", "התחבר באמצעות קוד"]):
+                    transition_ok = True
+                    break
             except Exception:
                 pass
-            raise RuntimeError(f"OTP code input not found on {page.url}")
+            page.wait_for_timeout(300)
+
+        page.wait_for_timeout(800)
         print("[+] SMS/Email verification code sent by Behatsdaa!")
 
         # Step 4: Prompt user for OTP code in terminal
@@ -249,13 +249,46 @@ def wait_for_user_login(page, user_id=None, manual=False):
             print("[!] No verification code entered.")
             return
 
+        # Step 5: Locate and enter verification code on the current (/login/withCode) page
         print("[*] Submitting verification code...")
-        code_locator.click()
-        code_locator.fill("")
-        code_locator.type(otp_val, delay=60)
-        page.wait_for_timeout(500)
+        otp_selectors = [
+            "input[name*='code' i]",
+            "input[name*='otp' i]",
+            "input[placeholder*='קוד']",
+            "input[placeholder*='התחברות']",
+            "input[type='text']",
+            "input[type='number']",
+            "input[type='tel']",
+            "input",
+        ]
+        code_input = find_visible_element(page, otp_selectors, timeout_ms=10000)
+        if not code_input:
+            try:
+                page.screenshot(path="otp_debug.png")
+            except Exception:
+                pass
+            raise RuntimeError(f"OTP code input not found on {page.url}")
 
-        # Step 5: Click login submit button ('התחברות')
+        try:
+            code_input.click(timeout=5000)
+            code_input.fill("")
+            code_input.type(otp_val, delay=60)
+            page.wait_for_timeout(500)
+        except Exception as input_err:
+            print(f"[*] Direct typing note: {input_err}, trying fill fallback...")
+            try:
+                code_input.fill(otp_val)
+            except Exception:
+                page.evaluate("""(val) => {
+                    const input = Array.from(document.querySelectorAll('input')).find(i => i.offsetParent !== null);
+                    if (input) {
+                        input.value = val;
+                        input.dispatchEvent(new Event('input', { bubbles: true }));
+                        input.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }""", otp_val)
+
+        # Step 6: Click login submit button ('התחברות')
         login_btn_selectors = [
             "button:has-text('התחברות')",
             "button:has-text('התחבר')",
@@ -264,7 +297,11 @@ def wait_for_user_login(page, user_id=None, manual=False):
         ]
         login_btn = find_visible_element(page, login_btn_selectors, timeout_ms=5000)
         if login_btn:
-            login_btn.click()
+            print("[*] Clicking 'התחברות' button...")
+            try:
+                login_btn.click(timeout=5000)
+            except Exception:
+                page.keyboard.press("Enter")
         else:
             page.keyboard.press("Enter")
 
@@ -277,6 +314,14 @@ def wait_for_user_login(page, user_id=None, manual=False):
             if "/login" not in page.url:
                 print("[+] Login confirmed! Session cookies saved to profile.")
             else:
+                try:
+                    body_text = page.locator("body").inner_text(timeout=1000)
+                    for err_phrase in ["קוד שגוי", "קוד לא תקין", "פג תוקף", "שגיאה", "חסום"]:
+                        if err_phrase in body_text:
+                            print(f"[!] Login error detected on screen: {err_phrase}")
+                            break
+                except Exception:
+                    pass
                 print("[!] Still on login page. Please check if the OTP code was valid.")
 
         page.wait_for_timeout(2000)
@@ -284,16 +329,19 @@ def wait_for_user_login(page, user_id=None, manual=False):
 
     except Exception as err:
         print(f"\n[!] Automated CLI login note: {err}")
-        print(" -> If running headful, you can complete login in the browser window.")
-        try:
-            if sys.stdin.isatty():
-                input(" -> Press [Enter] once logged in to continue: ")
-        except Exception:
-            pass
+        if not headless:
+            print(" -> Browser window is open: you can complete login in the browser window.")
+            try:
+                if sys.stdin.isatty():
+                    input(" -> Press [Enter] once logged in to continue: ")
+            except Exception:
+                pass
+        else:
+            print(" -> Running in headless mode: re-run with option [4] for manual browser login if needed.")
         print("=" * 65 + "\n")
 
 
-def ensure_authenticated_session(page, user_id=None, manual=False, target_url=None):
+def ensure_authenticated_session(page, user_id=None, manual=False, target_url=None, headless=False):
     """Ensure the user is logged into Behatsdaa. If not, navigate to /login and handle authentication."""
     print("[*] Verifying Behatsdaa session authentication...")
     if check_is_authenticated(page):
@@ -309,7 +357,7 @@ def ensure_authenticated_session(page, user_id=None, manual=False, target_url=No
         print(f"[*] Note during navigation to login: {e}")
 
     # Perform automated CLI or manual window login
-    wait_for_user_login(page, user_id=user_id, manual=manual)
+    wait_for_user_login(page, user_id=user_id, manual=manual, headless=headless)
 
     # After login, return to target page
     if target_url and target_url not in page.url:
