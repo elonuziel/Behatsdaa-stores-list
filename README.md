@@ -1,64 +1,74 @@
-# Behatsdaa Participating Stores, Changing Deals & Billing Discounts Catalog 💳🎁🏷️
+# Behatsdaa Scraper Suite & Data Pipeline 💳🎁🏷️
 
-> **Live Web Application:** [https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)
+> **Live Web Application:** [https://elonuziel.github.io/Behatsdaa-site-ai-mesh/](https://elonuziel.github.io/Behatsdaa-site-ai-mesh/)  
+> **Frontend Web Repository:** [elonuziel/Behatsdaa-site-ai-mesh](https://github.com/elonuziel/Behatsdaa-site-ai-mesh)
 
-A fast, interactive web catalog and automated scraper suite for:
+An automated data extraction suite, anti-bot bypass pipeline, and data normalization engine for the **[Behatsdaa](https://www.behatsdaa.org.il/)** club catalog:
 1. **Rechargeable Card Stores**: All stores, chains, restaurants, fashion brands, and attractions participating in **[Behatsdaa](https://www.behatsdaa.org.il/card/chargingCard)** recharge cards (Club Cards, Fighter Card, Restaurants, Carrefour, Online Grocery, etc.).
 2. **Rotating Deals, Coupons & Vouchers**: Dedicated consumer goods (holiday specials, electronics, home goods), attraction tickets, and food vouchers that rotate weekly/monthly.
 3. **Statement Discounts (הנחות במעמד החיוב)**: Over 10,600 local businesses, shops, and services granting automatic statement discounts when paying with a Behatsdaa credit card (Max), powered by **[Be-Plus](https://be-plus.co.il/)**.
 
 ---
 
-## 🚀 Live Demo & Key Features
+## 🔄 Two-Repository Architecture & Automated Sync
 
-Explore the catalog live at: **[https://elonuziel.github.io/stores-list/](https://elonuziel.github.io/stores-list/)**
+```text
+┌────────────────────────────────────────────────────────┐
+│  Behatsdaa-stores-list (This Repository)               │
+│  - Python 3.10+ & Playwright scraping suite            │
+│  - Imperva Incapsula WAF & anti-bot bypass             │
+│  - Normalizes & exports verified data/ (*.json, *.csv) │
+└───────────────────────────┬────────────────────────────┘
+                            │  git push (data/** changes)
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│  🤖 GitHub Action (.github/workflows/sync-data.yml)    │
+│  - Automatically copies data/ to Behatsdaa-site-ai-mesh │
+│  - Commits & pushes with SYNC_DATA_PAT                 │
+└───────────────────────────┬────────────────────────────┘
+                            │  triggers deploy workflow
+                            ▼
+┌────────────────────────────────────────────────────────┐
+│  Behatsdaa-site-ai-mesh (Production Web App)           │
+│  - Vite + Tailwind CSS + MiniSearch                    │
+│  - Card & Table views across all 3 tabs                │
+│  - Automated GitHub Pages build & deployment           │
+│  👉 https://elonuziel.github.io/Behatsdaa-site-ai-mesh/ │
+└────────────────────────────────────────────────────────┘
+```
 
-- 🗂️ **Tri-Tab Dashboard**:
-  - **Tab 1: רשתות וכרטיסים נטענים**: Search & filter 980+ participating store chains across 8 rechargeable wallets with accurate percentage discounts.
-  - **Tab 2: מבצעים ושוברים ייעודיים**: Explore rotating, time-limited consumer deals, holiday specials, food vouchers, and attraction tickets with live pricing, savings calculation, and stock limits.
-  - **Tab 3: הנחות במעמד החיוב**: Search & filter 10,600+ businesses across Israel granting automatic discounts (up to 20%+) at billing on Behatsdaa credit cards.
-- 🔗 **Smart Tri-Directional Cross-Linking**:
-  - Store cards in Tab 1 display badges when an active voucher (Tab 2) or a statement discount (Tab 3) exists for that merchant.
-  - Deal cards in Tab 2 display badges when the supplier is also accepted on rechargeable wallets or grants credit card billing discounts.
-  - Billing cards in Tab 3 link directly back to cards and vouchers.
-- ⚡ **Ultra-Fast Search**: Real-time Hebrew search with diacritics, punctuation, and final-letter normalization (`ך/כ`, `ם/מ`, `ן/נ`, `ף/פ`, `ץ/צ`), with pre-indexed search tokens for instantaneous results across 10,000+ items.
-- 🏙️ **City & Location Filters**: Filter billing merchants by specific cities across Israel (Tel Aviv, Jerusalem, Haifa, Rishon LeZion, etc.) or nationwide online websites.
-- 🎯 **Comprehensive Deal & Category Filters**: Filter by campaign tags ("מבצעי חג", "הכי משתלם"), product category chips, maximum price presets (עד 100 ₪, עד 300 ₪, הכל), and sort by discount %, price, or title.
-- 🔍 **Rich Details Modals**: Inspect full specifications, multi-variant price options, purchase limits per member, addresses, and official redemption links.
--  **Independent "Last Scraped" Timestamps**: Every tab displays its own distinct "עודכן לאחרונה" timestamp banner pulled directly from its respective JSON metadata, providing complete transparency on when each dataset was last refreshed.
-- 🌙 **Dark & Light Themes**: Full dark mode support with automatic system preference detection and local persistence.
-- 📥 **Export Ready**: Download the complete datasets anytime:
-  - Stores: [stores.csv](data/stores.csv) & [stores.json](data/stores.json)
-  - Deals: [deals.csv](data/deals.csv) & [deals.json](data/deals.json)
-  - Statement Discounts: [billing_stores.csv](data/billing_stores.csv) & [billing_stores.json](data/billing_stores.json)
-- 🔒 **Zero External AI Dependencies**: 100% self-contained, lightweight, fast, and runs directly on GitHub Pages.
+When you update data locally and push to `main` in this repository:
+```bash
+git add data/
+git commit -m "chore(data): refresh catalog"
+git push origin main
+```
+The GitHub Action automatically syncs the datasets into `Behatsdaa-site-ai-mesh`, which rebuilds and deploys the live site.
 
 ---
 
-## 📁 Project Structure
+## 📁 Repository Structure
 
 ```text
-stores-list/
-├── index.html           # Main web application (GitHub Pages) with Tri-Tab dashboard
-├── styles.css           # Custom RTL styling, dark theme, and animations
-├── app.js               # Frontend search, progressive rendering & cross-linking logic
-├── scraper.py           # Unified Python Playwright scraper for cards & rotating deals
-├── scrape_beplus.py     # High-speed scraper for Be-Plus billing discounts (10,600+ stores)
+Behatsdaa-stores-list/
+├── scraper.py                 # Unified Playwright scraper for cards & rotating deals
+├── scrape_beplus.py           # High-speed API scraper for Be-Plus billing discounts (10,600+ stores)
 ├── extract_behatsdaa_deals.js # In-browser JS extractor for logged-in sessions (1,700+ deals)
-├── requirements.txt     # Python dependencies
-├── data/
-│   ├── stores.json      # Structured JSON catalog (980+ stores, 8 cards)
-│   ├── stores.csv       # Excel-compatible stores CSV
-│   ├── deals.json       # Structured JSON catalog of rotating deals & vouchers
-│   ├── deals.csv        # Excel-compatible deals & vouchers CSV
-│   ├── billing_stores.json # Structured JSON catalog of Be-Plus billing discounts (10,600+ stores)
-│   └── billing_stores.csv  # Excel-compatible billing discounts CSV
+├── requirements.txt           # Python dependencies (playwright, requests, etc.)
+├── data/                      # Master production datasets (JSON & Excel CSV)
+│   ├── stores.json            # 980+ store chains across 8 rechargeable wallets
+│   ├── stores.csv             # Excel-compatible stores CSV
+│   ├── deals.json             # 1,730+ rotating deals, vouchers & holiday specials
+│   ├── deals.csv              # Excel-compatible deals CSV
+│   ├── billing_stores.json    # 10,600+ Be-Plus statement discounts
+│   └── billing_stores.csv     # Excel-compatible billing discounts CSV
 ├── tests/
-│   ├── test_scraper.py        # Unit tests for Behatsdaa scraper
-│   ├── test_scrape_beplus.py   # Unit tests for Be-Plus scraper & data normalization
-│   ├── test_data_integrity.py # Schema & cross-linking integrity tests
-│   └── test_ui.js             # Headless UI & DOM integration tests (JSDOM)
-└── README.md            # Documentation and usage guide
+│   ├── test_scraper.py        # Unit tests for Behatsdaa scraper logic & normalization
+│   ├── test_scrape_beplus.py  # Unit tests for Be-Plus scraper & CRM API mapping
+│   └── test_data_integrity.py # Schema validation & cross-linking integrity tests
+├── .github/workflows/
+│   └── sync-data.yml          # Automated sync workflow pushing data/ to site repo
+└── README.md                  # Documentation and scraper usage guide
 ```
 
 ---
@@ -66,7 +76,7 @@ stores-list/
 ## 🛠️ Scraper Usage & Data Extraction
 
 > [!NOTE]
-> **Why Scraping is Executed Locally / Manually**:
+> **Why Scraping is Executed Locally / On-Demand**:
 > - **Behatsdaa WAF**: Behatsdaa's backend is protected by Imperva Incapsula bot mitigation, which blocks datacenter IP ranges (including GitHub Actions runners) and requires SMS / authenticated session verification.
 > - **On-Demand Updates**: Store catalogs and Be-Plus billing discounts do not change with every git commit, so running scrapers locally on demand prevents wasted runs and guarantees 100% data integrity.
 > - **Freshness Transparency**: Each tab on the live website independently displays the exact date it was last scraped.
@@ -156,37 +166,13 @@ python scrape_beplus.py --max-pages 3
 
 ## 🧪 Running Automated Tests
 
-Run the full Python and UI test suites:
+Run the full Python test suite to verify scrapers, data parsers, and dataset schema integrity:
 
 ```bash
-# 1. Run Python unit & data integrity tests:
 python -m unittest discover tests
-
-# 2. Run Headless UI & DOM integration tests:
-node tests/test_ui.js
 ```
-
----
-
-## 💻 Local Web Development
-
-Because the web application is built with standard HTML5, Tailwind CSS, and Vanilla JavaScript (Zero-Build), you can run it locally with any simple HTTP server:
-
-```bash
-python -m http.server 8000
-```
-
-Then open [http://localhost:8000](http://localhost:8000) in your browser.
-
----
-
-## 🌐 Automated Deployment (GitHub Pages)
-
-The repository deploys automatically to GitHub Pages:
-1. Pushing changes to the `main` branch immediately publishes the live site to `https://elonuziel.github.io/stores-list/`.
-2. Scrapers are run locally on demand (bypassing Imperva WAF / Cloudflare bot protections), and refreshed datasets are committed directly to `data/`.
 
 ---
 
 ## 📄 License & Attribution
-Created for the benefit of Israeli reserve soldiers (Miluim) and Behatsdaa club beneficiaries. Brand names, logos, and terms are property of [Behatsdaa](https://www.behatsdaa.org.il).
+Created for the benefit of Israeli reserve soldiers (Miluim) and Behatsdaa club beneficiaries. Brand names, logos, and terms are property of [Behatsdaa](https://www.behatsdaa.org.il) and [Be-Plus](https://be-plus.co.il).

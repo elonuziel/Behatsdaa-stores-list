@@ -1,0 +1,43 @@
+name: Sync Data to Site Repository
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'data/**'
+  workflow_dispatch:
+
+jobs:
+  sync-data:
+    name: Sync Data to Behatsdaa-site-ai-mesh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Scraper Repo
+        uses: actions/checkout@v4
+
+      - name: Checkout Site Repo
+        uses: actions/checkout@v4
+        with:
+          repository: elonuziel/Behatsdaa-site-ai-mesh
+          token: ${{ secrets.SYNC_DATA_PAT }}
+          path: site-repo
+
+      - name: Copy Data Files
+        run: |
+          mkdir -p site-repo/data
+          cp -r data/* site-repo/data/
+
+      - name: Commit and Push to Site Repo
+        working-directory: site-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/
+          if git diff --staged --quiet; then
+            echo "No data changes detected. Everything up to date."
+          else
+            git commit -m "chore(data): auto-sync latest data from scraper repo"
+            git push origin main
+          fi
+
