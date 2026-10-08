@@ -1,0 +1,8 @@
+{
+  "name": "behatsdaa-stores-list",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/test_data_perf.js"
+  }
+}
