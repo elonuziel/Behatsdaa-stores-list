@@ -39,7 +39,7 @@
         const json = await res.json();
         const tags = json?.data?.data || json?.data || [];
 
-        for (const tag of tags) {
+        await Promise.all(tags.map(async (tag) => {
             const tagId = tag.tagId;
             const tagName = (tag.tagName || "").trim();
             if (tagName) tagsList.push({ id: tagId, name: tagName });
@@ -63,7 +63,7 @@
                 }
             }
 
-            // Fetch full list of items under this specific tag
+            // Fetch full list of items under this specific tag concurrently
             try {
                 const tagRes = await window.fetch(`https://back.behatsdaa.org.il/api/tags/GetCategorysByTagID?tagid=${tagId}`, {
                     headers,
@@ -89,7 +89,7 @@
                     }
                 }
             } catch (e) {}
-        }
+        }));
         console.log(`   Found ${dealsMap.size} featured items across ${tags.length} homepage campaigns.`);
     } catch (err) {
         console.warn("Homepage campaigns fetch warning:", err);
