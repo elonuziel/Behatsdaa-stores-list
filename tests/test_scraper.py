@@ -223,8 +223,15 @@ class TestScraperLogic(unittest.TestCase):
         from unittest.mock import patch
         from scraper import check_and_install_playwright
 
+        real_import = __builtins__["__import__"] if isinstance(__builtins__, dict) else __builtins__.__import__
+        def mock_import(name, *args, **kwargs):
+            if name == "playwright" or name.startswith("playwright."):
+                raise ImportError("Mocked missing playwright")
+            return real_import(name, *args, **kwargs)
+
         with patch("sys.stdin.isatty", return_value=True), \
-             patch("builtins.input", return_value="n"):
+             patch("builtins.input", return_value="n"), \
+             patch("builtins.__import__", side_effect=mock_import):
             # Since playwright is not installed, user declining returns False
             res = check_and_install_playwright(prompt_install=True)
             self.assertFalse(res)
