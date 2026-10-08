@@ -224,8 +224,9 @@ class TestScraperLogic(unittest.TestCase):
         from scraper import check_and_install_playwright
 
         with patch("sys.stdin.isatty", return_value=True), \
-             patch("builtins.input", return_value="n"):
-            # Since playwright is not installed, user declining returns False
+             patch("builtins.input", return_value="n"), \
+             patch.dict("sys.modules", {"playwright": None}):
+            # Since playwright is mocked as missing, user declining returns False
             res = check_and_install_playwright(prompt_install=True)
             self.assertFalse(res)
 
